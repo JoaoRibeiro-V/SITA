@@ -13,14 +13,14 @@ namespace StorageTest
         public GeneralStorage() {
             this.generalStorage = new Dictionary<string, object>();
         }
-        public void AddStorage<T>(string name)
+        public void AddStorage<T>()
         {
             var newStorage = new Storage<T>();
-            this.generalStorage.Add(name, newStorage);
+            this.generalStorage.Add(typeof(T).Name, newStorage);
         }
         public Storage<T> GetStorage<T>(string name)
         {
-            return (Storage<T>) this.generalStorage.GetValueOrDefault(name);
+            return (Storage<T>) this.generalStorage.GetValueOrDefault(typeof(T).Name);
         }
         public Dictionary<string, object> GetGeneralStorage()
         {
