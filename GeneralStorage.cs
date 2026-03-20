@@ -18,7 +18,7 @@ namespace StorageTest
             var newStorage = new Storage<T>();
             this.generalStorage.Add(typeof(T).Name, newStorage);
         }
-        public Storage<T> GetStorage<T>(string name)
+        public Storage<T> GetStorage<T>()
         {
             return (Storage<T>) this.generalStorage.GetValueOrDefault(typeof(T).Name);
         }
