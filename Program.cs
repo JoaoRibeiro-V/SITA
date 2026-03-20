@@ -6,7 +6,7 @@ namespace StorageTest
         private static void registerStorages()
         {
             storage = new GeneralStorage();
-            storage.AddStorage<Aluno>("Aluno");
+            storage.AddStorage<Aluno>();
         }
         static void Main(string[] args)
         {
@@ -17,7 +17,7 @@ namespace StorageTest
             Aluno exemplo2 = new Aluno();
             exemplo2.Name = "Ciclano";
 
-            Storage<Aluno> alunosStorage = storage.GetStorage<Aluno>("Aluno");
+            Storage<Aluno> alunosStorage = storage.GetStorage<Aluno>();
             alunosStorage.AddData(exemplo1.Name, exemplo1);
 
             foreach (var aluno in alunosStorage.storages) {
