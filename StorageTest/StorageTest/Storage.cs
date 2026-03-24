@@ -6,16 +6,14 @@ using System.Threading.Tasks;
 
 namespace StorageTest
 {
-    internal class Storage<T>
+    internal class Storage<T> : Dictionary<string, T>
     {
-        public Dictionary<string, T> storages;
-        public Storage()
-        {
-            storages = new Dictionary<string, T>();
-        }
         public void AddData(string key, T data)
         {
-            storages[key] = data;
+            this[key] = data;
+        }
+        public T GetData(string key){
+            return this[key];
         }
     }
 
