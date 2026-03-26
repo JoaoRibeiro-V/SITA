@@ -8,19 +8,24 @@
     "net8.0": []
   },
   "packageFolders": {
-    "C:\\Users\\aluno\\.nuget\\packages\\": {}
+    "C:\\Users\\aluno\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\aluno\\source\\repos\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+      "projectUniqueName": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
       "projectName": "StorageTest",
-      "projectPath": "C:\\Users\\aluno\\source\\repos\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+      "projectPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
       "packagesPath": "C:\\Users\\aluno\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\aluno\\source\\repos\\SITA\\StorageTest\\StorageTest\\obj\\",
+      "outputPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
         "C:\\Users\\aluno\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
