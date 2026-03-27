@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace StorageTest
 {
@@ -31,24 +33,36 @@ namespace StorageTest
             Storage<Aluno> alunosStorage = storage.GetStorage<Aluno>();
             Storage<Diretor> diretorStorage = storage.GetStorage<Diretor>();
 
+            {
+                string path = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName + "\\alunos.json";
+                Console.WriteLine(path);
+                string myJson =  File.ReadAllText(path);
+                byte[] byteArray = Encoding.UTF8.GetBytes(myJson);
+
+                using (MemoryStream stream = new MemoryStream(byteArray)) { 
+                    Aluno newAluno = JsonSerializer.Deserialize<Aluno>(stream);
+                    alunosStorage.AddData(newAluno.Name, newAluno);
+                    Console.WriteLine($"Adding data from JSON: {JsonSerializer.Serialize(newAluno)}");
+                }
+            }
+            
             alunosStorage.AddData(exemplo1.Name, exemplo1);
             alunosStorage.AddData(exemplo2.Name, exemplo2);
             diretorStorage.AddData(diretor1.cpf, diretor1);
 
-            Aluno get = alunosStorage.GetData("Fulano");
-            Console.WriteLine(get.Idade);
-            get.Idade = 6;
-            Console.WriteLine(alunosStorage.GetData("Fulano").Idade);
 
             Console.WriteLine($"Qt alunos: {alunosStorage.Count}");
             Console.WriteLine($"Qt diretores: {diretorStorage.Count}");
-
 
         }
 
         public class Aluno : User{
             public string? RA {  get; set; }
             public string? nomeResponsavel { get; set; }
+            public bool ValidarRA()
+            {
+                return this.RA != null;
+            }
         }
         public class Diretor : User{
             public string? cpf { get; set; }
