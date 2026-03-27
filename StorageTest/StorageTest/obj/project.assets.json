@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+      "projectUniqueName": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
       "projectName": "StorageTest",
-      "projectPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+      "projectPath": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
       "packagesPath": "C:\\Users\\aluno\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\obj\\",
+      "outputPath": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\aluno\\AppData\\Roaming\\NuGet\\NuGet.Config",

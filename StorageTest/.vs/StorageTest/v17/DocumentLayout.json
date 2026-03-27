@@ -1,17 +1,25 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\",
+  "WorkspaceRootPath": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\",
   "Documents": [
     {
+<<<<<<< HEAD
       "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\alunos.json||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\alunos.json||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+=======
+      "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\downloads\\enari prj\\sita\\storagetest\\storagetest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+>>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
       "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\storage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\downloads\\enari prj\\sita\\storagetest\\storagetest\\generalstorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\generalstorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\downloads\\enari prj\\sita\\storagetest\\storagetest\\storage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\storage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -26,17 +34,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\Program.cs",
               "RelativeDocumentMoniker": "StorageTest\\Program.cs",
-              "ToolTip": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\Program.cs",
+              "ToolTip": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\Program.cs",
               "RelativeToolTip": "StorageTest\\Program.cs",
+<<<<<<< HEAD
               "ViewState": "AgIAABwAAAAAAAAAAAAwwCwAAAA9AAAAAAAAAA==",
+=======
+              "ViewState": "AgIAADMAAAAAAAAAAAAYwDkAAAA5AAAAAAAAAA==",
+>>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-20T14:20:59.09Z",
               "IsPinned": true,
@@ -44,6 +56,7 @@
             },
             {
               "$type": "Document",
+<<<<<<< HEAD
               "DocumentIndex": 0,
               "Title": "alunos.json",
               "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\alunos.json",
@@ -58,12 +71,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 3,
+=======
+              "DocumentIndex": 1,
+>>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
               "Title": "GeneralStorage.cs",
-              "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\GeneralStorage.cs",
+              "DocumentMoniker": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\GeneralStorage.cs",
               "RelativeDocumentMoniker": "StorageTest\\GeneralStorage.cs",
-              "ToolTip": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\GeneralStorage.cs",
+              "ToolTip": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\GeneralStorage.cs",
               "RelativeToolTip": "StorageTest\\GeneralStorage.cs",
+<<<<<<< HEAD
               "ViewState": "AgIAAAcAAAAAAAAAAAAcwB0AAAAFAAAAAAAAAA==",
+=======
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAIAAAAhAAAAAAAAAA==",
+>>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-26T10:19:16.063Z",
               "EditorCaption": ""
@@ -72,11 +92,15 @@
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "Storage.cs",
-              "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\Storage.cs",
+              "DocumentMoniker": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\Storage.cs",
               "RelativeDocumentMoniker": "StorageTest\\Storage.cs",
-              "ToolTip": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\Storage.cs",
+              "ToolTip": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\Storage.cs",
               "RelativeToolTip": "StorageTest\\Storage.cs",
+<<<<<<< HEAD
               "ViewState": "AgIAAAIAAAAAAAAAAAAkwAwAAAAMAAAAAAAAAA==",
+=======
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAzAAAAAAAAAA==",
+>>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-26T10:19:16.819Z",
               "EditorCaption": ""
