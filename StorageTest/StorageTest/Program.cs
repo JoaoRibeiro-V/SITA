@@ -78,8 +78,7 @@ namespace StorageTest
                 return this.RA != null;
             }
         }
-        public class Diretor : User{
-            public string? cpf { get; set; }
+        public class Aluno : User{
             public string[]? nomeResponsavel { get; set; }
             public string[]? telResponsavel { get; set; }
             public string[]? condEspeciais { get; set; }
