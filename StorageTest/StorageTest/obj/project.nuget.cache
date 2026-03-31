@@ -1,12 +1,18 @@
 {
   "version": 2,
-<<<<<<< HEAD
   "dgSpecHash": "lJnINmz+KiI=",
-=======
-  "dgSpecHash": "ms+8Lvj82JY=",
->>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
   "success": true,
-  "projectFilePath": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+  "projectFilePath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
   "expectedPackageFiles": [],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Problema ao ler o arquivo de cache C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\obj\\project.nuget.cache: '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+      "targetGraphs": []
+    }
+  ]
 }

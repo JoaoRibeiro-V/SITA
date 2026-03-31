@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace StorageTest
 {
+    /* Classe GeneralStorage:
+     * Tem como principal função armazenar diferentes tipos de classe Storage através
+     * de um dicionário, identificado por uma string e valor genérico objeto
+     */
     internal class GeneralStorage
     {
         public Dictionary<string, object> generalStorage;

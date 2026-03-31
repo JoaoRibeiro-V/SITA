@@ -1,4 +1,46 @@
 {
-	"Name": "Beltrano", 
-	"Idade":12
+	"groupClasses": [
+		{
+			"type": "Aluno",
+			"defaults": [
+				{
+					"Name": "Beltrano",
+					"Idade": 5,
+					"AccessType": {
+						"Level": 0,
+						"Name": "Aluno(a)"
+					}
+				},
+				{
+					"Name": "Fulano",
+					"Idade": 8,
+					"AccessType": {
+						"Level": 0,
+						"Name": "Aluno(a)"
+					}
+				}
+			]
+		},
+		{
+			"type": "User",
+			"defaults":[
+				{
+					"Name": "User1",
+					"CPF": "xxxxxx",
+					"AccessType": {
+						"Level": 2,
+						"Name": "Diretor(a)"
+					}
+				},
+				{
+					"Name": "User2",
+					"CPF": "yyyyyy",
+					"AccessType": {
+						"Level": 1,
+						"Name": "Secretário(a)"
+					}
+				}
+			]
+		}
+	]
 }

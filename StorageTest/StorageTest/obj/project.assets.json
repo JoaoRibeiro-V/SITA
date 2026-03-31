@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+      "projectUniqueName": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
       "projectName": "StorageTest",
-      "projectPath": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+      "projectPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
       "packagesPath": "C:\\Users\\aluno\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\aluno\\Downloads\\Enari prj\\SITA\\StorageTest\\StorageTest\\obj\\",
+      "outputPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\aluno\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -70,5 +70,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.310/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problema ao ler o arquivo de cache C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\obj\\project.nuget.cache: '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0."
+    }
+  ]
 }

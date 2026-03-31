@@ -3,25 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\",
   "Documents": [
     {
-<<<<<<< HEAD
       "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\alunos.json||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\alunos.json||{3B902123-F8A7-4915-9F01-361F908088D0}"
-=======
-      "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\generalstorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\generalstorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
->>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\jsonhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\jsonhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\storage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\storage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\generalstorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\generalstorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|c:\\users\\aluno\\desktop\\sita\\storagetest\\storagetest\\storage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{27B84F26-5CA6-4ED6-8F1D-9F6500B13696}|StorageTest\\StorageTest.csproj|solutionrelative:storagetest\\storage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,21 +30,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\Program.cs",
               "RelativeDocumentMoniker": "StorageTest\\Program.cs",
               "ToolTip": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\Program.cs",
               "RelativeToolTip": "StorageTest\\Program.cs",
-<<<<<<< HEAD
-              "ViewState": "AgIAABwAAAAAAAAAAAAwwCwAAAA9AAAAAAAAAA==",
-=======
-              "ViewState": "AgIAAA8AAAAAAAAAAAA5wCcAAAAaAAAAAAAAAA==",
->>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
+              "ViewState": "AgIAAA4AAAAAAAAAAAAqwBgAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-20T14:20:59.09Z",
               "IsPinned": true,
@@ -53,14 +48,26 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "JsonHandler.cs",
+              "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\JsonHandler.cs",
+              "RelativeDocumentMoniker": "StorageTest\\JsonHandler.cs",
+              "ToolTip": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\JsonHandler.cs",
+              "RelativeToolTip": "StorageTest\\JsonHandler.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAQwBoAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T14:44:22.093Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
-<<<<<<< HEAD
               "Title": "alunos.json",
               "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\alunos.json",
               "RelativeDocumentMoniker": "StorageTest\\alunos.json",
               "ToolTip": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\alunos.json",
               "RelativeToolTip": "StorageTest\\alunos.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-03-27T14:07:27.411Z",
               "EditorCaption": ""
@@ -68,30 +75,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 3,
-=======
->>>>>>> 6eac5a08f047806e9e0fe6b78c0aad0d4aaac7ca
               "Title": "GeneralStorage.cs",
               "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\GeneralStorage.cs",
               "RelativeDocumentMoniker": "StorageTest\\GeneralStorage.cs",
               "ToolTip": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\GeneralStorage.cs",
               "RelativeToolTip": "StorageTest\\GeneralStorage.cs",
-              "ViewState": "AgIAAAcAAAAAAAAAAAAcwB0AAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAcwB4AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-26T10:19:16.063Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "Storage.cs",
               "DocumentMoniker": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\Storage.cs",
               "RelativeDocumentMoniker": "StorageTest\\Storage.cs",
               "ToolTip": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\Storage.cs",
               "RelativeToolTip": "StorageTest\\Storage.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAkwA8AAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAkwAwAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T10:19:16.819Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-26T10:19:16.819Z"
             }
           ]
         }

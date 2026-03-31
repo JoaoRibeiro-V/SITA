@@ -9,6 +9,11 @@ namespace StorageTest
     internal class Program
     {
         public static GeneralStorage? storage;
+        private static string importPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName + "\\alunos.json";
+        private static void registerFromJson()
+        {
+
+        }
         private static void registerStorages()
         {
             storage = new GeneralStorage();
@@ -17,69 +22,27 @@ namespace StorageTest
         }
         static void Main(string[] args)
         {
+            //Registrando storages na memória
             registerStorages();
 
-            Aluno exemplo1 = new Aluno();
-            exemplo1.Name = "Fulano";
-            exemplo1.Idade = 5;
-            exemplo1.RA = 1201212;
-            Aluno exemplo2 = new Aluno();
-            exemplo2.Name = "Ciclano";
-            exemplo2.Idade = 15;
-            Diretor diretor1 = new Diretor();
-            diretor1.Name = "Diretor 1";
-            diretor1.Idade = 30;
-            diretor1.cpf = "53111";
+            //Importando dados do JSON
+            JsonHandler importsHandler = new JsonHandler();
+            importsHandler.LoadIntoGeneralStorage(importPath, storage);
 
+            //Pegando os Storages de Aluno e User
             Storage<Aluno> alunosStorage = storage.GetStorage<Aluno>();
             Storage<User> userStorage = storage.GetStorage<User>();
-            {
-                string path = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName + "\\alunos.json";
-                Console.WriteLine(path);
-                string myJson =  File.ReadAllText(path);
-                byte[] byteArray = Encoding.UTF8.GetBytes(myJson);
 
-                using (MemoryStream stream = new MemoryStream(byteArray)) { 
-                    Aluno newAluno = JsonSerializer.Deserialize<Aluno>(stream);
-                    alunosStorage.AddData(newAluno.Name, newAluno);
-                    Console.WriteLine($"Adding data from JSON: {JsonSerializer.Serialize(newAluno)}");
-                }
-            }
-            
-            alunosStorage.AddData(exemplo1.Name, exemplo1);
-            alunosStorage.AddData(exemplo2.Name, exemplo2);
-            diretorStorage.AddData(diretor1.cpf, diretor1);
-            
-            alunosStorage.AddData(exemplo1.RA, exemplo1);
-            alunosStorage.AddData(exemplo2.Name, exemplo2);
-            diretorStorage.AddData(diretor1.cpf, diretor1);
+            //Imprimindo na tela quantos alunos existem cadastrados na memória
 
-            Aluno get = alunosStorage.GetData("Fulano");
-
-            
-            // VALIDAR RA //     
-            alunosStorage.TryGetValue(exemplo1.RA, out get); 
-
-            Console.WriteLine(get.Idade);
-            get.Idade = 6;
-            Console.WriteLine(alunosStorage.GetData("Fulano").Idade);
-            
             Console.WriteLine($"Qt alunos: {alunosStorage.Count}");
-            Console.WriteLine($"Qt diretores: {diretorStorage.Count}");
 
         }
 
+         
+        
         public class Aluno : User{
-            public string? RA {  get; set; }
-            
-            public string? nomeResponsavel { get; set; }
-            public bool ValidarRA()
-            {
-                return this.RA != null;
-            }
-        }
-        public class Diretor : User{
-            public string? cpf { get; set; }
+            public string? RA { get; set; }
             public string[]? nomeResponsavel { get; set; }
             public string[]? telResponsavel { get; set; }
             public string[]? condEspeciais { get; set; }
@@ -90,9 +53,14 @@ namespace StorageTest
         public class User{
             public string? Name { get; set; }
             public int? Idade { get; set; }
-            public string? cpf { get; set; }           
+            public string? CPF { get; set; }           
             public string? dataNascimento { get; set; }
-            public int? userType { get; set; }
+            public AccessType? AccessType { get; set; }
+        }
+        public class AccessType
+        {
+            public int? Level { get; set; }
+            public string? Name { get; set; }
         }
     }
 }
