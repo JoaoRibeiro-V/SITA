@@ -42,7 +42,16 @@ namespace StorageTest
          
         
         public class Aluno : User{
-            public string? RA { get; set; }
+            public string? RA {  get; set; }
+            
+            public string? nomeResponsavel { get; set; }
+            public bool ValidarRA()
+            {
+                return this.RA != null;
+            }
+        }
+        public class Diretor : User{
+            public string? cpf { get; set; }
             public string[]? nomeResponsavel { get; set; }
             public string[]? telResponsavel { get; set; }
             public string[]? condEspeciais { get; set; }
