@@ -1,18 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "lJnINmz+KiI=",
+  "dgSpecHash": "lAsfT7ItOjY=",
   "success": true,
-  "projectFilePath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
-  "expectedPackageFiles": [],
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "message": "Problema ao ler o arquivo de cache C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\obj\\project.nuget.cache: '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
-      "projectPath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
-      "warningLevel": 1,
-      "filePath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
-      "targetGraphs": []
-    }
-  ]
+  "projectFilePath": "C:\\Users\\luiz.carvalho\\Documents\\SITA\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\luiz.carvalho\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.25\\microsoft.windowsdesktop.app.ref.8.0.25.nupkg.sha512",
+    "C:\\Users\\luiz.carvalho\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.25\\microsoft.netcore.app.ref.8.0.25.nupkg.sha512",
+    "C:\\Users\\luiz.carvalho\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.25\\microsoft.aspnetcore.app.ref.8.0.25.nupkg.sha512",
+    "C:\\Users\\luiz.carvalho\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.25\\microsoft.netcore.app.host.win-x64.8.0.25.nupkg.sha512"
+  ],
+  "logs": []
 }

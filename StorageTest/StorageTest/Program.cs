@@ -43,15 +43,6 @@ namespace StorageTest
         
         public class Aluno : User{
             public string? RA {  get; set; }
-            
-            public string? nomeResponsavel { get; set; }
-            public bool ValidarRA()
-            {
-                return this.RA != null;
-            }
-        }
-        public class Diretor : User{
-            public string? cpf { get; set; }
             public string[]? nomeResponsavel { get; set; }
             public string[]? telResponsavel { get; set; }
             public string[]? condEspeciais { get; set; }
@@ -59,6 +50,7 @@ namespace StorageTest
             public string? religiao { get; set; }
             public string? nomePediatra { get; set; }
         }
+       
         public class User{
             public string? Name { get; set; }
             public int? Idade { get; set; }
