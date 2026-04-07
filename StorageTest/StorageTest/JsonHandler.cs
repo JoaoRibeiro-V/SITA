@@ -9,36 +9,29 @@ using static StorageTest.Program;
 namespace StorageTest
 {
     /*
-     * Essa classe tem como função única (por enquanto) e principal de cadastrar
-     * os dados na memória em suas respectivas Storages relacionadas a uma classe
-     * a partir de um arquivo JSON, esse arquivo deve obrigatóriamente possuir:
+     * JsonHandler
+     * --------------------------------------------
+     * Responsável por:
+     * - Ler um arquivo JSON
+     * - Interpretar sua estrutura
+     * - Inserir os dados nos storages corretos
      * 
-     * "groupClasses" = array onde se distingue diferentes tipos de classe para loopar num for
-     * - "type" = identificador da classe para adicionar no Storage
-     * - "defaults" = array onde se coloca usuários/dados padrão do sistema
+     * Estrutura obrigatória do JSON:
      * 
-     * EXEMPLO:
-
-        "type": "Aluno",
-			"defaults": [
-				{
-					"Name": "Beltrano",
-					"Idade": 5,
-					"AccessType": {
-						"Level": 0,
-						"Name": "Aluno(a)"
-					}
-				},
-				{
-					"Name": "Fulano",
-					"Idade": 8,
-					"AccessType": {
-						"Level": 0,
-						"Name": "Aluno(a)"
-					}
-				}
-			]
-     */
+     * {
+     *   "groupClasses": [
+     *     {
+     *       "type": "NomeDaClasse",
+     *       "defaults": [ { objeto }, { objeto } ]
+     *     }
+     *   ]
+     * }
+     * 
+   * Funcionamento:
+     * - "type" deve corresponder ao nome da classe registrada no GeneralStorage
+     * - Cada item em "defaults" é convertido dinamicamente para o tipo correto
+     * - Os dados são inseridos via reflexão no Storage correspondente
+   */
     internal class JsonHandler
     {
         public class Root
@@ -51,7 +44,7 @@ namespace StorageTest
             public string? type { get; set; }
             public List<JsonElement>? defaults { get; set; }
         }
-
+        // Carrega dados do JSON e distribui nos storages
         public void LoadIntoGeneralStorage(string path, GeneralStorage generalStorage)
         {
             string json = File.ReadAllText(path);
@@ -68,6 +61,7 @@ namespace StorageTest
                 if (!storages.TryGetValue(group.type, out var storageObj)) continue;
 
                 Type storageType = storageObj.GetType();
+                // Obtém o tipo genérico do Storage<T> (ex: Aluno)
                 Type entityType = storageType.GetGenericArguments()[0];
 
                 var addMethod = storageType.GetMethod("AddData");
