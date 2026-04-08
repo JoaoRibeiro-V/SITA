@@ -1,4 +1,7 @@
-﻿using System;
+﻿using StorageTest.src.Model;
+using StorageTest.src.Storage;
+using StorageTest.src.Util;
+using System;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -9,10 +12,11 @@ namespace StorageTest
     internal class Program
     {
         public static GeneralStorage? storage; // Classe de armazenamento na memória
+        public static Session ProgramSession = new Session();
 
         // Local do arquivo JSON para dados prontos de antemão
         // Busca a partir da pasta principal do projeto
-        private static string importPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName + "\\alunos.json";
+        private static string importPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName + "\\import.json";
 
         /*
          * Registra os tipos de dados que terão armazenamento em memória.
@@ -58,20 +62,6 @@ namespace StorageTest
             public string[]? alergias { get; set; }
             public string? religiao { get; set; }
             public string? nomePediatra { get; set; }
-        }
-
-        public class User
-        {
-            public string? Name { get; set; }
-            public int? Idade { get; set; }
-            public string? CPF { get; set; }
-            public string? dataNascimento { get; set; }
-            public AccessType? AccessType { get; set; }
-        }
-        public class AccessType
-        {
-            public int? Level { get; set; }
-            public string? Name { get; set; }
         }
     }
 }

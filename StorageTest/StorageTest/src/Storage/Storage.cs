@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StorageTest
+namespace StorageTest.src.Storage
 {
     /* Classe Storage<T>:
      * Armazenamento na memória para um tipo de classe específica

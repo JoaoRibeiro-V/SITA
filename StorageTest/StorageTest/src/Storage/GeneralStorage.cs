@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StorageTest
+namespace StorageTest.src.Storage
 {
     /* Classe GeneralStorage:
      * Container central que gerencia múltiplos Storages
@@ -23,22 +23,22 @@ namespace StorageTest
         public GeneralStorage()
         {
             // Inicializa o armazenamento de dicionários
-            this.generalStorage = new Dictionary<string, object>();
+            generalStorage = new Dictionary<string, object>();
         }
         // Registra um novo tipo de armazenamento
         public void AddStorage<T>()
         {
-            this.generalStorage.Add(typeof(T).Name, new Storage<T>());
+            generalStorage.Add(typeof(T).Name, new Storage<T>());
         }
         // Retorna o storage de um tipo específico
         public Storage<T> GetStorage<T>()
         {
-            return (Storage<T>)this.generalStorage.GetValueOrDefault(typeof(T).Name);
+            return (Storage<T>)generalStorage.GetValueOrDefault(typeof(T).Name);
         }
         // Retorna o dicionário geral
         public Dictionary<string, object> GetGeneralStorage()
         {
-            return this.generalStorage;
+            return generalStorage;
         }
 
     }
