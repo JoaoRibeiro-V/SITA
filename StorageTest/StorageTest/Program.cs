@@ -49,6 +49,20 @@ namespace StorageTest
             // Imprimindo na tela quantos alunos existem cadastrados na memória
 
             Console.WriteLine($"Qt alunos: {alunosStorage.Count}");
+            Console.WriteLine("\n=============================\n");
+            Console.WriteLine($"Usuário Logado: {(ProgramSession.GetInstanceAccess().Level < 0 ? "Não" : "Sim")}");
+            Console.WriteLine("\n=============================\n");
+
+            User newUser = new User();
+            Console.WriteLine(newUser.AccessType.Level);
+            newUser.AccessType.Level = 0; // Aluno
+            newUser.AccessType.Name = "Aluno(a)";
+
+            ProgramSession.InitSession(newUser.AccessType);
+
+            Console.WriteLine("\n=============================\n");
+            Console.WriteLine($"Usuário Logado: {(ProgramSession.GetInstanceAccess().Level >= 0 ? "Sim" : "Não")}");
+            Console.WriteLine("\n=============================\n");
         }
 
 

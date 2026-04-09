@@ -9,20 +9,17 @@ namespace StorageTest.src.Util
 {
     internal class Session
     {
-        private static Session Instance { get; set; }
-        public AccessType AccessType { get; set; }
-        public Session()
+        private static Session Instance = new Session();
+        public AccessType AccessType = new AccessType();
+        public void InitSession(AccessType NewAccess)
         {
-            AccessType NonUser = new AccessType();
-            NonUser.Name = "Nao Logado";
-            NonUser.Level = -1;
-            Instance = new Session();
-            Instance.AccessType = NonUser;
-        }
-        public static void InitSession(AccessType NewAccess)
-        {
+            Console.WriteLine(NewAccess.ToString());
             Instance.AccessType = NewAccess;
             Console.WriteLine("Changed access to: ", NewAccess.Name);
+        }
+        public AccessType GetInstanceAccess()
+        {
+            return Instance.AccessType;
         }
     }
 }

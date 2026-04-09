@@ -12,6 +12,13 @@ namespace StorageTest.src.Model
         public int? Idade { get; set; }
         public string? CPF { get; set; }
         public string? dataNascimento { get; set; }
-        public AccessType? AccessType { get; set; }
+        public AccessType AccessType { get; set; } = new AccessType();
+        public User()
+        {
+            AccessType.Level = 0;
+            AccessType.Name = "Usuario";
+
+            Console.WriteLine("Criado User com nivel de acesso padrão: " + AccessType.Level);
+        }
     }
 }
