@@ -17,8 +17,6 @@ namespace StorageTest.src.Model
         {
             AccessType.Level = 0;
             AccessType.Name = "Usuario";
-
-            Console.WriteLine("Criado User com nivel de acesso padrão: " + AccessType.Level);
         }
     }
 }

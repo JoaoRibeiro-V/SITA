@@ -9,7 +9,7 @@ namespace StorageTest.src.Model
     internal class AccessType
     {
         public int Level { get; set; }
-        public string? Name { get; set; }
+        public string Name { get; set; }
         public AccessType()
         {
             Level = -1;

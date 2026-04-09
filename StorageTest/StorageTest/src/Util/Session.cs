@@ -10,12 +10,11 @@ namespace StorageTest.src.Util
     internal class Session
     {
         private static Session Instance = new Session();
-        public AccessType AccessType = new AccessType();
+        private AccessType AccessType = new AccessType();
         public void InitSession(AccessType NewAccess)
         {
-            Console.WriteLine(NewAccess.ToString());
             Instance.AccessType = NewAccess;
-            Console.WriteLine("Changed access to: ", NewAccess.Name);
+            Console.WriteLine("Changed access to: " + Instance.AccessType.Name);
         }
         public AccessType GetInstanceAccess()
         {
