@@ -12,8 +12,8 @@ namespace StorageTest
 {
     internal class Program
     {
-        public static GeneralStorage? storage; // Classe de armazenamento na memória
-        public static Session ProgramSession = new Session();
+        public static GeneralStorage ProgramStorage = new GeneralStorage(); // Classe de armazenamento na memória
+        public static Session ProgramSession = new Session(); // Classe de armazenamento de sessão
 
         // Local do arquivo JSON para dados prontos de antemão
         // Busca a partir da pasta principal do projeto
@@ -25,45 +25,52 @@ namespace StorageTest
          * IMPORTANTE:
          * Todo tipo que será carregado via JSON precisa ser registrado aqui.
         */
-        private static void registerStorages()
+        private static void RegisterStorages()
         {
-            storage = new GeneralStorage();
-
             // Cada tipo cria um Storage<T> separado
-            storage.AddStorage<Aluno>();
-            storage.AddStorage<User>();
+            ProgramStorage.AddStorage<Aluno>();
+            ProgramStorage.AddStorage<User>();
         }
         static void Main(string[] args)
         {
-            //Registrando storages na memória
-            registerStorages();
+            //Registrando ProgramStorages na memória
+            RegisterStorages();
 
             //Importando dados do JSON
             JsonHandler importsHandler = new JsonHandler();
-            importsHandler.LoadIntoGeneralStorage(importPath, storage);
+            importsHandler.LoadIntoGeneralStorage(importPath, ProgramStorage);
 
-            // Acessa storages específicos
-            Storage<Aluno> alunosStorage = storage.GetStorage<Aluno>();
-            Storage<User> userStorage = storage.GetStorage<User>();
+            // Acessa ProgramStorages específicos (Dicionaries)
+            Storage<Aluno> alunosStorage = ProgramStorage.GetStorage<Aluno>();
+            Storage<User> userStorage = ProgramStorage.GetStorage<User>();
+
+            // Tenta acessar um storage não armazenado
+            Storage<Session> sessionStorage = ProgramStorage.TryGetOrAddStorage<Session>();
 
             // Exemplo de uso:
             // Imprimindo na tela quantos alunos existem cadastrados na memória
 
             Console.WriteLine($"Qt alunos: {alunosStorage.Count}");
 
+            /*
+             * ===========================
+             * Teste de sessão do programa
+             * ===========================
+             */
 
-
-
+            // Imprime na tela a atual situação de Sessão do programa
             Console.WriteLine("\n=============================\n");
             Console.WriteLine($"Usuário Logado: {(ProgramSession.GetInstanceAccess().Level < 0 ? "Não" : "Sim")}");
             Console.WriteLine("\n=============================\n");
 
-            User newUser = new User();
-            newUser.AccessType.Level = 0; // Aluno
-            //newUser.AccessType.Name = "Aluno(a)";
+            // Iniciado a sessão caso usuário for encontrado
+            User? newUser = userStorage.GetData("User1");
+            if(newUser != null)
+            {
+                ProgramSession.InitSession(newUser.AccessType);
+            }
 
-            ProgramSession.InitSession(newUser.AccessType);
-
+            // Imprime na tela se o usuário foi encontrado e foi iniciada a sessão
             Console.WriteLine("\n=============================\n");
             Console.WriteLine($"Usuário Logado: {(ProgramSession.GetInstanceAccess().Level >= 0 ? "Sim" : "Não")}");
             Console.WriteLine("\n=============================\n");

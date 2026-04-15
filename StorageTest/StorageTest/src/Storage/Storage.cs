@@ -31,8 +31,9 @@ namespace StorageTest.src.Storage
         /*
          * Retorna um objeto pelo identificador
          */
-        public T GetData(string key){
-            return this[key];
+        public T? GetData(string key){
+            if (this.TryGetValue(key, out T data)) { return data; }
+            return default;
         }
     }
 

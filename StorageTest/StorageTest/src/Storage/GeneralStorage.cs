@@ -19,26 +19,40 @@ namespace StorageTest.src.Storage
      */
     internal class GeneralStorage
     {
-        public Dictionary<string, object> generalStorage;
-        public GeneralStorage()
-        {
-            // Inicializa o armazenamento de dicionários
-            generalStorage = new Dictionary<string, object>();
-        }
+        public Dictionary<string, object> ProgramStorage = new Dictionary<string, object>();
         // Registra um novo tipo de armazenamento
         public void AddStorage<T>()
         {
-            generalStorage.Add(typeof(T).Name, new Storage<T>());
+            ProgramStorage.Add(typeof(T).Name, new Storage<T>());
         }
-        // Retorna o storage de um tipo específico
+        /*
+         * Retorna um storage especificado pela classe
+         * Caso não for encontrado é criado um storage da classe providenciada
+         */
+
+        public Storage<T> TryGetOrAddStorage<T>()
+        {
+            if (ProgramStorage.TryGetValue(typeof(T).Name, out var storage))
+            {
+                return (Storage<T>)storage;
+            }
+            else
+            {
+                this.AddStorage<T>();
+                return this.GetStorage<T>();
+            }
+        }
+        /* Retorna um storage especificado por classe com restrição de ele já estar cadastrado
+         * Caso não for encontrado é exibido um erro
+         */
         public Storage<T> GetStorage<T>()
         {
-            return (Storage<T>)generalStorage.GetValueOrDefault(typeof(T).Name);
+            return (Storage<T>) ProgramStorage[typeof(T).Name];
         }
         // Retorna o dicionário geral
         public Dictionary<string, object> GetGeneralStorage()
         {
-            return generalStorage;
+            return ProgramStorage;
         }
 
     }
