@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "Bi0QG/xhbeI=",
+  "dgSpecHash": "UJOeAd6UVk8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\aluno\\Desktop\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\aluno\\Projects\\SITA\\StorageTest\\StorageTest\\StorageTest.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\aluno\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512"
+  ],
   "logs": []
 }
