@@ -1,0 +1,165 @@
+<!doctype html public "-//w3c//dtd html 4.0 astah-command//en">
+
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>astah* Command Line Tool User Guide</title>
+</head>
+
+<body>
+
+<h1>astah* Command Line Tool User Guide</h1>
+<P align="right">March 22, 2012<br>
+Change Vision, Inc.</p>
+<hr>
+<h2>[Overview]</h2>
+Command Line Tool which is included in astah* install folder enables you to export images
+ and compare projects from Command Line.<br>
+<ul>
+<li><a href="#image_command">Exporting Image Files</a>
+<li><a href="#diff_command">Compare Projects</a> (in Astah Professional only)
+<li><a href="#preference">System Requirements</a>
+</ul>
+
+<hr>
+
+<h2 id="image_command">[Exporting Image Files]</h2>
+By using eimagef action with astah-commandw.exe (for Windows) or astah-command.sh (For Mac or Linux),
+ you can export diagram images as PNG, JPEG or EMF. If you do not specify the image format,
+it exports in PNG format automatically.
+
+
+<p>When you perform by Mac, please install separately <a href="http://astah.net/requirements" Title="System Requirements">Java which satisfied system requirements</a>. </p>
+
+
+
+
+<fieldset style="border:double">
+<legend>[Windows] Export all the diagrams in the C:\input\hoge.asta.file to C:\output in PNG</legend>
+<samp>astah-commandw.exe -image er -f C:\input\hoge.asta -o C:\output</samp>
+</fieldset>
+<br>
+<fieldset style="border:double">
+<legend>[Mac/Linux] Export all the diagrams in ~/input/hoge.asta file to ~/output in JPEG</legend>
+<samp>astah-command.sh -image all -f ~/input/hoge.asta -o ~/output -t jpg</samp>
+</fieldset>
+<br>
+<u>Options</u>
+<table border="1">
+<tr>
+	<th>Option</th>
+	<th>Description</th>
+	<th>Type</th>
+	<th>Note</th>
+</tr>
+<tr>
+	<td rowspan="20">-image</td>
+	<td rowspan="20"> Export Image Action</td>
+	<td>all</td>
+	<td>All Diagrams</td>
+</tr>
+<tr><td>cl</td><td>Class Diagram</td></tr>
+<tr><td>uc</td><td>UseCase Diagram</td></tr>
+<tr><td>ucd</td><td>UseCase Description</td></tr>
+<tr><td>sc</td><td>Statemachine Diagram</td></tr>
+<tr><td>act</td><td>Activity Diagram</td></tr>
+<tr><td>seq</td><td>Sequence Diagram</td></tr>
+<tr><td>com</td><td>Communication Diagram</td></tr>
+<tr><td>cmp</td><td>Component Diagram</td></tr>
+<tr><td>dep</td><td>Deployment Diagram</td></tr>
+<tr><td>cs</td><td>Composite Structure Diagram</td></tr>
+<tr><td>fc</td><td>Flowchart</td></tr>
+<tr><td>dfd</td><td>Data Flow Diagram</td></tr>
+<tr><td>er</td><td>ER Diagram</td></tr>
+<tr><td>crud</td><td>CRUD</td></tr>
+<tr><td>mm</td><td>Mind Map</td></tr>
+<tr><td>rqd</td><td>Requirement Diagram</td></tr>
+<tr><td>rqt</td><td>Requirement Table</td></tr>
+<tr><td>tm</td><td>Traceability Map</td></tr>
+<tr><td>ignore-ref</td><td>Ignore Referenced Diagrams</td></tr>
+<tr>
+	<td>-dpi,--dpi <i>[image dpi]</i></td>
+    <td>Output Resolution</td>
+	<td>-</td>
+	<td>Specify an output resolution.<br>
+              default=92 (System setting). 
+              Use 72 to export images with the same scale of a screen.</td>
+</tr>
+<tr>
+	<td>-f,--file <i>[target file]</i></td>
+    <td>Target File</td>
+	<td>-</td>
+	<td>-</td>
+<tr>
+	<td>-id,--dgm_id <i>[ids for target diagrams]</i></td>
+    <td>Target Diagram ID</td>
+	<td>-</td>
+	<td>Specify Diagram IDs with space-delimited format.<br>
+              Export image files named by IDs with no directories.</td>
+</tr>
+
+<tr>
+	<td>-o,--output <i>[output]</i></td>
+	<td>Output Base Directory</td>
+	<td>-</td>
+	<td>Output directory : "Output Base Directory" + "project name".</td>
+</tr>
+<tr>
+	<td rowspan="3">-t,--type <i>[image type]</i></td>
+	<td rowspan="3">File Format</td>
+	<td>png</td>
+	<td>PNG</td>
+</tr>
+<tr><td>jpg</td><td>JPEG</td></tr>
+<tr><td>emf</td><td>Enhanced Meta File</td></tr>
+</table>
+<br>
+
+<hr>
+
+<h2 id="diff_command">[Compare Projects]</h2>
+You can compare two different files by using astah-commandw.exe for Windows,
+ astah-command.sh for Mac/Linux from Command Line.
+ Use -diff and give two .asta files that youfd like to compare.<br>
+<br>
+<fieldset style="border:double">
+<legend>[Windows]</legend>
+<samp>astah-commandw.exe -diff base.asta ref.asta</samp>
+</fieldset>
+<br>
+<fieldset style="border:double">
+<legend>[Mac/Linux]</legend>
+<samp>astah-command.sh -diff base.asta ref.asta</samp>
+</fieldset>
+<br>
+
+<hr>
+
+<h2 id="preference">[System Requirements]</h2>
+Running this command line tool requires you to have an environment that runs astah*.
+ If you use a large size of project, you may need to adjust the JavaVM memory option.<br>
+<br>
+<fieldset style="border:double">
+<legend>[Windows] Edit astah-commandw.l4j.ini</legend>
+[Initial Heap size]<br>
+<b>-Xms16m</b><br>
+This means the initial heap size is 16Mbytes, so change the 16.<br>
+<br>
+[Maximum Heap size]<br>
+<b>-Xmx384m</b><br>
+This means the maximum heap size is 384Mbytes. So change the 384.<br>
+</fieldset>
+<br>
+<fieldset style="border:double">
+<legend>[Mac/Linux] Edit astah-command.sh</legend>
+[Initial Heap size]<br>
+<b>INITIAL_HEAP_SIZE=64m</b><br>
+This means the initial heap size is 64Mbytes, so change the 64.<br>
+<br>
+[Maximum Heap size]<br>
+<b>MAXIMUM_HEAP_SIZE=1024m</b><br>
+This means the maximum heap size is 1024Mbytes. So change the 1024.<br>
+</fieldset>
+
+</body>
+</html>

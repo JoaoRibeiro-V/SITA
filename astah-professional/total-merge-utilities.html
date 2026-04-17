@@ -1,0 +1,88 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+<html>
+
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>astah* Total Merge Utility Guide</title>
+</head>
+
+<body>
+
+<h1>astah* Total Merge Utility Guide</h1>
+<P align="right">March 22, 2012<br>
+Change Vision, Inc.</p>
+<hr>
+<h2>[Overview]</h2>
+It updates Reference models by using Command line,
+ astah-runw.exe for Windows and astah-run.sh for Mac and Linux.<br>
+<ul>
+<li><a href="#update">Updates Certain Reference Models based on Time Stamp</a>
+<li><a href="#forced_update">Update all Reference Models</a>
+<li><a href="#preference">System Requirements</a>
+</ul>
+
+<hr>
+
+<h2 id="update">[Updates Certain Reference Models based on Time Stamp]</h2>
+By using gupdate-allh with specified directory, you are able to update all the .asta files
+ which are stored in the specified directory and are not updated yet in astah*.
+ The command line tool checks whether they needed to be updated or not by the time stamp
+ that the file contains. However by using guse-builtin-timestamph or gubth,
+ you can find .asta files to be updated based on the timestamp which the project has.<br>
+<br>
+<fieldset style="border:double">
+<legend>[Windows] Updating based on file timestamp</legend>
+<samp>astah-runw.exe "C:\workspace\astah" update-all</samp>
+</fieldset>
+<br>
+<fieldset style="border:double">
+<legend>[Mac/Linux] Updating based on projectfs time stamp</legend>
+<samp>astah-run.sh "~/workspace/astah" update-all use-builtin-timestamp</samp>
+<hr>
+<samp>astah-run.sh "~/workspace/astah" update-all ubt</samp>
+</fieldset>
+<br>
+
+<hr>
+
+<h2 id="forced_update">[Update all Reference Models]</h2>
+Use following commands to update all the reference models in all *.asta files inside the selected directory.<br>
+<br>
+<fieldset style="border:double">
+<legend>[Windows]</legend>
+<samp>astah-runw.exe "C:\workspace\astah" update-all-force</samp>
+</fieldset>
+<br>
+
+<hr>
+
+<h2 id="preference">[System Requirements]</h2>
+Running this command line tool requires you to have an environment that runs astah*.
+ If you use a large size of project, you may need to adjust the JavaVM memory option.<br>
+<br>
+<fieldset style="border:double">
+<legend>[Windows] Edit astah-runw.l4j.ini</legend>
+[Initial Heap size]<br>
+<b>-Xms16m</b><br>
+This means the initial heap size is 16Mbytes, so change the 16.<br>
+<br>
+[Maximum Heap size]<br>
+<b>-Xmx384m</b><br>
+This means the maximum heap size is 384Mbytes. So change the 384.<br>
+</fieldset>
+<br>
+<fieldset>
+<legend>[Mac/Linux] Edit astah-run.sh</legend>
+[Initial Heap size]<br>
+<b>INITIAL_HEAP_SIZE=64m</b><br>
+This means the initial heap size is 64Mbytes, so change the 64.<br>
+<br>
+[Maximum Heap size]<br>
+<b>MAXIMUM_HEAP_SIZE=1024m</b><br>
+This means the maximum heap size is 1024Mbytes. So change the 1024.<br>
+</fieldset>
+
+</body>
+</html>
+
