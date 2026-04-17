@@ -50,8 +50,17 @@ namespace StorageTest
             // Exemplo de uso:
             // Imprimindo na tela quantos alunos existem cadastrados na memória
 
-            Console.WriteLine($"Qt alunos: {alunosStorage.Count}");
+            //Console.WriteLine($"Qt alunos: {alunosStorage.Count}");
 
+            User User1 = userStorage.GetData("User1");
+
+            Console.WriteLine($"Tentando entrar na conta User1 com a senha 12345:\n" +
+                $"Resultado: " +
+                $"{PasswordHandler.VerifyPassword("12345", User1.Senha)}");
+
+            Console.WriteLine($"\n\nTentando entrar na conta User1 com a senha 123:\n" +
+                $"Resultado: " +
+                $"{PasswordHandler.VerifyPassword("123", User1.Senha)}");
             /*
              * ===========================
              * Teste de sessão do programa
@@ -60,8 +69,10 @@ namespace StorageTest
 
             // Imprime na tela a atual situação de Sessão do programa
             Console.WriteLine("\n=============================\n");
-            Console.WriteLine($"Usuário Logado: {(ProgramSession.GetInstanceAccess().Level < 0 ? "Não" : "Sim")}");
+            Console.WriteLine($"Usuário Logado: {(ProgramSession.IsLoggedIn() ? "Sim" : "Não")}");
             Console.WriteLine("\n=============================\n");
+
+            Console.WriteLine(ProgramSession.GetInstanceAccess().GetAccessName());
 
             // Iniciado a sessão caso usuário for encontrado
             User? newUser = userStorage.GetData("User1");
@@ -72,9 +83,10 @@ namespace StorageTest
 
             // Imprime na tela se o usuário foi encontrado e foi iniciada a sessão
             Console.WriteLine("\n=============================\n");
-            Console.WriteLine($"Usuário Logado: {(ProgramSession.GetInstanceAccess().Level >= 0 ? "Sim" : "Não")}");
+            Console.WriteLine($"Usuário Logado: {(ProgramSession.IsLoggedIn() ? "Sim" : "Não")}");
             Console.WriteLine("\n=============================\n");
 
+            Console.WriteLine(ProgramSession.GetInstanceAccess().GetAccessName());
         }
 
 

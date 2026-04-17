@@ -36,6 +36,4 @@ namespace StorageTest.src.Storage
             return default;
         }
     }
-
-
 }
