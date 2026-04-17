@@ -76,8 +76,6 @@ namespace StorageTest.src.Util
                     string key = nameProp?.GetValue(obj)?.ToString();
 
                     addMethod?.Invoke(storageObj, new object[] { key, obj });
-
-                    Console.WriteLine($"Added {group.type}: {JsonSerializer.Serialize(obj)}");
                 }
             }
         }

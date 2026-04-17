@@ -54,5 +54,9 @@ namespace StorageTest.src.Util
         {
             return Instance.AccessType;
         }
+        public bool IsLoggedIn()
+        {
+            return Instance.AccessType.Level >= 0;
+        }
     }
 }

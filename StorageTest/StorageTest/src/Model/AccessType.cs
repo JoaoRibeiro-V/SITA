@@ -6,9 +6,32 @@ using System.Threading.Tasks;
 
 namespace StorageTest.src.Model
 {
+    /* Níveis de Acesso de cada usuário do sistema.
+     * 
+     * Níveis atuais:
+     * -1: Não Logado
+     * 0 : Responsável
+     * 1 : Funcionário
+     * 2 : Professor
+     * 3 : Secretário
+     * 4 : Diretor
+     * 
+     */
     internal class AccessType
     {
+        private Dictionary<int, string> NomeNiveis = new Dictionary<int, string>
+        {
+            { -1, "Não Logado" },
+            { 0, "Responsável" },
+            { 1, "Funcionário" },
+            { 2, "Professor" },
+            { 3, "Secretário" },
+            { 4, "Diretor" }
+        };
         public int Level { get; set; } = -1;
-        public string Name { get; set; } = "Não Logado";
+        public string GetAccessName()
+        {
+            return NomeNiveis[Level];
+        }
     }
 }
