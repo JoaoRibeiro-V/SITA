@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SITA.Maui.ProfilePage"
+             Title="Perfil">
+
+    <VerticalStackLayout Padding="32" Spacing="12" VerticalOptions="Center">
+
+        <Label Text="Perfil" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+        <Label x:Name="NameLabel"/>
+        <Label x:Name="CpfLabel"/>
+        <Label x:Name="IdadeLabel"/>
+        <Label x:Name="NascimentoLabel"/>
+        <Label x:Name="AccessLabel"/>
+
+        <Button Text="Sair" Clicked="OnLogoutClicked" Margin="0,24,0,0"/>
+
+    </VerticalStackLayout>
+</ContentPage>
