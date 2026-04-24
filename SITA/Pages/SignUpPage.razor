@@ -1,0 +1,100 @@
+@page "/signup"
+@using SITA.src.Model
+@using SITA.src.Util
+@using SITA.Maui
+@inject NavigationManager Navigation
+
+<div style="background-color: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 40px auto; border: 2px solid #000080; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    
+    <h2 style="color: #000080; text-align: center; font-weight: bold; margin-bottom: 25px;">Criar Conta</h2>
+
+    <div style="display: grid; gap: 15px;">
+        <input @bind="newUser.Name" class="form-control" placeholder="Nome Completo" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+        
+        <input @bind="newUser.CPF" class="form-control" placeholder="CPF" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+        
+        <div style="display: flex; gap: 10px;">
+            <input @bind="idadeString" type="number" class="form-control" placeholder="Idade" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+            <input @bind="newUser.dataNascimento" class="form-control" placeholder="Nascimento (dd/mm/aaaa)" style="flex: 2; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+        </div>
+
+        <input type="password" @bind="password" class="form-control" placeholder="Senha" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+        
+        <input type="password" @bind="confirmPassword" class="form-control" placeholder="Confirmar Senha" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+    </div>
+
+    @if (showError) { <p style="color: red; text-align: center; margin-top: 15px;">@errorMessage</p> }
+    @if (showSuccess) { <p style="color: green; text-align: center; margin-top: 15px;">@successMessage</p> }
+
+    <div style="margin-top: 25px; display: grid; gap: 10px;">
+        <button @onclick="HandleSignUp" style="background-color: #000080; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            Cadastrar
+        </button>
+        
+        <button @onclick="GoBack" style="background: transparent; border: 1px solid #000080; color: #000080; padding: 10px; border-radius: 4px; cursor: pointer;">
+            Voltar
+        </button>
+    </div>
+</div>
+
+@code {
+    private User newUser = new User();
+    private string idadeString = "";
+    private string password = "";
+    private string confirmPassword = "";
+    private string errorMessage = "";
+    private string successMessage = "";
+    private bool showError = false;
+    private bool showSuccess = false;
+
+    private async Task HandleSignUp()
+    {
+        showError = false;
+
+        // 1. Validação de campos obrigatórios
+        if (string.IsNullOrEmpty(newUser.Name) || string.IsNullOrEmpty(newUser.CPF) || string.IsNullOrEmpty(password))
+        {
+            DisplayError("Preencha todos os campos obrigatórios.");
+            return;
+        }
+
+        // 2. Validação de senha (Regras do PasswordHandler)
+        if (password != confirmPassword)
+        {
+            DisplayError("As senhas não coincidem.");
+            return;
+        }
+
+        if (!PasswordHandler.IsValidPassword(password))
+        {
+            DisplayError("Senha fraca. Use +6 caracteres, uma maiúscula e um número.");
+            return;
+        }
+
+        // 3. Verifica se o usuário já existe (usando o CPF/Nome como chave)
+        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+        if (userStorage.GetData(newUser.Name) != null)
+        {
+            DisplayError("Já existe um usuário com esse nome.");
+            return;
+        }
+
+        // 4. Prepara e salva o novo usuário
+        newUser.Senha = PasswordHandler.HashPassword(password);
+        if (int.TryParse(idadeString, out int idade)) newUser.Idade = idade;
+        
+        // Nível 3 para Secretaria (Padrão de novos cadastros)
+        newUser.AccessType = new AccessType { Level = 3 };
+
+        userStorage.AddData(newUser.Name, newUser);
+
+        successMessage = "Conta criada! Redirecionando...";
+        showSuccess = true;
+
+        await Task.Delay(1200);
+        Navigation.NavigateTo("/signin");
+    }
+
+    private void DisplayError(string msg) { errorMessage = msg; showError = true; }
+    private void GoBack() => Navigation.NavigateTo("/signin");
+}

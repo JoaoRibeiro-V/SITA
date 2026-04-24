@@ -1,0 +1,58 @@
+@page "/profile"
+@using SITA.src.Model
+@using SITA.Maui
+@inject NavigationManager Navigation
+
+<div style="background-color: white; padding: 32px; border-radius: 12px; border: 2px solid #000080; max-width: 500px; margin: 40px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <h2 style="color: #000080; text-align: center; font-weight: bold; margin-bottom: 25px;">Perfil do Usuário</h2>
+
+    @if (currentUser != null)
+    {
+        <div style="color: #333; font-size: 18px; line-height: 2;">
+            <p><strong>Nome:</strong> @currentUser.Name</p>
+            <p><strong>CPF:</strong> @currentUser.CPF</p>
+            <p><strong>Idade:</strong> @currentUser.Idade</p>
+            <p><strong>Nascimento:</strong> @currentUser.dataNascimento</p>
+            <p style="color: #000080;"><strong>Nível de Acesso:</strong> @accessName</p>
+        </div>
+    }
+
+    <button @onclick="OnLogoutClicked" 
+            style="background-color: #000080; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; margin-top: 30px; cursor: pointer;">
+        Sair do Sistema
+    </button>
+</div>
+
+@code {
+    private User? currentUser;
+    private string accessName = "";
+
+    protected override void OnInitialized()
+    {
+        // 1. Pega o acesso da sessão ativa
+        var access = MauiProgram.AppSession.GetInstanceAccess();
+        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+
+        // 2. Busca o usuário correspondente ao nível de acesso
+        currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
+
+        // 3. Se não tem ninguém logado (nível -1), manda pro Login
+        if (currentUser == null)
+        {
+            Navigation.NavigateTo("/signin");
+        }
+        else
+        {
+            accessName = access.GetAccessName();
+        }
+    }
+
+    private void OnLogoutClicked()
+    {
+        // 4. Logout: Reseta a sessão para o estado inicial (-1)
+        MauiProgram.AppSession.InitSession(new AccessType { Level = -1 });
+        
+        // 5. Redireciona via Blazor
+        Navigation.NavigateTo("/signin");
+    }
+}

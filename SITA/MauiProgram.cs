@@ -12,6 +12,7 @@ public static class MauiProgram
     private static void RegisterStorages()
     {
         AppStorage.AddStorage<User>();
+        AppStorage.AddStorage<Aluno>(); // adicionei pra testar (mas talvez fique assim)
     }
 
     public static MauiApp CreateMauiApp()
@@ -19,16 +20,14 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder.UseMauiApp<App>();
         RegisterStorages();
-        
-
-        builder.Services.AddTransient<SignInPage>();
-        builder.Services.AddTransient<SignUpPage>();
-        builder.Services.AddTransient<ProfilePage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
-
+        builder.Services.AddMauiBlazorWebView();
+#if DEBUG
+        builder.Services.AddBlazorWebViewDeveloperTools();
+#endif
         return builder.Build();
     }
 

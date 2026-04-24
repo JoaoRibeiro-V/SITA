@@ -1,0 +1,57 @@
+@page "/cadastro-aluno"
+@using SITA.src.Model
+@using SITA.Maui
+
+<div style="background-color: white; padding: 20px; border-radius: 10px; border: 2px solid #000080;">
+    <h2 style="color: #000080; text-align: center;">Ficha de Matrícula / Inscrição</h2>
+    <hr />
+
+    <div class="form-group">
+        <label>Nome Completo:</label>
+        <input class="form-control" @bind="novoAluno.Name" placeholder="Nome do aluno" />
+        
+        <label>CPF (ID):</label>
+        <input class="form-control" @bind="novoAluno.CPF" placeholder="000.000.000-00" />
+        
+        <label>Turma:</label>
+        <input class="form-control" @bind="novoAluno.TurmaId" placeholder="Ex: Maternal A" />
+    </div>
+
+    <h4 style="color: #000080; margin-top: 20px;">Dados de Saúde e Emergência</h4>
+    <div class="form-group" style="background-color: #f0f8ff; padding: 15px; border-radius: 5px;">
+        <label>Alergias:</label>
+        <textarea class="form-control" @bind="novoAluno.Alergias"></textarea>
+
+        <label>Condições Especiais:</label>
+        <textarea class="form-control" @bind="novoAluno.CondicoesEspeciais"></textarea>
+
+        <label>Nome do Pediatra:</label>
+        <input class="form-control" @bind="novoAluno.NomePediatra" />
+
+        <label>Orientações de Emergência:</label>
+        <textarea class="form-control" @bind="novoAluno.OrientacoesEmergencia"></textarea>
+    </div>
+
+    <button class="btn" style="background-color: #000080; color: white; width: 100%; margin-top: 20px;" @onclick="SalvarAluno">
+        Finalizar Matrícula
+    </button>
+</div>
+
+@code {
+    private Aluno novoAluno = new Aluno();
+
+    private void SalvarAluno()
+    {
+        if (!string.IsNullOrEmpty(novoAluno.CPF))
+        {
+            
+            MauiProgram.AppStorage.GetStorage<Aluno>().AddData(novoAluno.CPF, novoAluno);
+            
+            // Limpa o formulário para o próximo
+            novoAluno = new Aluno();
+            
+          
+            Console.WriteLine("Aluno matriculado com sucesso!");
+        }
+    }
+}

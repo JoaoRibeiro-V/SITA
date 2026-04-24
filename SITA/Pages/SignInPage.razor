@@ -1,0 +1,87 @@
+@page "/"
+@using SITA.src.Model
+@using SITA.src.Util
+@using SITA.Maui
+@inject NavigationManager Navigation
+
+<div style="background-color: white; padding: 40px; border-radius: 12px; max-width: 400px; margin: 80px auto; border: 2px solid #000080; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #000080; font-weight: bold;">SITA</h2>
+        <p style="color: #666;">Sistemas Integrados Tudo Azul</p>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <input @bind="userName" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Nome de usuário (CPF)" />
+    </div>
+
+    <div style="margin-bottom: 15px;">
+        <input type="password" @bind="password" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Senha" />
+    </div>
+
+    @if (showError)
+    {
+        <p style="color: red; text-align: center; font-size: 14px; margin-bottom: 15px;">@errorMessage</p>
+    }
+
+    <button @onclick="HandleSignIn" 
+            style="background-color: #000080; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer;">
+        Entrar
+    </button>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <button @onclick="IrParaCadastro"
+                style="background: transparent; border: none; color: #0000FF; cursor: pointer; text-decoration: underline;">
+            Não tem conta? Criar conta agora
+        </button>
+    </div>
+</div>
+
+@code {
+    private string userName = "";
+    private string password = "";
+    private string errorMessage = "";
+    private bool showError = false;
+
+    private void HandleSignIn()
+    {
+ 
+        if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+        {
+            DisplayError("Preencha todos os campos.");
+            return;
+        }
+
+        // 2. Busca o usuário no Storage global
+        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+        User? user = userStorage.GetData(userName.Trim());
+
+        // 3. Verifica senha com o PasswordHandler
+        if (user == null || !PasswordHandler.VerifyPassword(password, user.Senha))
+        {
+            DisplayError("Usuário ou senha inválidos.");
+            return;
+        }
+
+        // 4. Sucesso: Inicia a Sessão e Navega
+        MauiProgram.AppSession.InitSession(user.AccessType);
+        
+        // Se for Nível 4 (Diretoria), Dashboard. Se for 3 (Secretaria), Cadastro.
+        if (user.AccessType.Level >= 4)
+            Navigation.NavigateTo("/dashboard");
+        else
+            Navigation.NavigateTo("/cadastro-aluno");
+    }
+
+    private void DisplayError(string message)
+    {
+        errorMessage = message;
+        showError = true;
+    }
+
+    private void IrParaCadastro()
+    {
+        Navigation.NavigateTo("/signup");
+    }
+
+}
