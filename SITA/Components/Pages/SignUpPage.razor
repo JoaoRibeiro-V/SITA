@@ -1,4 +1,5 @@
 @page "/signup"
+@namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
 @using SITA.Maui
@@ -92,9 +93,9 @@
         showSuccess = true;
 
         await Task.Delay(1200);
-        Navigation.NavigateTo("/signin");
+        Navigation.NavigateTo("/cadastro-aluno");
     }
 
     private void DisplayError(string msg) { errorMessage = msg; showError = true; }
-    private void GoBack() => Navigation.NavigateTo("/signin");
+    private void GoBack() => Navigation.NavigateTo("/");
 }

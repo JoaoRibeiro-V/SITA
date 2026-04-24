@@ -1,8 +1,10 @@
 @page "/"
+@namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
 @using SITA.Maui
 @inject NavigationManager Navigation
+
 
 <div style="background-color: white; padding: 40px; border-radius: 12px; max-width: 400px; margin: 80px auto; border: 2px solid #000080; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
     
@@ -45,43 +47,59 @@
 
     private void HandleSignIn()
     {
- 
-        if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+        try
         {
-            DisplayError("Preencha todos os campos.");
-            return;
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+            {
+                DisplayError("Preencha todos os campos.");
+                return;
+            }
+
+            // 2. Busca o usuário no Storage global
+            var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+            User? user = userStorage.GetData(userName.Trim());
+
+            // 3. Verifica senha com o PasswordHandler
+            if (user == null || !PasswordHandler.VerifyPassword(password, user.Senha))
+            {
+                DisplayError("Usuário ou senha inválidos.");
+                return;
+            }
+
+            // 4. Sucesso: Inicia a Sessão e Navega
+            MauiProgram.AppSession.InitSession(user.AccessType);
+
+            // Se for Nível 4 (Diretoria), Dashboard. Se for 3 (Secretaria), Cadastro.
+            if (user.AccessType.Level >= 4)
+                Navigation.NavigateTo("/dashboard");
+            else
+                Navigation.NavigateTo("/cadastro-aluno");
+        }
+        catch (Exception ex)
+        {
+            DisplayError($"Erro: {ex.Message}");
         }
 
-        // 2. Busca o usuário no Storage global
-        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-        User? user = userStorage.GetData(userName.Trim());
 
-        // 3. Verifica senha com o PasswordHandler
-        if (user == null || !PasswordHandler.VerifyPassword(password, user.Senha))
-        {
-            DisplayError("Usuário ou senha inválidos.");
-            return;
-        }
-
-        // 4. Sucesso: Inicia a Sessão e Navega
-        MauiProgram.AppSession.InitSession(user.AccessType);
-        
-        // Se for Nível 4 (Diretoria), Dashboard. Se for 3 (Secretaria), Cadastro.
-        if (user.AccessType.Level >= 4)
-            Navigation.NavigateTo("/dashboard");
-        else
-            Navigation.NavigateTo("/cadastro-aluno");
     }
 
     private void DisplayError(string message)
     {
         errorMessage = message;
         showError = true;
+        System.Diagnostics.Debug.WriteLine(message);
     }
 
     private void IrParaCadastro()
     {
-        Navigation.NavigateTo("/signup");
+        System.Diagnostics.Debug.WriteLine("Ir para cadastro");
+        try
+        {
+            Navigation.NavigateTo("/signup");
+        } catch(Exception ex)
+        {
+            DisplayError($"Erro ao navegar: {ex.Message}");
+        }
     }
 
 }

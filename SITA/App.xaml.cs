@@ -1,12 +1,15 @@
-﻿namespace SITA;
-
-public partial class App : Application
+﻿namespace SITA
 {
-    public App()
+    public partial class App : Application
     {
-        InitializeComponent();
-        MainPage = new SITA.Maui.AppShell();
+        public App()
+        {
+            InitializeComponent();
+        }
 
-        Task.Run(async () => await SITA.Maui.MauiProgram.LoadImportAsync());
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new MainPage()) { Title = "SITA" };
+        }
     }
 }

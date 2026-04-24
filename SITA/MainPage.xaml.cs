@@ -1,9 +1,10 @@
-﻿namespace SITA.Maui;
-
-public partial class MainPage : ContentPage
+﻿namespace SITA
 {
-    public MainPage()
+    public partial class MainPage : ContentPage
     {
-        InitializeComponent(); // carrega o BlazorWebView que vamos colocar no XAML
+        public MainPage()
+        {
+            InitializeComponent();
+        }
     }
 }

@@ -3,50 +3,55 @@ using SITA.src.Model;
 using SITA.src.Storage;
 using SITA.src.Util;
 
-namespace SITA.Maui;
-
-public static class MauiProgram
+namespace SITA
 {
-    public static GeneralStorage AppStorage = new GeneralStorage();
-    public static Session AppSession = new Session();
-    private static void RegisterStorages()
+    public static class MauiProgram
     {
-        AppStorage.AddStorage<User>();
-        AppStorage.AddStorage<Aluno>(); // adicionei pra testar (mas talvez fique assim)
-    }
-
-    public static MauiApp CreateMauiApp()
-    {
-        var builder = MauiApp.CreateBuilder();
-        builder.UseMauiApp<App>();
-        RegisterStorages();
-
-#if DEBUG
-        builder.Logging.AddDebug();
-#endif
-        builder.Services.AddMauiBlazorWebView();
-#if DEBUG
-        builder.Services.AddBlazorWebViewDeveloperTools();
-#endif
-        return builder.Build();
-    }
-
-    // Chamado após app ser criado, mas antes de mostrar a primeira página
-    public static async Task LoadImportAsync()
-    {
-        try
+        public static GeneralStorage AppStorage = new GeneralStorage();
+        public static Session AppSession = new Session();
+        private static void RegisterStorages()
         {
-            using var stream = await FileSystem.OpenAppPackageFileAsync("import.json");
-            using var reader = new StreamReader(stream);
-            string json = await reader.ReadToEndAsync();
-
-            System.Diagnostics.Debug.WriteLine("JSON loaded: " + json);
-
-            var handler = new JsonHandler();
-            handler.LoadFromString(json, AppStorage);
+            AppStorage.AddStorage<User>();
+            AppStorage.AddStorage<Aluno>(); // adicionei pra testar (mas talvez fique assim)
         }
-        catch(Exception ex) {
-            System.Diagnostics.Debug.WriteLine($"Error loading import.json: {ex.Message}");
+        public static MauiApp CreateMauiApp()
+        {
+            RegisterStorages();
+            var builder = MauiApp.CreateBuilder();
+            builder
+                .UseMauiApp<App>()
+                .ConfigureFonts(fonts =>
+                {
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                });
+
+            builder.Services.AddMauiBlazorWebView();
+
+#if DEBUG
+            builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Logging.AddDebug();
+#endif
+
+            return builder.Build();
+        }
+
+    public static async Task LoadImportAsync()
+        {
+            try
+            {
+                using var stream = await FileSystem.OpenAppPackageFileAsync("import.json");
+                using var reader = new StreamReader(stream);
+                string json = await reader.ReadToEndAsync();
+
+                System.Diagnostics.Debug.WriteLine("JSON loaded: " + json);
+
+                var handler = new JsonHandler();
+                handler.LoadFromString(json, AppStorage);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading import.json: {ex.Message}");
+            }
         }
     }
 }

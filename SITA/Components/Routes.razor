@@ -1,15 +1,6 @@
-@namespace SITA.Maui.Components
-@using Microsoft.AspNetCore.Components.Routing
-@using SITA.Maui.Components
-
-<Router AppAssembly="@typeof(Routes).Assembly">
+﻿<Router AppAssembly="@typeof(MauiProgram).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
-    <NotFound>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Desculpe, não há nada neste endereço.</p>
-        </LayoutView>
-    </NotFound>
 </Router>

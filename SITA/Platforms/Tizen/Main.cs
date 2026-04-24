@@ -4,7 +4,7 @@ using System;
 
 namespace SITA
 {
-    public class Program : MauiApplication
+    internal class Program : MauiApplication
     {
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
 
