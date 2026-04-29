@@ -1,4 +1,4 @@
-@page "/"
+@page "/signin"
 @namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
@@ -47,40 +47,26 @@
 
     private void HandleSignIn()
     {
-        try
+        if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
         {
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
-            {
-                DisplayError("Preencha todos os campos.");
-                return;
-            }
-
-            // 2. Busca o usuário no Storage global
-            var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-            User? user = userStorage.GetData(userName.Trim());
-
-            // 3. Verifica senha com o PasswordHandler
-            if (user == null || !PasswordHandler.VerifyPassword(password, user.Senha))
-            {
-                DisplayError("Usuário ou senha inválidos.");
-                return;
-            }
-
-            // 4. Sucesso: Inicia a Sessão e Navega
-            MauiProgram.AppSession.InitSession(user.AccessType);
-
-            // Se for Nível 4 (Diretoria), Dashboard. Se for 3 (Secretaria), Cadastro.
-            if (user.AccessType.Level >= 4)
-                Navigation.NavigateTo("/dashboard");
-            else
-                Navigation.NavigateTo("/cadastro-aluno");
-        }
-        catch (Exception ex)
-        {
-            DisplayError($"Erro: {ex.Message}");
+            DisplayError("Preencha todos os campos.");
+            return;
         }
 
+        // 2. Busca o usuário no Storage global
+        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+        User? user = userStorage.GetDataByField("CPF", userName.Trim());
 
+        // 3. Verifica senha com o PasswordHandler
+        if (user == null || !PasswordHandler.VerifyPassword(password, user.Senha))
+        {
+            DisplayError("Usuário ou senha inválidos.");
+            return;
+        }
+
+        // 4. Sucesso: Inicia a Sessão e Navega
+        MauiProgram.AppSession.InitSession(user.AccessType);
+        Navigation.NavigateTo("/");
     }
 
     private void DisplayError(string message)

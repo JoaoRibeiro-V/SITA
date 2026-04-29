@@ -6,27 +6,29 @@ using System.Threading.Tasks;
 
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace SITA.src.Model
 {
     public class Aluno
     {
-   
-        public string? Name { get; set; }
-        public string? CPF { get; set; } 
+        public Guid Id { get; set; }
+        public string? RA { get; set; }
+        public int Idade { get; set; }
+        public string? Nome { get; set; }
         public string? DataNascimento { get; set; }
         public string? TurmaId { get; set; } // Atrela o aluno à sala
-        public string? Alergias { get; set; }
         public string? Religiao { get; set; }
-        public string? CondicoesEspeciais { get; set; }
         public string? NomePediatra { get; set; }
         public string? OrientacoesEmergencia { get; set; }
-
+        public List<string>? Alergias { get; set; }
+        public List<string>? CondicoesEspeciais { get; set; }
         public List<string> HistoricoFinanceiroIds { get; set; } = new List<string>();
+        public DateTime DataCadastro { get; set; }
 
         public Aluno()
         {
-            // Inicializa a lista para evitar erro de null
+            Id = Guid.NewGuid();
         }
     }
 }

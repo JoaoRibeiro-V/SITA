@@ -9,10 +9,7 @@
 
     <div class="form-group">
         <label>Nome Completo:</label>
-        <input class="form-control" @bind="novoAluno.Name" placeholder="Nome do aluno" />
-        
-        <label>CPF (ID):</label>
-        <input class="form-control" @bind="novoAluno.CPF" placeholder="000.000.000-00" />
+        <input class="form-control" @bind="novoAluno.Nome" placeholder="Nome do aluno" />
         
         <label>Turma:</label>
         <input class="form-control" @bind="novoAluno.TurmaId" placeholder="Ex: Maternal A" />
@@ -43,10 +40,10 @@
 
     private void SalvarAluno()
     {
-        if (!string.IsNullOrEmpty(novoAluno.CPF))
+        if (!string.IsNullOrEmpty(novoAluno.Id.ToString()))
         {
             
-            MauiProgram.AppStorage.GetStorage<Aluno>().AddData(novoAluno.CPF, novoAluno);
+            MauiProgram.AppStorage.GetStorage<Aluno>().AddData(novoAluno.Id.ToString(), novoAluno);
             
             // Limpa o formulário para o próximo
             novoAluno = new Aluno();

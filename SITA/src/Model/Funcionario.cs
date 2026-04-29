@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace SITA.src.Model
 {
-    public class Funcionario
+    public class Funcionario : User
     {
+        public string? Cargo { get; set; }
+        public double? SalarioBase { get; set; }
+        public string? Telefone { get; set; }
     }
 }

@@ -31,8 +31,25 @@ namespace SITA.src.Storage
         /*
          * Retorna um objeto pelo identificador
          */
-        public T? GetData(string key){
+        public T? GetData(string key)
+        {
             if (this.TryGetValue(key, out T data)) { return data; }
+            return default;
+        }
+        public T? GetDataByField(string field, string value)
+        {
+            foreach (var item in this.Values)
+            {
+                var property = typeof(T).GetProperty(field);
+                if (property != null)
+                {
+                    var propertyValue = property.GetValue(item)?.ToString();
+                    if (propertyValue == value)
+                    {
+                        return item;
+                    }
+                }
+            }
             return default;
         }
     }

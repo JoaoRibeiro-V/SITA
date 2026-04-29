@@ -1,6 +1,7 @@
-@page "/profile"
+@page "/"
 @namespace SITA.Maui.Components
 @using SITA.src.Model
+@using SITA.src.Util
 @using SITA.Maui
 @inject NavigationManager Navigation
 
@@ -10,10 +11,8 @@
     @if (currentUser != null)
     {
         <div style="color: #333; font-size: 18px; line-height: 2;">
-            <p><strong>Nome:</strong> @currentUser.Name</p>
+            <p><strong>Nome:</strong> @currentUser.Nome</p>
             <p><strong>CPF:</strong> @currentUser.CPF</p>
-            <p><strong>Idade:</strong> @currentUser.Idade</p>
-            <p><strong>Nascimento:</strong> @currentUser.dataNascimento</p>
             <p style="color: #000080;"><strong>Nível de Acesso:</strong> @accessName</p>
         </div>
     }
@@ -30,28 +29,40 @@
 
     protected override void OnInitialized()
     {
-        // 1. Pega o acesso da sessão ativa
-        var access = MauiProgram.AppSession.GetInstanceAccess();
-        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-
-        // 2. Busca o usuário correspondente ao nível de acesso
-        currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
-
-        // 3. Se não tem ninguém logado (nível -1), manda pro Login
-        if (currentUser == null)
+        try
         {
+            // 1. Pega o acesso da sessão ativa
+            var access = MauiProgram.AppSession.GetInstanceAccess();
+            var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+
+            // 2. Busca o usuário correspondente ao nível de acesso
+            currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
+
+            // 3. Se não tem ninguém logado (nível -1), manda pro Login
+            if (currentUser == null)
+            {
+                Navigation.NavigateTo("/signin");
+            }
+            else
+            {
+                accessName = access.GetAccessName();
+            }
+        }catch(Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao carregar perfil: {ex.Message}");
             Navigation.NavigateTo("/signin");
         }
-        else
-        {
-            accessName = access.GetAccessName();
-        }
+        
     }
 
     private void OnLogoutClicked()
     {
-        // 4. Logout: Reseta a sessão para o estado inicial (-1)
+        var access = MauiProgram.AppSession.GetInstanceAccess();
+        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+        currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
+        currentUser.DataUltimoAcesso = DateTime.Now;
         MauiProgram.AppSession.InitSession(new AccessType { Level = -1 });
+
         
         // 5. Redireciona via Blazor
         Navigation.NavigateTo("/signin");

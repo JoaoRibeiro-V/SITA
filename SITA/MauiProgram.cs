@@ -13,6 +13,7 @@ namespace SITA
         {
             AppStorage.AddStorage<User>();
             AppStorage.AddStorage<Aluno>(); // adicionei pra testar (mas talvez fique assim)
+            AppStorage.AddStorage<Responsavel>();
         }
         public static MauiApp CreateMauiApp()
         {
@@ -30,8 +31,29 @@ namespace SITA
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
-#endif
 
+
+
+
+#endif
+            Storage<Responsavel> responsavelStorage = AppStorage.GetStorage<Responsavel>();
+            Storage<Aluno> alunoStorage = AppStorage.GetStorage<Aluno>();
+            Responsavel fulano = new Responsavel
+            {
+                Nome = "Fulano de Tal",
+                Email = "fulano@example.com",
+                Telefone = 123456789,
+            };
+            responsavelStorage.AddData(fulano.Id.ToString(), fulano);
+            Aluno filhoDoFulano = new Aluno
+            {
+                Nome = "Ciclano de Tal",
+                RA = "12345",
+            };
+            alunoStorage.AddData(filhoDoFulano.Id.ToString(), filhoDoFulano);
+            fulano.AddParentesco(filhoDoFulano, 1); // 1 = pai
+
+            System.Diagnostics.Debug.WriteLine($"Responsável: {fulano.Nome}, Aluno: {fulano.GetParentescos()?[0].Aluno.Nome}, Parentesco: {fulano.GetParentescos()?[0].GetParentesco()}");
             return builder.Build();
         }
 
