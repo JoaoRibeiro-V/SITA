@@ -34,6 +34,11 @@ namespace SITA.src.Util
    */
     public class JsonHandler
     {
+        public static void PrintClass(object obj)
+        {
+            string jsonString = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            System.Diagnostics.Debug.WriteLine(jsonString);
+        }
         public class Root
         {
             public List<GroupClass>? groupClasses { get; set; }

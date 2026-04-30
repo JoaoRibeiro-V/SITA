@@ -10,7 +10,7 @@ namespace SITA.src.Model
     {
         public string? Telefone { get; set; }
         public string? Endereco { get; set; }
-        private List<Parentesco>? Parentescos { get; set; } = new List<Parentesco>();
+        private List<Parentesco> Parentescos { get; set; } = new List<Parentesco>();
         public Responsavel()
         {
             Id = Guid.NewGuid();

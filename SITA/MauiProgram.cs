@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SITA.src.Controller;
 using SITA.src.Model;
 using SITA.src.Storage;
 using SITA.src.Util;
@@ -13,8 +14,10 @@ namespace SITA
         private static void RegisterStorages()
         {
             AppStorage.AddStorage<User>();
-            AppStorage.AddStorage<Aluno>(); // adicionei pra testar (mas talvez fique assim)
+            AppStorage.AddStorage<Aluno>();
             AppStorage.AddStorage<Responsavel>();
+            AppStorage.AddStorage<Turma>();
+            AppStorage.AddStorage<Funcionario>();
         }
         public static MauiApp CreateMauiApp()
         {
@@ -35,38 +38,31 @@ namespace SITA
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
-            Storage<User> userStorage = AppStorage.GetStorage<User>();
-            Storage<Responsavel> responsavelStorage = AppStorage.GetStorage<Responsavel>();
-            Storage<Aluno> alunoStorage = AppStorage.GetStorage<Aluno>();
-
-            User? userGet = userStorage.GetDataByField("Email", "admin@gmail.com");
-            if (userGet != null)
+            User newUser = new User
             {
-
-                string jsonString = JsonSerializer.Serialize(userGet, new JsonSerializerOptions { WriteIndented = true });
-                System.Diagnostics.Debug.WriteLine("User found:" + jsonString);
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("User not found");
-            }
-
-            Responsavel fulano = new Responsavel
-            {
-                Nome = "Fulano de Tal",
-                Email = "fulano@example.com",
-                Telefone = "123456789",
+                Nome = "Responsável 1",
+                Email = "responsavel@gmail.com",
+                CPF = "11111111111"
             };
-            responsavelStorage.AddData(fulano.Id.ToString(), fulano);
+            newUser.Senha = BCrypt.Net.BCrypt.HashPassword("responsavel123", newUser.Salt);
+
+            UserController.Register(newUser);
+
+            Responsavel newResponsavel = ResponsavelController.CreateByUser(newUser);
+            newResponsavel.Telefone = "123456789";
+            newResponsavel.Endereco = "Rua Exemplo, 123";
+
             Aluno filhoDoFulano = new Aluno
             {
                 Nome = "Ciclano de Tal",
                 RA = "12345",
             };
-            alunoStorage.AddData(filhoDoFulano.Id.ToString(), filhoDoFulano);
-            fulano.AddParentesco(filhoDoFulano, 1); // 1 = pai
 
-            System.Diagnostics.Debug.WriteLine($"Responsável: {fulano.Nome}, Aluno: {fulano.GetParentescos()?[0].Aluno.Nome}, Parentesco: {fulano.GetParentescos()?[0].GetParentesco()}");
+            AlunoController.Register(filhoDoFulano);
+            ResponsavelController.AddParentesco(newResponsavel, filhoDoFulano, 1);
+
+            JsonHandler.PrintClass(newResponsavel);
+            System.Diagnostics.Debug.WriteLine($"Responsável: {newResponsavel.Nome}, Aluno: {newResponsavel.GetParentescos()?[0].Aluno.Nome}, Parentesco: {newResponsavel.GetParentescos()?[0].GetParentesco()}");
             return builder.Build();
         }
 
