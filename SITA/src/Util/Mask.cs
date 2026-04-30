@@ -8,6 +8,32 @@ namespace SITA.src.Util
 {
     public static class Mask
     {
+        /* Classe Mask:
+         * Esta classe fornece métodos estáticos para formatar e remover máscaras de strings,
+         * como CPF e números de telefone.
+         * 
+         * Exemplo de uso:
+        ==========================================================================
+        MASK DE CPF:
+        private void OnCpfInput(ChangeEventArgs e)
+        {
+            var digits = new string((e.Value?.ToString() ?? "")
+              .Where(char.IsDigit)
+              .ToArray());
+
+            if (digits.Length > 11)
+               digits = digits[..11];
+
+            userName = Mask.FormatCpf(digits);
+        }
+        ==========================================================================
+
+        ==========================================================================
+        REMOVER MASK:
+        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+        User? user = userStorage.GetDataByField("CPF", Mask.RemoveMask(userName));
+        ==========================================================================
+         */
         public static string FormatCpf(string digits)
         {
             if (digits.Length <= 3)
