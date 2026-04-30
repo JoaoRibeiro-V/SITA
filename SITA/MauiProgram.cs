@@ -18,6 +18,7 @@ namespace SITA
         public static MauiApp CreateMauiApp()
         {
             RegisterStorages();
+            LoadImportAsync().Wait();
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -31,18 +32,17 @@ namespace SITA
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
-
-
-
-
 #endif
+            
+            Storage<User> userStorage = AppStorage.GetStorage<User>();
             Storage<Responsavel> responsavelStorage = AppStorage.GetStorage<Responsavel>();
             Storage<Aluno> alunoStorage = AppStorage.GetStorage<Aluno>();
+
             Responsavel fulano = new Responsavel
             {
                 Nome = "Fulano de Tal",
                 Email = "fulano@example.com",
-                Telefone = 123456789,
+                Telefone = "123456789",
             };
             responsavelStorage.AddData(fulano.Id.ToString(), fulano);
             Aluno filhoDoFulano = new Aluno
@@ -59,6 +59,7 @@ namespace SITA
 
     public static async Task LoadImportAsync()
         {
+            System.Diagnostics.Debug.WriteLine("Calling load import async");
             try
             {
                 using var stream = await FileSystem.OpenAppPackageFileAsync("import.json");

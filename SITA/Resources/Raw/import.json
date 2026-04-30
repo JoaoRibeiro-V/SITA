@@ -1,0 +1,22 @@
+{
+	"groupClasses": [
+		{
+			"type": "User",
+			"defaults":[
+				{
+					"Id": "85887315-9b43-496d-9002-63bf5f1825fa",
+					"Nome": "Admin",
+					"CPF": "000.000.000-00",
+					"DataCriacao": "2026-04-30T07:57:24.3651386-03:00",
+					"DataUltimoAcesso": "2026-04-30T07:57:24.3678226-03:00",
+					"Ativo": true,
+					"Email": "admin@gmail.com",
+					"Senha": "$2a$11$R.GcUQZCyfuHt/0H.EzMB.UYTw3IJZuRK5bUXufoi6tHgYC06Hxee",
+					"AccessType": {
+						"Level": 0
+					}
+				}
+			]
+		}
+	]
+}

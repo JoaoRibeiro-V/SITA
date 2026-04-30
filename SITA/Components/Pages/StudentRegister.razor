@@ -1,7 +1,9 @@
 @page "/cadastro-aluno"
 @namespace SITA.Maui.Components
 @using SITA.src.Model
+@using SITA.src.Util
 @using SITA.Maui
+@inject NavigationManager Navigation
 
 <div style="background-color: white; padding: 20px; border-radius: 10px; border: 2px solid #000080;">
     <h2 style="color: #000080; text-align: center;">Ficha de Matrícula / Inscrição</h2>
@@ -12,22 +14,22 @@
         <input class="form-control" @bind="novoAluno.Nome" placeholder="Nome do aluno" />
         
         <label>Turma:</label>
-        <input class="form-control" @bind="novoAluno.TurmaId" placeholder="Ex: Maternal A" />
+        <input class="form-control" @bind="novoAluno.Turma" placeholder="Ex: Maternal A" />
     </div>
 
     <h4 style="color: #000080; margin-top: 20px;">Dados de Saúde e Emergência</h4>
     <div class="form-group" style="background-color: #f0f8ff; padding: 15px; border-radius: 5px;">
         <label>Alergias:</label>
-        <textarea class="form-control" @bind="novoAluno.Alergias"></textarea>
+        <input class="form-control" @bind="novoAluno.Alergias"></input>
 
         <label>Condições Especiais:</label>
-        <textarea class="form-control" @bind="novoAluno.CondicoesEspeciais"></textarea>
+        <input class="form-control" @bind="novoAluno.CondicoesEspeciais"></input>
 
         <label>Nome do Pediatra:</label>
         <input class="form-control" @bind="novoAluno.NomePediatra" />
 
         <label>Orientações de Emergência:</label>
-        <textarea class="form-control" @bind="novoAluno.OrientacoesEmergencia"></textarea>
+            <input class="form-control" @bind="novoAluno.OrientacoesEmergencia"></input>
     </div>
 
     <button class="btn" style="background-color: #000080; color: white; width: 100%; margin-top: 20px;" @onclick="SalvarAluno">
