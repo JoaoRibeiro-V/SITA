@@ -38,18 +38,20 @@ namespace SITA.src.Storage
         }
         public T? GetDataByField(string field, string value)
         {
+            var property = typeof(T).GetProperty(field);
+            if (property == null)
+                return default;
+
             foreach (var item in this.Values)
             {
-                var property = typeof(T).GetProperty(field);
-                if (property != null)
+                var propertyValue = property.GetValue(item);
+
+                if (propertyValue != null && propertyValue.ToString() == value)
                 {
-                    var propertyValue = property.GetValue(item)?.ToString();
-                    if (propertyValue == value)
-                    {
-                        return item;
-                    }
+                    return item;
                 }
             }
+
             return default;
         }
     }

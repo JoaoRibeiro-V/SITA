@@ -16,6 +16,7 @@ namespace SITA.src.Model
         public bool Ativo { get; set; }
         public string? Email { get; set; }
         public string? Senha { get; set; }
+        public string Salt { get; set; }
         public AccessType AccessType { get; set; } = new AccessType();
         public User()
         {
@@ -24,6 +25,7 @@ namespace SITA.src.Model
             DataCriacao = DateTime.Now;
             DataUltimoAcesso = DateTime.Now;
             AccessType.Level = 0;
+            Salt = BCrypt.Net.BCrypt.GenerateSalt();
         }
     }
 }

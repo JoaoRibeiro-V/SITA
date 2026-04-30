@@ -2,6 +2,7 @@
 using SITA.src.Model;
 using SITA.src.Storage;
 using SITA.src.Util;
+using System.Text.Json;
 
 namespace SITA
 {
@@ -18,7 +19,8 @@ namespace SITA
         public static MauiApp CreateMauiApp()
         {
             RegisterStorages();
-            LoadImportAsync().Wait();
+            EnsureJsonCopied().GetAwaiter().GetResult();
+            LoadImportSync();
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
@@ -33,10 +35,21 @@ namespace SITA
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
-            
             Storage<User> userStorage = AppStorage.GetStorage<User>();
             Storage<Responsavel> responsavelStorage = AppStorage.GetStorage<Responsavel>();
             Storage<Aluno> alunoStorage = AppStorage.GetStorage<Aluno>();
+
+            User? userGet = userStorage.GetDataByField("Email", "admin@gmail.com");
+            if (userGet != null)
+            {
+
+                string jsonString = JsonSerializer.Serialize(userGet, new JsonSerializerOptions { WriteIndented = true });
+                System.Diagnostics.Debug.WriteLine("User found:" + jsonString);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("User not found");
+            }
 
             Responsavel fulano = new Responsavel
             {
@@ -57,24 +70,45 @@ namespace SITA
             return builder.Build();
         }
 
-    public static async Task LoadImportAsync()
+        public static void LoadImportSync()
         {
-            System.Diagnostics.Debug.WriteLine("Calling load import async");
-            try
-            {
-                using var stream = await FileSystem.OpenAppPackageFileAsync("import.json");
-                using var reader = new StreamReader(stream);
-                string json = await reader.ReadToEndAsync();
+            System.Diagnostics.Debug.WriteLine("Calling sync import");
 
-                System.Diagnostics.Debug.WriteLine("JSON loaded: " + json);
+            string path = Path.Combine(FileSystem.AppDataDirectory, "import.json");
+            System.Diagnostics.Debug.WriteLine("Looking for file at: " + path);
+            System.Diagnostics.Debug.WriteLine("File exists? " + File.Exists(path));
 
-                var handler = new JsonHandler();
-                handler.LoadFromString(json, AppStorage);
-            }
-            catch (Exception ex)
+            if (!File.Exists(path))
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading import.json: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine("File not found: " + path);
+                return;
             }
+
+            string json = File.ReadAllText(path);
+
+            System.Diagnostics.Debug.WriteLine("JSON loaded: " + json);
+
+            var handler = new JsonHandler();
+            handler.LoadFromString(json, AppStorage);
+
+            System.Diagnostics.Debug.WriteLine("IMPORT FINISHED");
+        }
+        public static async Task EnsureJsonCopied()
+        {
+            string targetPath = Path.Combine(FileSystem.AppDataDirectory, "import.json");
+
+            System.Diagnostics.Debug.WriteLine("Copying JSON...");
+
+            using var stream = await FileSystem
+                .OpenAppPackageFileAsync("import.json")
+                .ConfigureAwait(false);
+
+            using var reader = new StreamReader(stream);
+            string content = await reader.ReadToEndAsync().ConfigureAwait(false);
+
+            File.WriteAllText(targetPath, content);
+
+            System.Diagnostics.Debug.WriteLine("Copy complete");
         }
     }
 }

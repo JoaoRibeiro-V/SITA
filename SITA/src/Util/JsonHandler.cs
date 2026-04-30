@@ -71,16 +71,18 @@ namespace SITA.src.Util
                 Type entityType = storageType.GetGenericArguments()[0];
 
                 var addMethod = storageType.GetMethod("AddData");
-                var nameProp = entityType.GetProperty("Name");
+                var nameProp = entityType.GetProperty("Nome");
+                var idProp = entityType.GetProperty("Id");
 
                 foreach (var item in group.defaults)
                 {
                     var obj = item.Deserialize(entityType);
                     if (obj == null) continue;
 
-                    string? key = nameProp?.GetValue(obj)?.ToString();
+                    string? key = idProp?.GetValue(obj)?.ToString();
                     if (key == null) continue;
 
+                    System.Diagnostics.Debug.WriteLine($"Adding to {storageObj.ToString()} with key {key}");
                     addMethod?.Invoke(storageObj, new object[] { key, obj });
                 }
             }

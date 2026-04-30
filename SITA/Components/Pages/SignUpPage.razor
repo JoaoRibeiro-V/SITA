@@ -76,7 +76,7 @@
         }
 
         // 4. Prepara e salva o novo usuário
-        newUser.Senha = PasswordHandler.HashPassword(password);
+        newUser.Senha = PasswordHandler.HashPassword(password, newUser.Salt);
         
         // Nível 3 para Secretaria (Padrão de novos cadastros)
         newUser.AccessType = new AccessType { Level = 3 };

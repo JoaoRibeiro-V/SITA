@@ -14,7 +14,7 @@ namespace SITA.src.Model
     {
         public Guid Id { get; set; }
         public string? RA { get; set; }
-        public int Idade { get; set; }
+        public int? Idade { get; set; }
         public string? Nome { get; set; }
         public string? DataNascimento { get; set; }
         public string? Religiao { get; set; }
@@ -24,7 +24,7 @@ namespace SITA.src.Model
         public List<string>? CondicoesEspeciais { get; set; }
         public List<string> HistoricoFinanceiroIds { get; set; } = new List<string>();
         public DateTime DataCadastro { get; set; }
-        public Turma Turma { get; set; }
+        public Turma? Turma { get; set; }
 
         public Aluno()
         {

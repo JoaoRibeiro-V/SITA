@@ -12,24 +12,24 @@
     <div class="form-group">
         <label>Nome Completo:</label>
         <input class="form-control" @bind="novoAluno.Nome" placeholder="Nome do aluno" />
-        
+
         <label>Turma:</label>
-        <input class="form-control" @bind="novoAluno.Turma" placeholder="Ex: Maternal A" />
+        <input class="form-control" @bind="novaTurma.Nome" placeholder="Ex: Maternal A" />
     </div>
 
     <h4 style="color: #000080; margin-top: 20px;">Dados de Saúde e Emergência</h4>
     <div class="form-group" style="background-color: #f0f8ff; padding: 15px; border-radius: 5px;">
         <label>Alergias:</label>
-        <input class="form-control" @bind="novoAluno.Alergias"></input>
+        <input class="form-control" @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" />
 
         <label>Condições Especiais:</label>
-        <input class="form-control" @bind="novoAluno.CondicoesEspeciais"></input>
+        <input class="form-control" @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" />
 
         <label>Nome do Pediatra:</label>
         <input class="form-control" @bind="novoAluno.NomePediatra" />
 
         <label>Orientações de Emergência:</label>
-            <input class="form-control" @bind="novoAluno.OrientacoesEmergencia"></input>
+        <input class="form-control" @bind="novoAluno.OrientacoesEmergencia" />
     </div>
 
     <button class="btn" style="background-color: #000080; color: white; width: 100%; margin-top: 20px;" @onclick="SalvarAluno">
@@ -39,6 +39,13 @@
 
 @code {
     private Aluno novoAluno = new Aluno();
+    private Turma novaTurma = new Turma();
+    private string addAlergia = string.Empty;
+    private string addCondicao = string.Empty;
+
+    private List<string>? Alergias { get; set; } = new List<string>();
+    private List<string>? CondicoesEspeciais { get; set; } = new List<string>();
+
 
     private void SalvarAluno()
     {
@@ -53,5 +60,32 @@
           
             Console.WriteLine("Aluno matriculado com sucesso!");
         }
+    }
+
+    private void AddAlergia()
+    {
+        if (!string.IsNullOrWhiteSpace(addAlergia))
+        {
+            Alergias.Add(addAlergia); // Adds user input to the C# list
+            addAlergia = string.Empty; // Clears input
+        }
+    }
+
+    private void AddCondicao()
+    {
+        if (!string.IsNullOrWhiteSpace(addCondicao))
+        {
+            CondicoesEspeciais.Add(addCondicao); // Adds user input to the C# list
+            addCondicao = string.Empty; // Clears input
+        }
+    }
+
+    private void HandleAlergiaKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddAlergia(); // Adds item on Enter key
+    }
+    private void HandleCondicoesKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddAlergia(); // Adds item on Enter key
     }
 }

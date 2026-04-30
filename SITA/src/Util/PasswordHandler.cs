@@ -15,9 +15,10 @@ namespace SITA.src.Util
     public static class PasswordHandler
     {
         // Retorna um hash de senha a partir da string passada
-        public static string HashPassword(string password)
+        public static string HashPassword(string password, string salt)
         {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            if(salt == null) return BCrypt.Net.BCrypt.HashPassword(password);
+            return BCrypt.Net.BCrypt.HashPassword(password, salt);
         }
         // Verifica se o hash do primeiro parâmetro bate com o segundo
         public static bool VerifyPassword(string password, string hashedPassword)

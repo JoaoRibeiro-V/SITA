@@ -26,7 +26,8 @@ namespace SITA.src.Model
             { 1, "Funcionário" },
             { 2, "Professor" },
             { 3, "Secretário" },
-            { 4, "Diretor" }
+            { 4, "Diretor" },
+            { 5, "Administrador" }
         };
         public int Level { get; set; } = -1;
         public string GetAccessName()

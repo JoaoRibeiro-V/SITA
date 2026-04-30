@@ -1,4 +1,6 @@
-﻿namespace SITA
+﻿using SITA.src.Model;
+
+namespace SITA
 {
     public partial class App : Application
     {

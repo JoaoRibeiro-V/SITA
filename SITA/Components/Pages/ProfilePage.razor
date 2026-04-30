@@ -12,7 +12,7 @@
     {
         <div style="color: #333; font-size: 18px; line-height: 2;">
             <p><strong>Nome:</strong> @currentUser.Nome</p>
-            <p><strong>CPF:</strong> @currentUser.CPF</p>
+            <p><strong>CPF:</strong> @Mask.FormatCpf(currentUser.CPF)</p>
             <p style="color: #000080;"><strong>Nível de Acesso:</strong> @accessName</p>
         </div>
     }
