@@ -1,0 +1,14 @@
+﻿.aluno-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.aluno-card {
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #2b7fc3;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}

@@ -1,0 +1,150 @@
+﻿@page "/cadastro-aluno"
+@using SITA.src.Model
+@using SITA.src.Controller
+@inject NavigationManager Navigation
+
+<div class="page-bg">
+    <div class="form-container">
+
+        <h2>Cadastro de Aluno</h2>
+
+        <div class="field">
+            <label>Nome</label>
+            <input @bind="nome" />
+        </div>
+
+        <div class="field">
+            <label>RA</label>
+            <input @bind="ra" />
+        </div>
+
+        <div class="field">
+            <label>Idade</label>
+            <input type="text"
+                   value="@idadeString"
+                   @oninput="OnIdadeInput"
+                   placeholder="Digite a idade" />
+        </div>
+
+        <div class="field">
+            <label>Turma</label>
+            <select @bind="turmaId">
+                <option value="">Selecione a Turma</option>
+                @foreach (var t in turmas)
+                {
+                    <option value="@t.Id">@t.Nome</option>
+                }
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Responsável</label>
+            <select @bind="responsavelId">
+                <option value="">Selecione o Responsável</option>
+                @foreach (var r in responsaveis)
+                {
+                    <option value="@r.Id">@r.Nome</option>
+                }
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Parentesco</label>
+            <select @bind="tipoParentesco">
+                @foreach (var item in Responsavel.TipoParentescoMap)
+                {
+                    <option value="@item.Key">@item.Value</option>
+                }
+            </select>
+        </div>
+
+        <button @onclick="Cadastrar">Cadastrar</button>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <p class="msg">@message</p>
+        }
+
+    </div>
+</div>
+
+@code {
+    string nome = "";
+    string ra = "";
+    int? idade = null;
+    string idadeString = "";
+
+    Guid? turmaId;
+    Guid? responsavelId;
+    int tipoParentesco = 6;
+
+    string message = "";
+
+    List<Turma> turmas = new();
+    List<Responsavel> responsaveis = new();
+
+    protected override void OnInitialized()
+    {
+        turmas = MauiProgram.AppStorage.GetStorage<Turma>().Values.ToList();
+        responsaveis = MauiProgram.AppStorage.GetStorage<Responsavel>().Values.ToList();
+    }
+
+    void OnIdadeInput(ChangeEventArgs e)
+    {
+        var digits = new string((e.Value?.ToString() ?? "")
+            .Where(char.IsDigit)
+            .ToArray());
+
+        idadeString = digits;
+        idade = string.IsNullOrEmpty(digits) ? null : int.Parse(digits);
+    }
+
+    void Cadastrar()
+    {
+        if (string.IsNullOrEmpty(nome) || string.IsNullOrEmpty(ra) || idade == null)
+        {
+            message = "Preencha todos os campos.";
+            return;
+        }
+
+        if (turmaId == null || responsavelId == null)
+        {
+            message = "Selecione turma e responsável.";
+            return;
+        }
+
+        var turma = TurmaController.Get(turmaId.Value.ToString(), null);
+        var responsavel = ResponsavelController.Get(responsavelId.Value.ToString(), null);
+
+        if (turma == null || responsavel == null)
+        {
+            message = "Dados inválidos.";
+            return;
+        }
+
+        var aluno = new Aluno
+        {
+            Nome = nome,
+            RA = ra,
+            Idade = idade,
+            Turma = turma,
+            DataCadastro = DateTime.Now
+        };
+
+        AlunoController.Register(aluno);
+
+        ResponsavelController.AddParentesco(responsavel, aluno, tipoParentesco);
+        ResponsavelController.Register(responsavel);
+        TurmaController.AddAlunoToTurma(turma, aluno);
+
+        message = "Aluno cadastrado com sucesso!";
+
+        nome = "";
+        ra = "";
+        idade = null;
+        idadeString = "";
+        turmaId = null;
+        responsavelId = null;
+        tipoParentesco = 6;
+    }
+}

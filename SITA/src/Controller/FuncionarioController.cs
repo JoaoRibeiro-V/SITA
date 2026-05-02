@@ -11,7 +11,14 @@ namespace SITA.src.Controller
         {
             ClassStorage.AddData(obj.Id.ToString(), obj);
         }
+<<<<<<< HEAD
 
+=======
+        public static void Delete(Funcionario obj)
+        {
+            ClassStorage.Remove(obj.Id.ToString());
+        }
+>>>>>>> bd992929f2e600202fe3945e1cee5003b33648a3
         public static Funcionario? Get(string field, string? value)
         {
             if (value == null) { return ClassStorage.GetData(field); }

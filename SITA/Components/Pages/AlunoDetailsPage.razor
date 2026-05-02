@@ -1,0 +1,101 @@
+﻿@page "/aluno-details/{id:guid}"
+@using SITA.src.Model
+@using SITA.src.Util
+@inject NavigationManager Navigation
+
+<div class="page-bg">
+    <div class="form-container">
+
+        @if (aluno == null)
+        {
+            <h3>Aluno não encontrado</h3>
+            <button @onclick="Back">Voltar</button>
+        }
+        else
+        {
+            <h2>Detalhes do Aluno</h2>
+
+            <div class="field">
+                <label>Nome</label>
+                <p>@aluno.Nome</p>
+            </div>
+
+            <div class="field">
+                <label>RA</label>
+                <p>@aluno.RA</p>
+            </div>
+
+            <div class="field">
+                <label>Idade</label>
+                <p>@aluno.Idade</p>
+            </div>
+
+            <div class="field">
+                <label>Data de Nascimento</label>
+                <p>@aluno.DataNascimento</p>
+            </div>
+
+            <div class="field">
+                <label>Religião</label>
+                <p>@aluno.Religiao</p>
+            </div>
+
+            <div class="field">
+                <label>Pediatra</label>
+                <p>@aluno.NomePediatra</p>
+            </div>
+
+            <div class="field">
+                <label>Orientações de Emergência</label>
+                <p>@aluno.OrientacoesEmergencia</p>
+            </div>
+
+            <div class="field">
+                <label>Alergias</label>
+                <p>
+                    @(aluno.Alergias != null && aluno.Alergias.Any()
+                        ? string.Join(", ", aluno.Alergias)
+                        : "Nenhuma")
+                </p>
+            </div>
+
+            <div class="field">
+                <label>Condições Especiais</label>
+                <p>
+                    @(aluno.CondicoesEspeciais != null && aluno.CondicoesEspeciais.Any()
+                        ? string.Join(", ", aluno.CondicoesEspeciais)
+                        : "Nenhuma")
+                </p>
+            </div>
+
+            <div class="field">
+                <label>Turma</label>
+                <p>@aluno.Turma?.Nome</p>
+            </div>
+
+            <div class="field">
+                <label>Data de Cadastro</label>
+                <p>@aluno.DataCadastro.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+
+            <button @onclick="Back">Voltar</button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid id { get; set; }
+
+    private Aluno? aluno;
+
+    protected override void OnInitialized()
+    {
+        var storage = MauiProgram.AppStorage.GetStorage<Aluno>();
+        aluno = storage.Values.FirstOrDefault(a => a.Id == id);
+    }
+
+    void Back()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

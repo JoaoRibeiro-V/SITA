@@ -2,41 +2,77 @@
 @namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
+@using SITA.src.Controller
 @using SITA.Maui
 @inject NavigationManager Navigation
 
+<div class="body">
+    <section class="fundo">
 
-<div style="background-color: white; padding: 40px; border-radius: 12px; max-width: 400px; margin: 80px auto; border: 2px solid #000080; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-    
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="color: #000080; font-weight: bold;">SITA</h2>
-        <p style="color: #666;">Sistemas Integrados Tudo Azul</p>
+        <div class="campos">
+
+            <!-- LOGO -->
+            <span>
+                <img src="assets/images/Logo.png" alt="logo" />
+            </span>
+
+            <!-- USER (CPF) -->
+            <input @bind="userName"
+                   @oninput="OnCpfInput"
+                   class="form-control"
+                   type="text"
+                   placeholder="Usuário (CPF)"
+                   maxlength="14" />
+
+            <!-- PASSWORD -->
+            <input @bind="password"
+                   class="form-control"
+                   type="password"
+                   placeholder="Senha"
+                   />
+
+            <!-- ERROR -->
+            @if (showError)
+            {
+                <p style="color:red; text-align:center;">
+                    @errorMessage
+                </p>
+            }
+
+            <!-- LOGIN BUTTON -->
+            <button @onclick="HandleSignIn" id="confirmar">
+                Entrar
+            </button>
+
+            <!-- SIGNUP -->
+            <div style="text-align: center; margin-top: 20px;">
+                <button @onclick="IrParaCadastro"
+                        style="background: transparent; border: none; color: #000000; cursor: pointer; text-decoration: underline;">
+                    Não tem conta? Criar conta agora
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- BACKGROUND DECOR -->
+    <div class="bola1">
+        <div class="bola2">
+            <div class="bola3"></div>
+        </div>
     </div>
 
-    <div style="margin-bottom: 15px;">
-        <input @bind="userName" @oninput="OnCpfInput" id="cpf" name="cpf" maxlength="14" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Nome de usuário (CPF)" />
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <input type="password" @bind="password" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Senha" />
-    </div>
-
-    @if (showError)
-    {
-        <p style="color: red; text-align: center; font-size: 14px; margin-bottom: 15px;">@errorMessage</p>
-    }
-
-    <button @onclick="HandleSignIn" 
-            style="background-color: #000080; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer;">
-        Entrar
-    </button>
-
-    <div style="text-align: center; margin-top: 20px;">
-        <button @onclick="IrParaCadastro"
-                style="background: transparent; border: none; color: #0000FF; cursor: pointer; text-decoration: underline;">
-            Não tem conta? Criar conta agora
-        </button>
-    </div>
+    <svg class="linha" viewBox="0 0 1000 700" preserveAspectRatio="none">
+        <path d="
+        M0,0
+        L0,100
+        C200,200 400,50 600,150
+        S900,400 700,600
+        S300,650 1000,700
+        L1000,0
+        Z
+        " fill="#264ECA" stroke="#264ECA" stroke-width="2" />
+    </svg>
 </div>
 
 @code {
@@ -59,18 +95,26 @@
 
     private void HandleSignIn()
     {
-        if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+        string cleanCpf = Mask.RemoveMask(userName);
+
+        string? error = Validator.ValidateLogin(cleanCpf, password);
+
+        if (error != null)
         {
-            DisplayError("Preencha todos os campos.");
+            DisplayError(error);
             return;
         }
+        User? user = UserController.Get("CPF", cleanCpf);
 
+<<<<<<< HEAD
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
         string cpfLimpo = Mask.RemoveMask(userName);
 
         // CORREÇÃO SENIOR: Ajustando a chamada para o predicado do motor genérico
         // Isso resolve o erro CS1061 de "não contém definição para GetDataByField"
         User? user = userStorage.GetDataByField(u => u.CPF == cpfLimpo);
+=======
+>>>>>>> bd992929f2e600202fe3945e1cee5003b33648a3
 
         if (user == null || !PasswordHandler.VerifyPassword(password, user.Senha))
         {
@@ -78,7 +122,11 @@
             return;
         }
 
+<<<<<<< HEAD
         MauiProgram.AppSession.InitSession(user.AccessType);
+=======
+        MauiProgram.AppSession.InitSession(user);
+>>>>>>> bd992929f2e600202fe3945e1cee5003b33648a3
         Navigation.NavigateTo("/");
     }
 
@@ -86,19 +134,10 @@
     {
         errorMessage = message;
         showError = true;
-        System.Diagnostics.Debug.WriteLine(message);
     }
 
     private void IrParaCadastro()
     {
-        System.Diagnostics.Debug.WriteLine("Ir para cadastro");
-        try
-        {
-            Navigation.NavigateTo("/signup");
-        } catch(Exception ex)
-        {
-            DisplayError($"Erro ao navegar: {ex.Message}");
-        }
+        Navigation.NavigateTo("/signup");
     }
-
 }
