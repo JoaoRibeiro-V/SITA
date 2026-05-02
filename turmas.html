@@ -1,0 +1,116 @@
+<link rel="stylesheet" href="responsivo.css">
+
+<div id="navbar"></div>
+
+
+
+<div class="header">
+    <h1>Turma</h1>
+    <input type="text" id="pesquisa" placeholder="Pesquisar">
+</div>
+
+<div class="campo-btn">
+    <button>Cadastrar Turma</button>
+</div>
+
+<section class="container-card">
+
+    <div class="card">
+        <h4 id="nome-turma">Turma A</h4>
+        <p>professor</p>
+        <p>alunos</p>
+        <p>Turno</p>
+        <div class="btn-e">
+            <button id="editar">editar</button>
+            <button>excluir</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h4 id="nome-turma">Turma B</h4>
+        <p>professor</p>
+        <p>alunos</p>
+        <p>Turno</p>
+        <div class="btn-e">
+            <button id="editar">editar</button>
+            <button>excluir</button>
+        </div>
+    </div>
+
+</section>
+<style>
+    .header {
+        padding: 13px 30px 2px 47px;
+        width: 100%;
+        justify-content: space-between;
+        display: flex;
+        color: black;
+
+    }
+
+    .campo-btn {
+        width: 100%;
+        padding: 0px 0px 10px 18px;
+
+    }
+
+    .header input {
+        flex: 1;
+        max-width: 200px;
+        border: 2px solid black;
+        font-size: medium;
+        color: rgb(0, 0, 0);
+        padding: 10px 20px;
+        border-radius: 17px;
+
+
+    }
+
+    .campo-btn button {
+        max-width: 180px;
+        font-size: medium;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 17px;
+        border: none;
+        background-color: #1e3c72;
+    }
+
+    .container-card {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        padding: 0px 30px;
+    }
+
+    .card {
+
+        width: 180px;
+        max-width: 180px;
+        min-width: 180px;
+
+        height: 190px;
+        max-height: 190px;
+        min-height: 190px;
+
+        padding: 20px;
+        border-radius: 17px;
+        background-color: #2b7fc3;
+    }
+
+    .card button {
+        color: aliceblue;     
+        border: none;
+        border-radius: 13px;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-e {
+        display: flex;
+    }
+
+    #editar{background-color: green;
+    }
+</style>
+
+<script src="script.js"></script>

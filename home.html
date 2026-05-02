@@ -1,0 +1,131 @@
+<link href="https://cdn.jsdelivr.net/npm/@coreui/coreui-pro@5.24.2/dist/css/coreui.min.css" rel="stylesheet">
+<script defer src="https://cdn.jsdelivr.net/npm/@coreui/coreui-pro@5.24.2/dist/js/coreui.bundle.min.js"></script>
+<link rel="stylesheet" href="responsivo.css">
+<div id="navbar"></div>
+
+<section class="quadrados">
+
+    <div class="mensalidade">
+        <h1>Mensalidade</h1>
+        <span id="grafico-mensalidade"> <img style="max-width: 100px;" src="scr/Captura de tela 2026-04-28 120310.png"
+                alt=""></span>
+    </div>
+
+    <div class="total">
+        <h1>Total Recebido</h1>
+        <h3>R$: <span id="td-recebido" style="color: green;">453518</span></h3>
+    </div>
+
+    <div class="despesa">
+        <h1>Despesas</h1>
+        <h3>R$: <span id="despesa" style="color: red;">453518</span></h3>
+    </div>
+
+</section>
+
+<section class="grafico-do-calendario">
+
+    <div class="d-flex justify-content-center">
+        <div class="border rounded" data-coreui-locale="en-US" data-coreui-start-date="2024/02/13"
+            data-coreui-toggle="calendar"></div>
+    </div>
+
+    <div class="campo-resumo">
+        <div class="titulo"><h3>Resumo finaceiro</h3></div>
+        <div class="linha"></div>
+        <h5>Recebido</h5>
+        <h5>Despesa</h5>
+        
+        <span id="grafico-pizza"></span>
+    </div>
+</section>
+<style>
+    .quadrados {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+        flex-direction: row;
+        max-width: 1200px;
+        gap: 30px;
+        padding: 40px 20px;
+        margin: 0 auto;
+    }
+
+    .mensalidade,
+    .despesa,
+    .total {
+        /*divisão e o tamanho dos quadrados */
+        flex: 1;
+        min-width: 250px;
+        min-height: 140px;
+
+        /* conteudo */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mensalidade {
+        border-top: 3px solid yellow;
+    }
+
+    .mensalidade:hover {
+        transform: translateY(-5px);
+    }
+
+    .total {
+        border-top: 3px solid green;
+    }
+
+    .total:hover {
+        transform: translateY(-5px);
+    }
+
+    .despesa {
+        border-top: 3px solid red;
+    }
+
+    .despesa:hover {
+        transform: translateY(-5px);
+    }
+
+    .grafico-do-calendario{
+        justify-content: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5%;
+    }
+    .campo-resumo{ 
+        max-width: 270px;
+        min-width: 270px;
+        background-color: blueviolet;
+        border-radius: 13px;
+        box-shadow: -1px 5px 10px rgba(0, 0, 0, 0.521);
+        
+    }
+
+    .titulo{
+        display: flex;
+        justify-content: center;
+        padding: 3%;
+        background: none;
+    }
+
+    .linha{
+        margin-left: 5%;
+        background-color: black;
+        max-width: 90%;
+        min-width: 90%;
+        max-height: 1px;
+        min-height: 1px;
+    }
+</style>
+
+<script src="script.js"></script>

@@ -1,0 +1,232 @@
+<div id="navbar"></div>
+<link rel="stylesheet" href="responsivo.css">
+
+<div class="header">
+    <h1>Finaceiro</h1>
+    <button id="add">Adicionar</button>
+</div>
+
+<section class="quadrados">
+
+    <div class="recebido">
+        <h1>Total Recebido</h1>
+        <h3>R$: <span id="td-recebido" style="  color: #16a34a;">453518</span></h3>
+    </div>
+
+    <div class="despesa">
+        <h1>Despesas Totais</h1>
+        <h3>R$:<span id="despesa" style="color: #dc2626;">meme</span></h3>
+    </div>
+
+    <div class="lucro">
+        <h1>Lucro Total</h1>
+        <h3>R$:<span id="lucro" style=" color: #16A34A;">133322</span></h3>
+    </div>
+
+</section>
+
+
+<h1 class="titulo">Lançamento</h1>
+<section class="lancamento">
+
+    <div class="item">
+        <span>Pagamento aluno</span>
+        <span id="positivo">+R$ 500</span>
+    </div>
+
+
+    <div class="item">
+        <span>Conta de luz</span>
+        <span class="negativo">-R$ 300</span>
+    </div>
+    <div class="item"><span>Conta de agua</span><span class="negativo">-R$ 340</span></div>
+
+    
+</section>
+
+<div class="overlay" id="overlay">
+    <div class="modal">
+        <h2>Novo Lançamento</h2>
+
+        <input type="text" onkeypress="return event.charCode >= 48 && event.charCode <= 57" placeholder="Valor">
+
+        <select>
+            <option>Entrada</option>
+            <option>Saída</option>
+        </select>
+
+        <input type="file">
+
+        <button class="btn-add">Adicionar</button>
+        <button class="btn-fechar" id="fechar">Cancelar</button>
+    </div>
+</div>
+
+
+<style>
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal {
+        background: #1e3c72;
+        padding: 25px;
+        border-radius: 12px;
+        width: 300px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        color: white;
+    }
+
+    .modal input,
+    .modal select {
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+    }
+
+    .btn-add {
+        background: #16A34A;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .btn-fechar {
+        background: #dc2626;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .header {
+        padding: 13px 30px;
+        width: 100%;
+        justify-content: space-between;
+        display: flex;
+    }
+
+    #add {
+        font-size: medium;
+        color: white;
+        padding: 13px 30px;
+        border-radius: 17px;
+        border: none;
+        max-width: 160px;
+        background-color: #1e3c72;
+    }
+
+    .quadrados {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+        flex-direction: row;
+        max-width: 1200px;
+        gap: 30px;
+        padding: 40px 20px;
+        margin: 0 auto;
+    }
+
+    .recebido,
+    .despesa,
+    .lucro {
+        flex: 1;
+        min-width: 250px;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .lucro {
+        border-top: 3px solid #16A34A;
+    }
+
+    .lucro:hover {
+        transform: translateY(-5px);
+    }
+
+    .recebido {
+        border-top: 3px solid #16a34a;
+    }
+
+    .recebido:hover {
+        transform: translateY(-5px);
+    }
+
+    .despesa {
+        border-top: 3px solid #dc2626;
+    }
+
+    .despesa:hover {
+        transform: translateY(-5px);
+    }
+
+    .titulo {
+        padding: 0 30px;
+    }
+
+    .lancamento {
+        padding: 20px;
+        width: 100%;
+        min-height: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: auto;
+    }
+
+    .item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #2b7fc3, #1e3c72);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        color: white;
+        font-size: 15px;
+    }
+
+    .valor {
+        font-weight: bold;
+    }
+
+    .positivo {
+        color: #4ade80;
+    }
+
+    .negativo {
+        color: #f87171;
+    }
+</style>
+<script>const btn = document.getElementById("add");
+    const overlay = document.getElementById("overlay");
+    const fechar = document.getElementById("fechar");
+
+    btn.onclick = () => overlay.style.display = "flex";
+    fechar.onclick = () => overlay.style.display = "none";</script>
+<script src="script.js"></script>

@@ -1,0 +1,265 @@
+<link rel="stylesheet" href="responsivo.css">
+
+<section class="nav-bar">
+    <div class="nav-logo">
+        <a href="home.html"><img src="scr/NewCanvas1.png" alt="logo"></a>
+    </div>
+
+
+    <ul class="nav-list">
+
+        <li class="nav-item"><a href="Aluno.html">Aluno</a></li>
+
+        <li class="nav-item"><a href="financeiro.html">Finaceiro</a></li>
+
+        <li class="nav-item"><a href="turmas.html">Turma</a></li>
+
+        <li class="nav-item"><a href="relatorio.html">Relatorios</a></li>
+
+        <li class="nav-item"><a href="pedidos.html">Pedidos</a></li>
+    </ul>
+
+    <div class="checkbox-wrapper">
+        <input type="checkbox" id="toggle">
+        <label class="checkbox" for="toggle">
+            <div class="trace"></div>
+            <div class="trace"></div>
+            <div class="trace"></div>
+        </label>
+        <div class="menu"></div>
+        <nav class="menu-items">
+            <ul id="menu">
+
+                <li><a href="#">Cadastro Aluno</a></li>
+                <li><a href="#">Cadastro Responsavel</a></li>
+                <li><a href="#">Cadastro Turma</a></li>
+                <li><a href="#">Cadastro Funcionario</a></li>
+
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+</section>
+
+
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    #toggle {
+        display: none;
+        width: auto;
+    }
+
+    /* NAVBAR */
+    .nav-bar {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: auto;
+        height: 60px;
+        background: linear-gradient(90deg, #1e3c72, #2b7fc3);
+        z-index: 1000;
+    }
+
+    .nav-logo {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .nav-logo img {
+        height: 40px;
+    }
+
+    .nav-list {
+        display: flex;
+
+
+        padding: 0;
+        height: 100%;
+        margin: 0;
+
+        justify-content: center;
+        align-items: center;
+        gap: 50px;
+        list-style: none;
+        width: 100%;
+    }
+
+    .nav-item {
+        position: relative;
+        padding: 5px 10px;
+        border-radius: 3px;
+        transition: 0.3s;
+    }
+
+    .nav-item:hover {
+        background-color: #2A4B7C;
+    }
+
+    .nav-item a,
+    .nav-label,
+    .dropdown-item {
+        text-decoration: none;
+        color: antiquewhite;
+        cursor: pointer;
+    }
+
+    .seta {
+        display: inline-block;
+        transform: rotate(90deg);
+    }
+
+    .nav-item:hover .seta {
+        transform: rotate(270deg);
+    }
+
+    /* DROPDOWN */
+    .nav-dropdown {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 140px;
+        background: #005F73;
+        border-radius: 0 0 10px 10px;
+    }
+
+    .dropdown-item {
+        padding: 10px;
+    }
+
+    .dropdown-item:hover {
+        background-color: #2A4B7C;
+    }
+
+    #nav-turma:checked~.nav-dropdown,
+    .nav-item:hover .nav-dropdown {
+        display: flex;
+    }
+
+    /* BOTÃO HAMBURGUER */
+    .checkbox {
+        height: 60px;
+        width: 60px;
+        position: absolute;
+        right: 20px;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    .trace {
+        width: 30px;
+        height: 2px;
+        background: rgb(255, 255, 255);
+        position: absolute;
+        transition: 0.3s;
+    }
+
+    .trace:nth-child(1) {
+        top: 20px;
+    }
+
+    .trace:nth-child(2) {
+        top: 30px;
+    }
+
+    .trace:nth-child(3) {
+        top: 40px;
+    }
+
+    /* X ANIMAÇÃO */
+    #toggle:checked+.checkbox .trace:nth-child(1) {
+        transform: rotate(45deg);
+        top: 30px;
+    }
+
+    #toggle:checked+.checkbox .trace:nth-child(2) {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    #toggle:checked+.checkbox .trace:nth-child(3) {
+        transform: rotate(-45deg);
+        top: 30px;
+    }
+
+    /* OVERLAY */
+    .menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(5px);
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+        z-index: 998;
+    }
+
+    #toggle:checked~.menu {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* MENU LATERAL */
+    .menu-items {
+        position: fixed;
+        top: 0;
+        right: -320px;
+
+        width: 320px;
+        height: 100vh;
+
+        background: #005F73;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+
+        display: flex;
+        flex-direction: column;
+        padding: 80px 30px;
+
+        transition: 0.3s;
+        z-index: 999;
+    }
+
+    #toggle:checked~.menu-items {
+        right: 0;
+    }
+
+    /* ITENS */
+    .menu-items ul {
+        list-style: none;
+        width: 100%;
+    }
+
+    .menu-items li {
+        margin-bottom: 20px;
+    }
+
+    .menu-items a {
+        color: white;
+        text-decoration: none;
+        font-size: 20px;
+        transition: 0.2s;
+    }
+
+    /*murdar a cor do munu da direita */
+    .menu-items a:hover {
+        color: rgb(255, 255, 255);
+        padding-left: 10px;
+    }
+</style>

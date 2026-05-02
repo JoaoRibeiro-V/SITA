@@ -1,0 +1,91 @@
+<link rel="stylesheet" href="responsivo.css">
+<div id="navbar"></div>
+
+<section>
+
+<div class="container">
+  <h1>Pedidos de Materiais</h1>
+
+  <div class="card">
+    <div class="info">
+      <strong>Limpeza - Alvejante</strong>
+      <span>Qtd: 2 | Funcionário: João</span>
+    </div>
+    <div class="status pendente">Pendente</div>
+  </div>
+
+  <div class="card">
+    <div class="info">
+      <strong>Secretaria - Papel A4</strong>
+      <span>Qtd: 5 | Funcionário: Maria</span>
+    </div>
+    <div class="status aprovado">Aprovado</div>
+  </div>
+
+  <div class="card">
+    <div class="info">
+      <strong>Secretaria - Tinta Impressora</strong>
+      <span>Qtd: 1 | Funcionário: Carlos</span>
+    </div>
+    <div class="status rejeitado">Rejeitado</div>
+  </div>
+
+</div>
+
+
+<style>
+section{
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #2ec4ff, #1e3c72);
+  color: white;
+}
+
+.container {
+  padding: 30px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.info span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.status {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* cores dos status */
+.pendente {
+  background: #ffd43b;
+  color: black;
+}
+
+.aprovado {
+  background: #51cf66;
+}
+
+.rejeitado {
+  background: #ff6b6b;
+}
+</style>
+
+<script src="script.js"></script>

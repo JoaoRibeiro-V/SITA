@@ -1,0 +1,107 @@
+<div id="navbar"></div>
+<link rel="stylesheet" href="responsivo.css">
+
+<section class="fundo">
+
+    <div class="header">
+        <h1>Aluno</h1>
+        <input type="text" id="pesquisa" placeholder="Pesquisar">
+    </div>
+
+    <div class="campo-btn">
+        <button>Cadastrar Aluno</button>
+    </div>
+<section class="tabela-alunos">
+
+    <div class="header-tab">
+        <p>Nome</p>
+        <p>RA</p>
+        <p>Status</p>
+    </div>
+
+    <div class="linha">
+        <p>Maria</p>
+        <p>01234</p>
+        <p class="ativo">Ativo</p>
+    </div>
+
+    <div class="linha">
+        <p>João</p>
+        <p>56789</p>
+        <p class="pendente">Pendências</p>
+    </div>
+
+</section>
+
+
+
+
+   
+
+</section>
+
+<style>
+    .header {
+        padding: 13px 30px 2px 56px;
+        width: 100%;
+        justify-content: space-between;
+        display: flex;
+        color: black;
+
+    }
+
+    .campo-btn {
+        width: 100%;
+        padding: 15px 20px;
+
+    }
+
+    .header input {
+        flex: 1;
+        max-width: 200px;
+        border: 2px solid black;
+        font-size: medium;
+        color: rgb(0, 0, 0);
+        padding: 10px 20px;
+        border-radius: 17px;
+
+
+    }
+
+    .campo-btn button {
+        max-width: 180px;
+        font-size: medium;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 17px;
+        border: none;
+        background-color: #1e3c72;
+    }
+
+.tabela-alunos {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.header-tab,
+.linha {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 70px;
+}
+
+.header-tab {
+    font-weight: bold;
+    background: #1e3c72;
+    color: white;
+}
+
+.linha {
+    background: #f5f5f5;
+    margin-top: 5px;
+    border-radius: 5px;
+}
+</style>
+
+<script src="script.js"></script>
