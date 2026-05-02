@@ -18,6 +18,7 @@ namespace SITA.src.Util
     {
         private static Session Instance = new Session();
         private AccessType AccessType = new AccessType();
+        private User? AccessUser = null;
         /* 
          * public void InitSession(AccessType NewAccess) ->  Inicia uma sessão apartir de um valor AccessType passado
          * por parâmetro, podendo ser independente ou provinda de um usuário.
@@ -43,9 +44,10 @@ namespace SITA.src.Util
 
          * ==============================================
          */
-        public void InitSession(AccessType NewAccess)
+        public void InitSession(User user)
         {
-            Instance.AccessType = NewAccess;
+            Instance.AccessType = user.AccessType;
+            Instance.AccessUser = user;
             //Console.WriteLine("Changed access to: " + Instance.AccessType.Name);
         }
 
@@ -67,5 +69,6 @@ namespace SITA.src.Util
         }
 
         public string? GetLoggedInKey() => Instance.LoggedInKey;
+        public User? GetLoggedInUser() => Instance.AccessUser;
     }
 }

@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="SITA\SITA.csproj" />
+  <Project Path="SITA\SITA.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
 </Solution>

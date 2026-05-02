@@ -22,6 +22,10 @@ namespace SITA.src.Controller
         {
             ClassStorage.AddData(obj.Id.ToString(), obj);
         }
+        public static void Delete(Aluno obj)
+        {
+            ClassStorage.Remove(obj.Id.ToString());
+        }
 
         /* Método para obter um aluno específico do armazenamento
          * Caso o segundo parâmetro seja nulo, retorna o aluno com a chave igual ao primeiro parâmetro (Por padrão, o Id).

@@ -14,6 +14,10 @@ namespace SITA.src.Controller
         public static void Register(User obj) {
             ClassStorage.AddData(obj.Id.ToString(), obj);
         }
+        public static void Delete(User obj)
+        {
+            ClassStorage.Remove(obj.Id.ToString());
+        }
         public static User? Get(string field, string? value)
         {
             if (value == null) { return ClassStorage.GetData(field); }

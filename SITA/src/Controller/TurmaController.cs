@@ -21,6 +21,10 @@ namespace SITA.src.Controller
         {
             ClassStorage.AddData(obj.Id.ToString(), obj);
         }
+        public static void Delete(Turma obj)
+        {
+            ClassStorage.Remove(obj.Id.ToString());
+        }
         /* Classe para obter uma turma específica do armazenamento
          * Caso o segundo parâmetro seja nulo, retorna a turma com a chave igual ao primeiro parâmetro (Por padrão, o Id da turma).
          * Caso contrário, retorna a turma que tenha o valor do campo especificado igual ao segundo parâmetro.

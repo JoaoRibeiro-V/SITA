@@ -8,6 +8,16 @@ namespace SITA.src.Model
 {
     public class Responsavel : User
     {
+        public static Dictionary<int, string> TipoParentescoMap = new()
+        {
+            { 0, "Mãe" },
+            { 1, "Pai" },
+            { 2, "Tio" },
+            { 3, "Tia" },
+            { 4, "Avô" },
+            { 5, "Avó" },
+            { 6, "Outro" }
+        };
         public string? Telefone { get; set; }
         public string? Endereco { get; set; }
         private List<Parentesco> Parentescos { get; set; } = new List<Parentesco>();
@@ -63,7 +73,7 @@ namespace SITA.src.Model
             }
             public string GetParentesco()
             {
-                return TipoParentesco[Tipo];
+                return Responsavel.TipoParentescoMap[Tipo];
             }
         }
 

@@ -1,0 +1,123 @@
+﻿@page "/cadastro-responsavel"
+@using SITA.src.Model
+@using SITA.src.Util
+@using SITA.src.Controller
+@inject NavigationManager Navigation
+
+<div class="form-container">
+
+    <h2>Cadastro de Responsável</h2>
+
+    <input @bind="nome" placeholder="Nome" />
+
+    <input value="@cpf"
+           @oninput="OnCpfInput"
+           placeholder="CPF"
+           maxlength="14"/>
+
+    <input @bind="email" placeholder="Email" />
+
+    <input value="@telefone"
+           @oninput="OnTelefoneInput"
+           placeholder="Telefone"
+           maxlength="15"/>
+
+    <input @bind="endereco" placeholder="Endereço" />
+
+    <input type="password" @bind="senha" placeholder="Senha" />
+
+    <button @onclick="Cadastrar">Cadastrar</button>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <p class="msg">@message</p>
+    }
+
+</div>
+
+@code {
+    string nome = "";
+    string cpf = "";
+    string email = "";
+    string telefone = "";
+    string endereco = "";
+    string senha = "";
+    string message = "";
+
+    void OnCpfInput(ChangeEventArgs e)
+    {
+        var digits = new string((e.Value?.ToString() ?? "")
+            .Where(char.IsDigit)
+            .ToArray());
+
+        if (digits.Length > 11)
+            digits = digits[..11];
+
+        cpf = Mask.FormatCpf(digits);
+    }
+
+    void OnTelefoneInput(ChangeEventArgs e)
+    {
+        var digits = new string((e.Value?.ToString() ?? "")
+            .Where(char.IsDigit)
+            .ToArray());
+
+        if (digits.Length > 11)
+            digits = digits[..11];
+
+        telefone = Mask.FormatPhone(digits);
+    }
+
+    void Cadastrar()
+    {
+        try
+        {
+            string cleanCpf = Mask.RemoveMask(cpf);
+            string cleanPhone = Mask.RemoveMask(telefone);
+
+            string? error =
+                Validator.ValidateRequired(
+                    (nome, "Nome"),
+                    (cleanCpf, "CPF"),
+                    (email, "Email"),
+                    (senha, "Senha")
+                )
+                ?? Validator.ValidateCPF(cleanCpf)
+                ?? Validator.ValidateEmail(email)
+                ?? Validator.ValidatePassword(senha)
+                ?? Validator.ValidateDuplicateCPF(cleanCpf)
+                ?? Validator.ValidateDuplicateEmail(email);
+
+            if (error != null)
+            {
+                message = error;
+                return;
+            }
+
+            User user = new User
+            {
+                Nome = nome,
+                CPF = cleanCpf,
+                Email = email,
+                AccessType = new AccessType { Level = 0 }
+            };
+
+            user.Senha = PasswordHandler.HashPassword(senha, user.Salt);
+
+            UserController.Register(user);
+
+            Responsavel responsavel = ResponsavelController.CreateByUser(user);
+
+            responsavel.Telefone = cleanPhone;
+            responsavel.Endereco = endereco;
+
+            ResponsavelController.Register(responsavel);
+
+            message = "Responsável cadastrado com sucesso!";
+        }
+        catch (Exception ex)
+        {
+            message = $"Erro: {ex.Message}";
+        }
+    }
+}

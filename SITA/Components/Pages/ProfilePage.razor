@@ -1,4 +1,4 @@
-@page "/"
+@page "/profile"
 @namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
@@ -36,7 +36,7 @@
             var userStorage = MauiProgram.AppStorage.GetStorage<User>();
 
             // 2. Busca o usuário correspondente ao nível de acesso
-            currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
+            currentUser = MauiProgram.AppSession.GetLoggedInUser();
 
             // 3. Se não tem ninguém logado (nível -1), manda pro Login
             if (currentUser == null)
@@ -61,7 +61,13 @@
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
         currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
         currentUser.DataUltimoAcesso = DateTime.Now;
-        MauiProgram.AppSession.InitSession(new AccessType { Level = -1 });
+        MauiProgram.AppSession.InitSession(new User
+        {
+            AccessType = new AccessType
+            {
+                Level = -1
+            }
+        });
 
         
         // 5. Redireciona via Blazor

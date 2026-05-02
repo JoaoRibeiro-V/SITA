@@ -1,0 +1,72 @@
+﻿@page "/"
+@namespace SITA.Maui.Components
+@using SITA.src.Model
+@using SITA.src.Util
+@using SITA.Maui
+@inject NavigationManager Navigation
+
+<link rel="stylesheet" href="responsivo.css">
+<div id="navbar"></div>
+
+<section class="quadrados">
+
+    <div class="mensalidade">
+        <h1>Mensalidade</h1>
+        <span id="grafico-mensalidade">
+            <img style="max-width: 100px;" src="scr/Captura de tela 2026-04-28 120310.png"
+                 alt="">
+        </span>
+    </div>
+
+    <div class="total">
+        <h1>Total Recebido</h1>
+        <h3>R$: <span id="td-recebido" style="color: green;">453518</span></h3>
+    </div>
+
+    <div class="despesa">
+        <h1>Despesas</h1>
+        <h3>R$: <span id="despesa" style="color: red;">453518</span></h3>
+    </div>
+
+</section>
+
+<section class="grafico-do-calendario">
+
+    <div class="d-flex justify-content-center">
+        <div class="border rounded" data-coreui-locale="en-US" data-coreui-start-date="2024/02/13"
+             data-coreui-toggle="calendar"></div>
+    </div>
+
+    <div class="campo-resumo">
+        <div class="titulo"><h3>Resumo finaceiro</h3></div>
+        <div class="linha"></div>
+        <h5>Recebido</h5>
+        <h5>Despesa</h5>
+        
+        <span id="grafico-pizza"></span>
+    </div>
+</section>
+
+@code{
+    private User? currentUser;
+    private string accessName = "";
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            
+            // 3. Se não tem ninguém logado (nível -1), manda pro Login
+            if (MauiProgram.AppSession.GetInstanceAccess().Level <= -1)
+            {
+                Navigation.NavigateTo("/signin");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao carregar home: {ex.Message}");
+            Navigation.NavigateTo("/signin");
+        }
+        
+    }
+}

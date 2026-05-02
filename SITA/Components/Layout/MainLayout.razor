@@ -1,7 +1,17 @@
 ﻿@inherits LayoutComponentBase
+@using SITA.src.Util
+@using SITA.Maui.Components
 
 <div class="page">
     <main>
-        @Body
+        <div>
+
+            @if (MauiProgram.AppSession.IsLoggedIn())
+            {
+                <NavBar />
+            }
+
+            @Body
+        </div>
     </main>
 </div>

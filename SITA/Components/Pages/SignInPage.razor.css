@@ -1,0 +1,98 @@
+﻿.body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.fundo {
+    display: flex;
+    background-color: #2148C0;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.campos {
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
+    position: relative;
+    z-index: 2;
+    border-radius: 17px;
+    gap: 15px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    box-shadow: 0 4px 10px rgb(0, 0, 0);
+}
+
+#email, #senha {
+    background-color: #84edfd;
+    padding: 13px;
+    border-radius: 27px;
+    width: 100%;
+    border: none;
+}
+
+#confirmar {
+    font-size: large;
+    padding: 17px;
+    border: none;
+    width: 100%;
+    border-radius: 13px;
+    cursor: pointer;
+    background: #00DBFF;
+    font-weight: bold;
+    transition: transform 0.3s ease-out;
+}
+
+    #confirmar:hover {
+        transform: translateY(-5px);
+    }
+
+.bola1 {
+    width: 40vw;
+    height: 40vw;
+    max-width: 700px;
+    max-height: 700px;
+    position: fixed;
+    bottom: -40%;
+    right: 70%;
+    border-radius: 50%;
+    background-color: #264ECA;
+}
+
+.bola2 {
+    position: absolute;
+    top: 9%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background-color: #244BC5;
+}
+
+.bola3 {
+    position: absolute;
+    top: 10%;
+    left: 9%;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background-color: #274FC7;
+}
+
+.linha {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh + 20px);
+    z-index: 1;
+}
+
+img {
+    max-width: 100%;
+}
