@@ -31,14 +31,12 @@
     {
         try
         {
-            // 1. Pega o acesso da sessão ativa
             var access = MauiProgram.AppSession.GetInstanceAccess();
             var userStorage = MauiProgram.AppStorage.GetStorage<User>();
 
-            // 2. Busca o usuário correspondente ao nível de acesso
-            currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
+           
+            currentUser = userStorage.GetAllData().FirstOrDefault(u => u.AccessType.Level == access.Level);
 
-            // 3. Se não tem ninguém logado (nível -1), manda pro Login
             if (currentUser == null)
             {
                 Navigation.NavigateTo("/signin");
@@ -47,24 +45,26 @@
             {
                 accessName = access.GetAccessName();
             }
-        }catch(Exception ex)
+        }
+        catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro ao carregar perfil: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"SITA Erro: {ex.Message}");
             Navigation.NavigateTo("/signin");
         }
-        
     }
 
     private void OnLogoutClicked()
     {
         var access = MauiProgram.AppSession.GetInstanceAccess();
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-        currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
-        currentUser.DataUltimoAcesso = DateTime.Now;
-        MauiProgram.AppSession.InitSession(new AccessType { Level = -1 });
-
         
-        // 5. Redireciona via Blazor
+ 
+        currentUser = userStorage.GetAllData().FirstOrDefault(u => u.AccessType.Level == access.Level);
+        
+        if (currentUser != null)
+            currentUser.DataUltimoAcesso = DateTime.Now;
+
+        MauiProgram.AppSession.InitSession(new AccessType { Level = -1 });
         Navigation.NavigateTo("/signin");
     }
 }

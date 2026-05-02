@@ -1,12 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System;
-using System.Collections.Generic;
-using System.Collections;
 
 namespace SITA.src.Model
 {
@@ -14,21 +7,30 @@ namespace SITA.src.Model
     {
         public Guid Id { get; set; }
         public string? RA { get; set; }
-        public int? Idade { get; set; }
         public string? Nome { get; set; }
-        public string? DataNascimento { get; set; }
+        public DateTime? DataNascimento { get; set; }
         public string? Religiao { get; set; }
         public string? NomePediatra { get; set; }
         public string? OrientacoesEmergencia { get; set; }
-        public List<string>? Alergias { get; set; }
-        public List<string>? CondicoesEspeciais { get; set; }
+        public List<string> Alergias { get; set; } = new List<string>();
+        public List<string> CondicoesEspeciais { get; set; } = new List<string>();
         public List<string> HistoricoFinanceiroIds { get; set; } = new List<string>();
-        public DateTime DataCadastro { get; set; }
-        public Turma? Turma { get; set; }
+        public DateTime DataCadastro { get; set; } = DateTime.Now;
+        public Guid? TurmaId { get; set; }
+        public string? ResponsavelCPF { get; set; }
 
         public Aluno()
         {
             Id = Guid.NewGuid();
+        }
+
+        public int CalcularIdade()
+        {
+            if (!DataNascimento.HasValue) return 0;
+            var hoje = DateTime.Today;
+            var idade = hoje.Year - DataNascimento.Value.Year;
+            if (DataNascimento.Value.Date > hoje.AddYears(-idade)) idade--;
+            return idade;
         }
     }
 }

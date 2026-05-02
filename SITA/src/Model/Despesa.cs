@@ -1,12 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SITA.src.Model
 {
     public class Despesa : Financeiro
     {
+        public string? Fornecedor { get; set; }
+        public string? Categoria { get; set; } 
+        public DateTime? DataPagamento { get; set; }
+        public int Status { get; set; } // 0: Pendente, 1: Pago
+
+        public Despesa() : base()
+        {
+            Status = 0;
+        }
+
+        public bool IsPago => DataPagamento.HasValue || Status == 1;
     }
 }

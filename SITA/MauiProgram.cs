@@ -9,35 +9,49 @@ namespace SITA
 {
     public static class MauiProgram
     {
-        public static GeneralStorage AppStorage = new GeneralStorage();
+       
+        public static GeneralStorage<object> AppStorage = new GeneralStorage<object>();
         public static Session AppSession = new Session();
-        private static void RegisterStorages()
+
+        private static void RegisterStorages(MauiAppBuilder builder)
         {
+           
+            builder.Services.AddSingleton<IStorage<User>, GeneralStorage<User>>();
+            builder.Services.AddSingleton<IStorage<Aluno>, GeneralStorage<Aluno>>();
+            builder.Services.AddSingleton<IStorage<Responsavel>, GeneralStorage<Responsavel>>();
+            builder.Services.AddSingleton<IStorage<Turma>, GeneralStorage<Turma>>();
+            builder.Services.AddSingleton<IStorage<Funcionario>, GeneralStorage<Funcionario>>();
+            builder.Services.AddSingleton<IStorage<Receita>, GeneralStorage<Receita>>();
+            builder.Services.AddSingleton<IStorage<Despesa>, GeneralStorage<Despesa>>();
+            builder.Services.AddSingleton<IStorage<Salario>, GeneralStorage<Salario>>();
+        }
+
+        public static MauiApp CreateMauiApp()
+        {
+            // Inicialização dos storages no objeto estático global
             AppStorage.AddStorage<User>();
             AppStorage.AddStorage<Aluno>();
             AppStorage.AddStorage<Responsavel>();
             AppStorage.AddStorage<Turma>();
             AppStorage.AddStorage<Funcionario>();
-        }
-        public static MauiApp CreateMauiApp()
-        {
-            RegisterStorages();
-            EnsureJsonCopied().GetAwaiter().GetResult();
-            LoadImportSync();
+
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                });
+                .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
 
             builder.Services.AddMauiBlazorWebView();
+
+            RegisterStorages(builder);
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
+
+            EnsureJsonCopied().GetAwaiter().GetResult();
+            LoadImportSync();
+
             User newUser = new User
             {
                 Nome = "Responsável 1",
@@ -59,51 +73,40 @@ namespace SITA
             };
 
             AlunoController.Register(filhoDoFulano);
-            ResponsavelController.AddParentesco(newResponsavel, filhoDoFulano, 1);
+
+            newResponsavel.AddParentesco(filhoDoFulano, 1);
 
             JsonHandler.PrintClass(newResponsavel);
-            System.Diagnostics.Debug.WriteLine($"Responsável: {newResponsavel.Nome}, Aluno: {newResponsavel.GetParentescos()?[0].Aluno.Nome}, Parentesco: {newResponsavel.GetParentescos()?[0].GetParentesco()}");
+
+            var pTeste = newResponsavel.Parentescos.FirstOrDefault();
+            if (pTeste != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Responsável: {newResponsavel.Nome}, Aluno: {pTeste.NomeAluno}, Parentesco: {pTeste.GetDescricaoTipo()}");
+            }
+          
+
             return builder.Build();
         }
 
         public static void LoadImportSync()
         {
             System.Diagnostics.Debug.WriteLine("Calling sync import");
-
             string path = Path.Combine(FileSystem.AppDataDirectory, "import.json");
-            System.Diagnostics.Debug.WriteLine("Looking for file at: " + path);
-            System.Diagnostics.Debug.WriteLine("File exists? " + File.Exists(path));
-
-            if (!File.Exists(path))
-            {
-                System.Diagnostics.Debug.WriteLine("File not found: " + path);
-                return;
-            }
+            if (!File.Exists(path)) return;
 
             string json = File.ReadAllText(path);
-
-            System.Diagnostics.Debug.WriteLine("JSON loaded: " + json);
-
             var handler = new JsonHandler();
-            handler.LoadFromString(json, AppStorage);
-
+            handler.LoadFromString(json, (GeneralStorage<object>)AppStorage);
             System.Diagnostics.Debug.WriteLine("IMPORT FINISHED");
         }
+
         public static async Task EnsureJsonCopied()
         {
             string targetPath = Path.Combine(FileSystem.AppDataDirectory, "import.json");
-
-            System.Diagnostics.Debug.WriteLine("Copying JSON...");
-
-            using var stream = await FileSystem
-                .OpenAppPackageFileAsync("import.json")
-                .ConfigureAwait(false);
-
+            using var stream = await FileSystem.OpenAppPackageFileAsync("import.json");
             using var reader = new StreamReader(stream);
-            string content = await reader.ReadToEndAsync().ConfigureAwait(false);
-
+            string content = await reader.ReadToEndAsync();
             File.WriteAllText(targetPath, content);
-
             System.Diagnostics.Debug.WriteLine("Copy complete");
         }
     }

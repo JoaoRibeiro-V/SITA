@@ -65,18 +65,19 @@
             return;
         }
 
-        // 2. Busca o usuário no Storage global
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-        User? user = userStorage.GetDataByField("CPF", Mask.RemoveMask(userName));
+        string cpfLimpo = Mask.RemoveMask(userName);
 
-        // 3. Verifica senha com o PasswordHandler
+        // CORREÇÃO SENIOR: Ajustando a chamada para o predicado do motor genérico
+        // Isso resolve o erro CS1061 de "não contém definição para GetDataByField"
+        User? user = userStorage.GetDataByField(u => u.CPF == cpfLimpo);
+
         if (user == null || !PasswordHandler.VerifyPassword(password, user.Senha))
         {
             DisplayError("Usuário ou senha inválidos.");
             return;
         }
 
-        // 4. Sucesso: Inicia a Sessão e Navega
         MauiProgram.AppSession.InitSession(user.AccessType);
         Navigation.NavigateTo("/");
     }

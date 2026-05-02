@@ -5,87 +5,122 @@
 @using SITA.Maui
 @inject NavigationManager Navigation
 
-<div style="background-color: white; padding: 20px; border-radius: 10px; border: 2px solid #000080;">
+<div style="background-color: white; padding: 20px; border-radius: 10px; border: 2px solid #000080; max-width: 800px; margin: auto;">
     <h2 style="color: #000080; text-align: center;">Ficha de Matrícula / Inscrição</h2>
     <hr />
 
     <div class="form-group">
-        <label>Nome Completo:</label>
+        <label><b>Nome Completo do Aluno:</b></label>
         <input class="form-control" @bind="novoAluno.Nome" placeholder="Nome do aluno" />
 
-        <label>Turma:</label>
-        <input class="form-control" @bind="novaTurma.Nome" placeholder="Ex: Maternal A" />
+        <label class="mt-2"><b>CPF do Responsável Financeiro (Já cadastrado):</b></label>
+        <input class="form-control" @bind="novoAluno.ResponsavelCPF" placeholder="000.000.000-00" />
     </div>
 
-    <h4 style="color: #000080; margin-top: 20px;">Dados de Saúde e Emergência</h4>
-    <div class="form-group" style="background-color: #f0f8ff; padding: 15px; border-radius: 5px;">
-        <label>Alergias:</label>
+    <h4 style="color: #000080; margin-top: 20px;">Dados de Saúde</h4>
+    <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; border: 1px solid #d1e9ff;">
+        <label><b>Alergias (Enter para adicionar):</b></label>
         <input class="form-control" @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" />
+        <div class="mt-2">
+            @foreach (var alg in novoAluno.Alergias)
+            {
+                <span class="badge bg-danger me-1">@alg</span>
+            }
+        </div>
 
-        <label>Condições Especiais:</label>
+        <label class="mt-2"><b>Condições Especiais:</b></label>
         <input class="form-control" @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" />
-
-        <label>Nome do Pediatra:</label>
-        <input class="form-control" @bind="novoAluno.NomePediatra" />
-
-        <label>Orientações de Emergência:</label>
-        <input class="form-control" @bind="novoAluno.OrientacoesEmergencia" />
+        <div class="mt-2">
+            @foreach (var cond in novoAluno.CondicoesEspeciais)
+            {
+                <span class="badge bg-warning text-dark me-1">@cond</span>
+            }
+        </div>
     </div>
 
-    <button class="btn" style="background-color: #000080; color: white; width: 100%; margin-top: 20px;" @onclick="SalvarAluno">
-        Finalizar Matrícula
+    <button class="btn" style="background-color: #000080; color: white; width: 100%; margin-top: 20px; font-weight: bold;" @onclick="SalvarAluno">
+        FINALIZAR MATRÍCULA E GERAR FINANCEIRO
     </button>
+    
+    @if (exibirSucesso)
+    {
+        <div class="alert alert-success mt-3 text-center">Matrícula e Carnê gerados com sucesso!</div>
+    }
+    @if (!string.IsNullOrEmpty(msgErro))
+    {
+        <div class="alert alert-danger mt-3">@msgErro</div>
+    }
 </div>
 
 @code {
     private Aluno novoAluno = new Aluno();
-    private Turma novaTurma = new Turma();
-    private string addAlergia = string.Empty;
-    private string addCondicao = string.Empty;
+    private string addAlergia = "";
+    private string addCondicao = "";
+    private string msgErro = "";
+    private bool exibirSucesso = false;
 
-    private List<string>? Alergias { get; set; } = new List<string>();
-    private List<string>? CondicoesEspeciais { get; set; } = new List<string>();
-
-
-    private void SalvarAluno()
+    private async Task SalvarAluno()
     {
-        if (!string.IsNullOrEmpty(novoAluno.Id.ToString()))
+        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(novoAluno.ResponsavelCPF))
         {
-            
-            MauiProgram.AppStorage.GetStorage<Aluno>().AddData(novoAluno.Id.ToString(), novoAluno);
-            
-            // Limpa o formulário para o próximo
+            msgErro = "Nome do aluno e CPF do responsável são obrigatórios.";
+            return;
+        }
+
+        try
+        {
+            // 1. Vincular ao Responsável antes de salvar
+            var respStorage = MauiProgram.AppStorage.GetStorage<Responsavel>();
+            var responsavel = respStorage.GetData(novoAluno.ResponsavelCPF);
+
+            if (responsavel == null)
+            {
+                msgErro = "Responsável não encontrado! Cadastre o responsável primeiro.";
+                return;
+            }
+
+            // 2. Salvar Aluno
+            var alunoStorage = MauiProgram.AppStorage.GetStorage<Aluno>();
+            alunoStorage.AddData(novoAluno.Id.ToString(), novoAluno);
+
+            // 3. Atualizar Responsável com o vínculo do novo Aluno
+            responsavel.AddParentesco(novoAluno, 6); // 6 = Outro/Responsável
+            respStorage.AddData(responsavel.CPF, responsavel);
+
+            // 4. Gerar Carnê de Mensalidades (12 parcelas de R$ 850,00 como exemplo)
+            GerarCarne(novoAluno);
+
+            exibirSucesso = true;
+            msgErro = "";
             novoAluno = new Aluno();
-            
-          
-            Console.WriteLine("Aluno matriculado com sucesso!");
+            StateHasChanged();
+            await Task.Delay(3000);
+            exibirSucesso = false;
         }
+        catch (Exception ex) { msgErro = $"Erro: {ex.Message}"; }
     }
 
-    private void AddAlergia()
+    private void GerarCarne(Aluno aluno)
     {
-        if (!string.IsNullOrWhiteSpace(addAlergia))
+        var storageReceita = MauiProgram.AppStorage.GetStorage<Receita>();
+        DateTime vencimento = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 10).AddMonths(1);
+
+        for (int i = 1; i <= 12; i++)
         {
-            Alergias.Add(addAlergia); // Adds user input to the C# list
-            addAlergia = string.Empty; // Clears input
+            var parcela = new Receita
+            {
+                AlunoId = aluno.Id,
+                ResponsavelCPF = aluno.ResponsavelCPF,
+                Valor = 850.00f,
+                Descricao = $"Mensalidade {i}/12 - {aluno.Nome}",
+                DataVencimento = vencimento.AddMonths(i - 1),
+                Status = 0,
+                Origem = "Mensalidade"
+            };
+            storageReceita.AddData(parcela.Id.ToString(), parcela);
         }
     }
 
-    private void AddCondicao()
-    {
-        if (!string.IsNullOrWhiteSpace(addCondicao))
-        {
-            CondicoesEspeciais.Add(addCondicao); // Adds user input to the C# list
-            addCondicao = string.Empty; // Clears input
-        }
-    }
-
-    private void HandleAlergiaKeyUp(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter") AddAlergia(); // Adds item on Enter key
-    }
-    private void HandleCondicoesKeyUp(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter") AddAlergia(); // Adds item on Enter key
-    }
+    private void HandleAlergiaKeyUp(KeyboardEventArgs e) { if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia)) { novoAluno.Alergias.Add(addAlergia); addAlergia = ""; } }
+    private void HandleCondicoesKeyUp(KeyboardEventArgs e) { if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao)) { novoAluno.CondicoesEspeciais.Add(addCondicao); addCondicao = ""; } }
 }

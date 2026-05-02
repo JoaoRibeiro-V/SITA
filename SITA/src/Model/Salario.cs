@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SITA.src.Model
+﻿namespace SITA.src.Model
 {
-    public class Salario : Financeiro
+   
+    public class Salario : Despesa
     {
-        public Funcionario Funcionario { get; set; }
-        public string MesReferencia { get; set; }
-        public bool Pago { get; set; }
-        public Salario()
+        public Guid FuncionarioId { get; set; }
+        public string MesReferencia { get; set; } = string.Empty;
+
+        public Salario() : base()
         {
-            Id = Guid.NewGuid();
-            DataEmissao = DateTime.Now;
-            Pago = false;
+            Descricao = "Pagamento de Folha Salarial";
+            Categoria = "Recursos Humanos";
         }
     }
 }

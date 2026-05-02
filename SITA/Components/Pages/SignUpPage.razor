@@ -67,11 +67,12 @@
             return;
         }
 
-        // 3. Verifica se o usuário já existe (usando o CPF/Nome como chave)
+        // 3. Verifica se o usuário já existe (usando o CPF como critério de busca)
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-        if (userStorage.GetDataByField("CPF", newUser.CPF) != null)
+
+        if (userStorage.GetDataByField(u => u.CPF == newUser.CPF) != null)
         {
-            DisplayError("Já existe um usuário com esse nome.");
+            DisplayError("Já existe um usuário com este CPF cadastrado.");
             return;
         }
 

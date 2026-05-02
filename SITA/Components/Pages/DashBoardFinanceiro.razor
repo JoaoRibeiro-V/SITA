@@ -1,0 +1,105 @@
+@page "/dashboard-financeiro"
+@using SITA.src.Model
+@inject NavigationManager Navigation
+
+<div class="container-fluid" style="background-color: #f4f7f6; min-height: 100vh; padding: 20px;">
+    <h2 style="color: #000080; font-weight: bold; text-align: center; margin-bottom: 30px;">
+        📊 Dashboard Financeiro - Tudo Azul
+    </h2>
+
+    <div class="row text-center">
+        <!-- Card Saldo Real -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0" style="border-left: 5px solid #28a745;">
+                <div class="card-body">
+                    <h5 class="text-muted">Saldo em Caixa</h5>
+                    <h2 class="text-success">R$ @saldoCaixa.ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Previsão (Receitas Pendentes) -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0" style="border-left: 5px solid #007bff;">
+                <div class="card-body">
+                    <h5 class="text-muted">Previsão (Mês)</h5>
+                    <h2 class="text-primary">R$ @previsaoReceita.ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Inadimplência -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0" style="border-left: 5px solid #dc3545;">
+                <div class="card-body">
+                    <h5 class="text-muted">Inadimplência</h5>
+                    <h2 class="text-danger">R$ @valorAtraso.ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4 style="color: #000080;">Últimas Movimentações</h4>
+        <table class="table table-hover bg-white shadow-sm mt-3" style="border-radius: 10px; overflow: hidden;">
+            <thead style="background-color: #000080; color: white;">
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Vencimento</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in receitasRecentes)
+                {
+                    <tr>
+                        <td>@item.Descricao</td>
+                        <td>R$ @item.Valor.ToString("N2")</td>
+                        <td>@item.DataVencimento.ToShortDateString()</td>
+                        <td>
+                            <span class="badge @(item.Status == 1 ? "bg-success" : item.Status == 2 ? "bg-danger" : "bg-warning text-dark")">
+                                @item.GetStatusTexto()
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private float saldoCaixa = 0;
+    private float previsaoReceita = 0;
+    private float valorAtraso = 0;
+    private List<Receita> receitasRecentes = new List<Receita>();
+
+    protected override void OnInitialized()
+    {
+        CarregarDados();
+    }
+
+    private void CarregarDados()
+    {
+        var storageReceita = MauiProgram.AppStorage.GetStorage<Receita>();
+        var storageDespesa = MauiProgram.AppStorage.GetStorage<Despesa>();
+
+        var todasReceitas = storageReceita.GetAllData();
+        var todasDespesas = storageDespesa.GetAllData();
+
+        // 1. Calcula Saldo (Recebido - Pago)
+        float receitasPagas = todasReceitas.Where(r => r.Status == 1).Sum(r => r.Valor);
+        float despesasPagas = todasDespesas.Where(d => d.Status == 1).Sum(d => d.Valor);
+        saldoCaixa = receitasPagas - despesasPagas;
+
+        // 2. Calcula Previsão (O que ainda vai entrar)
+        previsaoReceita = todasReceitas.Where(r => r.Status == 0).Sum(r => r.Valor);
+
+        // 3. Calcula Inadimplência
+        valorAtraso = todasReceitas.Where(r => r.Status == 2).Sum(r => r.Valor);
+
+        // 4. Pega as últimas 5 para a tabela
+        receitasRecentes = todasReceitas.OrderByDescending(r => r.DataVencimento).Take(5).ToList();
+    }
+}

@@ -1,0 +1,127 @@
+﻿@page "/folha-pagamento"
+@using SITA.src.Model
+@using SITA.src.Storage
+@inject IStorage<Funcionario> StorageFuncionario
+@inject IStorage<Salario> StorageSalario
+
+<div class="container mt-4" style="background-color: white; padding: 25px; border-radius: 12px; border: 2px solid #000080; max-width: 900px; margin: auto;">
+    <h3 style="color: #000080; font-weight: bold; text-align: center;">💸 Gestão de Folha de Pagamento</h3>
+    <hr />
+
+    <div class="row">
+        <!-- Seleção de Funcionário -->
+        <div class="col-md-6 mb-3">
+            <label><b>Selecionar Funcionário:</b></label>
+            <select class="form-select" @onchange="OnFuncionarioSelected">
+                <option value="">Selecione um colaborador...</option>
+                @foreach (var f in funcionariosDisponiveis)
+                {
+                    <option value="@f.Id">@f.Nome (@f.Cargo)</option>
+                }
+            </select>
+        </div>
+
+        <!-- Mês de Referência -->
+        <div class="col-md-6 mb-3">
+            <label><b>Mês de Referência:</b></label>
+            <input type="month" class="form-control" @bind="mesReferencia" />
+        </div>
+    </div>
+
+    @if (funcionarioSelecionado != null)
+    {
+        <div class="p-3 mt-2" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #000080;">
+            <h5><b>Resumo do Lançamento:</b></h5>
+            <p>Colaborador: <b>@funcionarioSelecionado.Nome</b></p>
+            <p>Salário Base: <span class="text-success">R$ @funcionarioSelecionado.SalarioBase.ToString("N2")</span></p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Bônus/Extras:</label>
+                    <input type="number" class="form-control" @bind="bonus" />
+                </div>
+                <div class="col-md-6">
+                    <label>Descontos:</label>
+                    <input type="number" class="form-control" @bind="descontos" />
+                </div>
+            </div>
+            
+            <h4 class="mt-3">Total a Pagar: <b>R$ @CalcularTotal().ToString("N2")</b></h4>
+            
+            <button class="btn btn-success w-100 mt-3" @onclick="GerarPagamento">
+                CONFIRMAR E LANÇAR NO FINANCEIRO
+            </button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(feedbackMsg))
+    {
+        <div class="alert alert-info mt-3">@feedbackMsg</div>
+    }
+</div>
+
+@code {
+    private List<Funcionario> funcionariosDisponiveis = new List<Funcionario>();
+    private Funcionario? funcionarioSelecionado;
+    private DateTime mesReferencia = DateTime.Now;
+    private decimal bonus = 0;
+    private decimal descontos = 0;
+    private string feedbackMsg = "";
+
+    protected override void OnInitialized()
+    {
+        // Carrega os funcionários cadastrados
+        funcionariosDisponiveis = StorageFuncionario.GetAllData().OrderBy(f => f.Nome).ToList();
+    }
+
+    private void OnFuncionarioSelected(ChangeEventArgs e)
+    {
+        var idStr = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(idStr))
+        {
+            funcionarioSelecionado = funcionariosDisponiveis.FirstOrDefault(f => f.Id == Guid.Parse(idStr));
+        }
+    }
+
+    private decimal CalcularTotal()
+    {
+        if (funcionarioSelecionado == null) return 0;
+        return funcionarioSelecionado.SalarioBase + bonus - descontos;
+    }
+
+    private void GerarPagamento()
+    {
+        if (funcionarioSelecionado == null) return;
+
+        try
+        {
+           
+            var novoSalario = new Salario
+            {
+                FuncionarioId = funcionarioSelecionado.Id,
+                MesReferencia = mesReferencia.ToString("MM/yyyy"),
+                Valor = (float)CalcularTotal(), 
+                DataEmissao = DateTime.Now,
+                Descricao = $"Salário - {funcionarioSelecionado.Nome} ({mesReferencia.ToString("MM/yyyy")})",
+                Status = 1 
+            };
+
+           
+            StorageSalario.AddData(novoSalario.Id.ToString(), novoSalario);
+
+            feedbackMsg = $"Sucesso! Pagamento de {funcionarioSelecionado.Nome} lançado no Financeiro.";
+            ResetForm();
+        }
+        catch (Exception ex)
+        {
+            feedbackMsg = $"Erro ao lançar folha: {ex.Message}";
+        }
+    }
+
+    private void ResetForm()
+    {
+        funcionarioSelecionado = null;
+        bonus = 0;
+        descontos = 0;
+    }
+}

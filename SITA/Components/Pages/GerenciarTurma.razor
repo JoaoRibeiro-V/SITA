@@ -1,0 +1,21 @@
+@using SITA.src.Model
+@using SITA.src.Storage
+@code {
+    private void VincularProfessorATurma(Guid turmaId, Guid funcionarioId)
+    {
+        // 1. Busca a turma no storage global do SITA
+        var storageTurma = MauiProgram.AppStorage.GetStorage<Turma>();
+        var turma = storageTurma.GetData(turmaId.ToString());
+
+        if (turma != null)
+        {
+            // 2. Atribui o ID do professor selecionado
+            turma.ProfessorId = funcionarioId;
+
+            // 3. Salva a alteração
+            storageTurma.AddData(turma.Id.ToString(), turma);
+            
+            Console.WriteLine($"SITA: Professor vinculado com sucesso à turma {turma.Nome}");
+        }
+    }
+}
