@@ -34,8 +34,13 @@
             var access = MauiProgram.AppSession.GetInstanceAccess();
             var userStorage = MauiProgram.AppStorage.GetStorage<User>();
 
+<<<<<<< HEAD
            
             currentUser = userStorage.GetAllData().FirstOrDefault(u => u.AccessType.Level == access.Level);
+=======
+            // 2. Busca o usuário correspondente ao nível de acesso
+            currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
+>>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
 
             if (currentUser == null)
             {
@@ -57,6 +62,13 @@
     {
         var access = MauiProgram.AppSession.GetInstanceAccess();
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+<<<<<<< HEAD
+=======
+        currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
+        currentUser.DataUltimoAcesso = DateTime.Now;
+        MauiProgram.AppSession.InitSession(new AccessType { Level = -1 });
+
+>>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
         
  
         currentUser = userStorage.GetAllData().FirstOrDefault(u => u.AccessType.Level == access.Level);

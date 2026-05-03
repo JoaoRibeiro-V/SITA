@@ -11,7 +11,10 @@ namespace SITA.src.Controller
         {
             ClassStorage.AddData(obj.Id.ToString(), obj);
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
         public static Funcionario? Get(string field, string? value)
         {
             if (value == null) { return ClassStorage.GetData(field); }

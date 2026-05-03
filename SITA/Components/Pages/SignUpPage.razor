@@ -67,12 +67,20 @@
             return;
         }
 
+<<<<<<< HEAD
         // 3. Verifica se o usuário já existe (usando o CPF como critério de busca)
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
 
         if (userStorage.GetDataByField(u => u.CPF == newUser.CPF) != null)
         {
             DisplayError("Já existe um usuário com este CPF cadastrado.");
+=======
+        // 3. Verifica se o usuário já existe (usando o CPF/Nome como chave)
+        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+        if (userStorage.GetDataByField("CPF", newUser.CPF) != null)
+        {
+            DisplayError("Já existe um usuário com esse nome.");
+>>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
             return;
         }
 

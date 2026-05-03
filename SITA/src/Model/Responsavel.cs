@@ -22,10 +22,45 @@ namespace SITA.src.Model
             {
                 Parentescos.Add(new Parentesco
                 {
+<<<<<<< HEAD
                     AlunoId = aluno.Id,
                     NomeAluno = aluno.Nome,
                     Tipo = tipo
                 });
+=======
+                    var propertyValue = property.GetValue(aluno)?.ToString();
+                    if (propertyValue == value)
+                    {
+                        return aluno;
+                    }
+                }
+            }
+            return null;
+        }
+        public class Parentesco
+        {
+            private Dictionary<int, string> TipoParentesco = new Dictionary<int, string>
+            {
+                { 0, "Mãe" },
+                { 1, "Pai" },
+                { 2, "Tio" },
+                { 3, "Tia" },
+                { 4, "Avô" },
+                { 5, "Avó" },
+                { 6, "Outro" }
+            };
+            public int Prioridade { get; set; } // menor, mais prioridade
+            public Aluno Aluno { get; set; }
+            public int Tipo { get; set; }
+            public Parentesco()
+            {
+                Prioridade = 0;
+                Tipo = 6; // outro
+            }
+            public string GetParentesco()
+            {
+                return TipoParentesco[Tipo];
+>>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
             }
         }
 

@@ -5,11 +5,16 @@
 @using SITA.Maui
 @inject NavigationManager Navigation
 
+<<<<<<< HEAD
 <div style="background-color: white; padding: 20px; border-radius: 10px; border: 2px solid #000080; max-width: 800px; margin: auto;">
+=======
+<div style="background-color: white; padding: 20px; border-radius: 10px; border: 2px solid #000080;">
+>>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
     <h2 style="color: #000080; text-align: center;">Ficha de Matrícula / Inscrição</h2>
     <hr />
 
     <div class="form-group">
+<<<<<<< HEAD
         <label><b>Nome Completo do Aluno:</b></label>
         <input class="form-control" @bind="novoAluno.Nome" placeholder="Nome do aluno" />
 
@@ -50,10 +55,38 @@
     {
         <div class="alert alert-danger mt-3">@msgErro</div>
     }
+=======
+        <label>Nome Completo:</label>
+        <input class="form-control" @bind="novoAluno.Nome" placeholder="Nome do aluno" />
+
+        <label>Turma:</label>
+        <input class="form-control" @bind="novaTurma.Nome" placeholder="Ex: Maternal A" />
+    </div>
+
+    <h4 style="color: #000080; margin-top: 20px;">Dados de Saúde e Emergência</h4>
+    <div class="form-group" style="background-color: #f0f8ff; padding: 15px; border-radius: 5px;">
+        <label>Alergias:</label>
+        <input class="form-control" @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" />
+
+        <label>Condições Especiais:</label>
+        <input class="form-control" @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" />
+
+        <label>Nome do Pediatra:</label>
+        <input class="form-control" @bind="novoAluno.NomePediatra" />
+
+        <label>Orientações de Emergência:</label>
+        <input class="form-control" @bind="novoAluno.OrientacoesEmergencia" />
+    </div>
+
+    <button class="btn" style="background-color: #000080; color: white; width: 100%; margin-top: 20px;" @onclick="SalvarAluno">
+        Finalizar Matrícula
+    </button>
+>>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
 </div>
 
 @code {
     private Aluno novoAluno = new Aluno();
+<<<<<<< HEAD
     private string addAlergia = "";
     private string addCondicao = "";
     private string msgErro = "";
@@ -123,4 +156,55 @@
 
     private void HandleAlergiaKeyUp(KeyboardEventArgs e) { if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia)) { novoAluno.Alergias.Add(addAlergia); addAlergia = ""; } }
     private void HandleCondicoesKeyUp(KeyboardEventArgs e) { if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao)) { novoAluno.CondicoesEspeciais.Add(addCondicao); addCondicao = ""; } }
+=======
+    private Turma novaTurma = new Turma();
+    private string addAlergia = string.Empty;
+    private string addCondicao = string.Empty;
+
+    private List<string>? Alergias { get; set; } = new List<string>();
+    private List<string>? CondicoesEspeciais { get; set; } = new List<string>();
+
+
+    private void SalvarAluno()
+    {
+        if (!string.IsNullOrEmpty(novoAluno.Id.ToString()))
+        {
+            
+            MauiProgram.AppStorage.GetStorage<Aluno>().AddData(novoAluno.Id.ToString(), novoAluno);
+            
+            // Limpa o formulário para o próximo
+            novoAluno = new Aluno();
+            
+          
+            Console.WriteLine("Aluno matriculado com sucesso!");
+        }
+    }
+
+    private void AddAlergia()
+    {
+        if (!string.IsNullOrWhiteSpace(addAlergia))
+        {
+            Alergias.Add(addAlergia); // Adds user input to the C# list
+            addAlergia = string.Empty; // Clears input
+        }
+    }
+
+    private void AddCondicao()
+    {
+        if (!string.IsNullOrWhiteSpace(addCondicao))
+        {
+            CondicoesEspeciais.Add(addCondicao); // Adds user input to the C# list
+            addCondicao = string.Empty; // Clears input
+        }
+    }
+
+    private void HandleAlergiaKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddAlergia(); // Adds item on Enter key
+    }
+    private void HandleCondicoesKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddAlergia(); // Adds item on Enter key
+    }
+>>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
 }
