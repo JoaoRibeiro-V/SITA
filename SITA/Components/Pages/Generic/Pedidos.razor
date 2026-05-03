@@ -1,0 +1,104 @@
+﻿@page "/pedidos"
+@namespace SITA.Maui.Components
+@using SITA.src.Model
+@using SITA.src.Controller
+@using SITA.src.Storage
+@inject NavigationManager Navigation
+
+<div class="container" style="background-color: #f4f7f6; padding: 25px; border-radius: 15px; border-top: 5px solid #000080; margin-top: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #000080; font-weight: bold;">📦 Gestão de Pedidos (Uniformes/Material)</h2>
+        <button class="btn" style="background-color: #000080; color: white; font-weight: bold;" @onclick="AbrirModalNovoPedido">
+            + Novo Pedido
+        </button>
+    </div>
+
+ 
+    <div class="table-responsive" style="background: white; border-radius: 10px; padding: 15px;">
+        <table class="table table-hover">
+            <thead style="background-color: #000080; color: white;">
+                <tr>
+                    <th>Data</th>
+                    <th>Aluno</th>
+                    <th>Item</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (listaReceitasPedidos == null || !listaReceitasPedidos.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Nenhum pedido registrado no sistema.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var pedido in listaReceitasPedidos)
+                    {
+                        <tr>
+                            <td>@pedido.DataVencimento.ToString("dd/MM/yyyy")</td>
+                            <td>@pedido.Aluno?.Nome</td>
+                            <td>@pedido.Descricao</td>
+                            <td>R$ @pedido.Valor.ToString("F2")</td>
+                            <td>
+                                <span class="badge @(pedido.Status == 1 ? "bg-success" : "bg-warning text-dark")">
+                                    @(pedido.Status == 1 ? "Pago" : "Pendente")
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => VerDetalhes(pedido)">
+                                    Visualizar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<Receita> listaReceitasPedidos = new List<Receita>();
+
+    protected override void OnInitialized()
+    {
+        CarregarPedidos();
+    }
+    private void CarregarPedidos()
+    {
+        try
+        {
+            // 1. Puxamos o storage específico de Receita
+            var storage = MauiProgram.AppStorage.GetStorage<Receita>();
+
+            // 2. FORÇA BRUTA: Convertemos explicitamente para IEnumerable para liberar o LINQ
+            // Isso remove o erro CS1061 pois força o compilador a tratar como uma lista de Receitas
+            var todasReceitas = storage.Values.ToList();
+
+            listaReceitasPedidos = todasReceitas
+                .Where(r => r.Origem == "Pedido" || r.Origem == "Material")
+                .OrderByDescending(r => r.DataVencimento)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"SITA Erro: {ex.Message}");
+        }
+    }
+
+    private void AbrirModalNovoPedido()
+    {
+
+        Navigation.NavigateTo("/"); //arrumar aqui
+    }
+
+    private void VerDetalhes(Receita pedido)
+    {
+  
+        System.Diagnostics.Debug.WriteLine($"Verificando pedido de: {pedido.Aluno?.Nome}");
+    }
+}

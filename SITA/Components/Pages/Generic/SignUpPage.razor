@@ -57,7 +57,7 @@
                 (password, "Senha")
             )
             ?? Validator.ValidateCPF(cleanCpf)
-            ?? Validator.ValidateEmail(newUser.Email ?? "")
+            //  ?? Validator.ValidateEmail(newUser.Email ?? "")
             ?? Validator.ValidatePassword(password)
             ?? Validator.ValidateDuplicateCPF(cleanCpf)
             ?? Validator.ValidateDuplicateEmail(newUser.Email ?? "");

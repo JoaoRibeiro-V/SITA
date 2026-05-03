@@ -16,7 +16,7 @@ namespace SITA.src.Model
         public string? RA { get; set; }
         public int? Idade { get; set; }
         public string? Nome { get; set; }
-        public DateTime? DataNascimento { get; set; }
+        public DateTime? DataNascimento { get; set; } = DateTime.Today;
         public string? Religiao { get; set; }
         public string? NomePediatra { get; set; }
         public string? OrientacoesEmergencia { get; set; }

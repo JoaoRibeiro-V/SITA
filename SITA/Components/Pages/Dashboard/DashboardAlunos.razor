@@ -3,228 +3,54 @@
 @using SITA.src.Controller
 @inject NavigationManager Navigation
 
-<div class="header">
-    <h1>Alunos</h1>
-    <input @bind="search" placeholder="Pesquisar" />
+<div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+    <h1 style="color: #000080; font-weight: bold;">Alunos Matriculados</h1>
+    <div style="display: flex; gap: 10px;">
+        <input @bind="search" @bind:event="oninput" placeholder="Pesquisar aluno..." style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
+        <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-aluno")'
+                style="background-color: #000080; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+            + Nova Matrícula
+        </button>
+    </div>
 </div>
 
-<div class="campo-btn">
-    <button @onclick="() => showModal = true">Cadastrar Aluno</button>
-</div>
-
-<section class="container-card">
-
+<section class="container-card" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 20px;">
     @foreach (var aluno in alunosFiltrados)
     {
-        <div class="card" @onclick="() => GoAluno(aluno.Id)">
-
-            <h4>@aluno.Nome</h4>
-
+        <div class="card" @onclick="() => GoAluno(aluno.Id)"
+             style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-top: 4px solid #000080; cursor: pointer;">
+            <h4 style="color: #000080;">@aluno.Nome</h4>
             <p><strong>RA:</strong> @aluno.RA</p>
-            <p><strong>Idade:</strong> @aluno.Idade</p>
-            <p><strong>Turma:</strong> @aluno.Turma?.Nome</p>
-
+            <p><strong>Idade:</strong> @aluno.Idade anos</p>
+            <p><strong>Turma:</strong> @(aluno.Turma?.Nome ?? "Sem Turma")</p>
             <p><strong>Responsável:</strong> @GetResponsavelNome(aluno)</p>
-
         </div>
     }
-
 </section>
 
-@if (showModal)
-{
-    <div class="modal-overlay" @onclick="CloseModal"></div>
-
-    <div class="modal">
-
-        <h3>Cadastrar Aluno</h3>
-
-        <div class="field">
-            <label>Nome</label>
-            <input @bind="nome" />
-        </div>
-
-        <div class="field">
-            <label>RA</label>
-            <input @bind="ra" />
-        </div>
-
-        <div class="field">
-            <label>Idade</label>
-            <input type="text"
-                   value="@idadeString"
-                   @oninput="OnIdadeInput" />
-        </div>
-
-        <div class="field">
-            <label>Turma</label>
-            <select @bind="turmaId">
-                <option value="">Selecione</option>
-                @foreach (var t in turmas)
-                {
-                    <option value="@t.Id">@t.Nome</option>
-                }
-            </select>
-        </div>
-
-        <div class="field">
-            <label>Responsável</label>
-            <select @bind="responsavelId">
-                <option value="">Selecione</option>
-                @foreach (var r in responsaveis)
-                {
-                    <option value="@r.Id">@r.Nome</option>
-                }
-            </select>
-        </div>
-
-        <div class="field">
-            <label>Parentesco</label>
-            <select @bind="tipoParentesco">
-                @foreach (var item in Responsavel.TipoParentescoMap)
-                {
-                    <option value="@item.Key">@item.Value</option>
-                }
-            </select>
-        </div>
-
-        <div class="modal-actions">
-            <button @onclick="Cadastrar">Salvar</button>
-            <button class="cancel" @onclick="CloseModal">Cancelar</button>
-        </div>
-
-    </div>
-}
-
 @code {
-
     List<Aluno> alunos = new();
-    List<Turma> turmas = new();
     List<Responsavel> responsaveis = new();
-
     string search = "";
-    bool showModal = false;
-
-    string nome = "";
-    string ra = "";
-    Turma turma = null;
-    Responsavel responsavel = null;
-    int? idade = null;
-    string idadeString = "";
-    Guid? turmaId;
-    Guid? responsavelId;
-    int tipoParentesco = 6;
 
     IEnumerable<Aluno> alunosFiltrados =>
-        alunos.Where(a =>
-            string.IsNullOrEmpty(search) ||
-            (a.Nome?.ToLower().Contains(search.ToLower()) ?? false));
+        alunos.Where(a => string.IsNullOrEmpty(search) ||
+        (a.Nome?.ToLower().Contains(search.ToLower()) ?? false));
 
-    protected override void OnInitialized()
-    {
-        LoadData();
-    }
+    protected override void OnInitialized() => LoadData();
 
     void LoadData()
     {
         alunos = AlunoController.GetAll();
-        turmas = TurmaController.GetAll();
         responsaveis = ResponsavelController.GetAll();
-    }
-
-    void OnIdadeInput(ChangeEventArgs e)
-    {
-        var digits = new string((e.Value?.ToString() ?? "")
-            .Where(char.IsDigit)
-            .ToArray());
-
-        idadeString = digits;
-        idade = string.IsNullOrEmpty(digits) ? null : int.Parse(digits);
-    }
-
-    private void GerarCarne(Aluno aluno)
-    {
-        DateTime baseDate = DateTime.Now;
-
-        for (int i = 1; i <= 12; i++)
-        {
-            Receita newReceita = new Receita
-            {
-                Aluno = aluno,
-                Responsavel = responsavel,
-                Valor = 850,
-                Descricao = $"Mensalidade {i}/12",
-                DataVencimento = new DateTime(baseDate.Year, baseDate.Month, 10).AddMonths(i),
-                Status = 0,
-                Origem = "Mensalidade"
-            };
-            ReceitaController.Register(newReceita);
-        }
-    }
-
-    void Cadastrar()
-    {
-        if (string.IsNullOrEmpty(nome) || idade == null || turmaId == null || responsavelId == null)
-            return;
-
-        turma = TurmaController.Get("Id", turmaId.Value.ToString());
-        responsavel = ResponsavelController.Get("Id", responsavelId.Value.ToString());
-
-        if (turma == null || responsavel == null)
-            return;
-
-        var aluno = new Aluno
-        {
-            Nome = nome,
-            RA = ra,
-            Idade = idade,
-            Turma = turma,
-            DataCadastro = DateTime.Now
-        };
-
-        AlunoController.Register(aluno);
-
-        ResponsavelController.AddParentesco(responsavel, aluno, tipoParentesco);
-        ResponsavelController.Register(responsavel);
-        TurmaController.AddAlunoToTurma(turma, aluno);
-        GerarCarne(aluno);
-
-        ResetForm();
-        LoadData();
-        showModal = false;
-    }
-
-    void Remover(Aluno aluno)
-    {
-        AlunoController.Delete(aluno);
-        LoadData();
     }
 
     string GetResponsavelNome(Aluno aluno)
     {
         var resp = responsaveis.FirstOrDefault(r =>
             r.GetParentescos()?.Any(p => p.Aluno.Id == aluno.Id) == true);
-
         return resp?.Nome ?? "-";
     }
 
-    void CloseModal()
-    {
-        showModal = false;
-    }
-
-    void ResetForm()
-    {
-        nome = "";
-        ra = "";
-        idade = null;
-        idadeString = "";
-        turmaId = null;
-        responsavelId = null;
-        tipoParentesco = 6;
-    }
-    void GoAluno(Guid id)
-    {
-        Navigation.NavigateTo($"/aluno-details/{id}");
-    }
+    void GoAluno(Guid id) => Navigation.NavigateTo($"/aluno-details/{id}");
 }

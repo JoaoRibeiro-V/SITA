@@ -1,68 +1,78 @@
 ﻿@page "/turmas"
-@using SITA.Components.Pages.GUI
 @using SITA.src.Model
-@using SITA.src.Util
 @using SITA.src.Controller
+@using SITA.Components.Pages.GUI
 @inject NavigationManager Navigation
 
-<div class="header">
-    <h1>Turmas</h1>
-
-    <input type="text"
-           placeholder="Pesquisar"
-           @bind="search"
-           @bind:event="oninput" />
+@* Cabeçalho padronizado com a tela de Alunos *@
+<div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+    <h1 style="color: #000080; font-weight: bold;">Gestão de Turmas</h1>
+    <div style="display: flex; gap: 10px;">
+        <input @bind="search" @bind:event="oninput" placeholder="Buscar turma..." style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
+        <button class="btn-cadastrar" @onclick="AbrirModal"
+                style="background-color: #000080; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+            + Nova Turma
+        </button>
+    </div>
 </div>
 
-<div class="campo-btn">
-    <button @onclick="AbrirModal">Cadastrar Turma</button>
-</div>
-
-<section class="container-card">
-
-    @foreach (var turma in turmas)
+@* Grid de Cards padronizado *@
+<section class="container-card" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px;">
+    @foreach (var turma in TurmasFiltradas)
     {
-        <div class="card" @onclick="() => GoToTurma(turma.Id)">
-            <h4>@turma.Nome</h4>
-            <p>@(turma.Professor?.Nome ?? "Sem professor")</p>
-            <p>@turma.Alunos.Count alunos</p>
-            <p>@turma.Turno</p>
+        <div class="card" @onclick="() => GoToTurma(turma.Id)"
+             style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-top: 4px solid #000080; cursor: pointer; transition: 0.3s;">
+            
+            <h4 style="color: #000080; font-weight: bold; margin-bottom: 10px;">@turma.Nome</h4>
+            
+            <p style="margin-bottom: 5px;"><strong>Turno:</strong> @turma.Turno</p>
+            <p style="margin-bottom: 5px;"><strong>Professor:</strong> @(turma.Professor?.Nome ?? "A definir")</p>
+            <p style="margin-bottom: 5px;"><strong>Alunos:</strong> @turma.Alunos.Count matriculados</p>
+            
+            <div style="text-align: center; margin-top: 15px; border-top: 1px solid #eee; pt-2">
+                <small class="text-muted">Clique para gerenciar</small>
+            </div>
         </div>
     }
-
 </section>
 
+@* Modal de Cadastro *@
 <Modal IsOpen="showModal" OnClose="FecharModal">
+    <div style="padding: 20px;">
+        <h3 style="color: #000080; font-weight: bold; margin-bottom: 20px;">Nova Turma</h3>
+        
+        <div class="mb-3">
+            <label class="fw-bold" style="color: #000080;">Nome da Turma:</label>
+            <input class="form-control" @bind="nome" placeholder="Ex: Maternal A" style="border: 1px solid #000080;" />
+        </div>
 
-    <h3>Nova Turma</h3>
+        <div class="mb-4">
+            <label class="fw-bold" style="color: #000080;">Período / Turno:</label>
+            <select class="form-select" @bind="turno" style="border: 1px solid #000080;">
+                @foreach (var t in Turma.Turnos)
+                {
+                    <option value="@t">@t</option>
+                }
+            </select>
+        </div>
 
-    <input @bind="nome" placeholder="Nome da turma" />
-
-    <select @bind="turno">
-        @foreach (var t in Turma.Turnos)
-        {
-            <option value="@t">@t</option>
-        }
-    </select>
-
-    <div class="modal-actions">
-        <button @onclick="Cadastrar">Salvar</button>
-        <button class="cancel" @onclick="FecharModal">Cancelar</button>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success w-100 fw-bold" @onclick="Cadastrar">SALVAR</button>
+            <button class="btn btn-outline-secondary w-100" @onclick="FecharModal">CANCELAR</button>
+        </div>
     </div>
-
 </Modal>
 
 @code {
     private List<Turma> turmas = new();
     private string search = "";
-
     private bool showModal = false;
     private string nome = "";
     private string turno = Turma.Turnos[0];
 
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
-        turmas = TurmaController.GetAll();
+        turmas = TurmaController.GetAll(); 
     }
 
     IEnumerable<Turma> TurmasFiltradas =>
@@ -70,41 +80,18 @@
             string.IsNullOrWhiteSpace(search) ||
             t.Nome.Contains(search, StringComparison.OrdinalIgnoreCase));
 
-    void AbrirModal()
-    {
-        nome = "";
-        turno = Turma.Turnos[0];
-        showModal = true;
-    }
-
-    void FecharModal()
-    {
-        showModal = false;
-    }
+    void AbrirModal() { nome = ""; turno = Turma.Turnos[0]; showModal = true; }
+    void FecharModal() => showModal = false;
 
     void Cadastrar()
     {
-        if (string.IsNullOrWhiteSpace(nome))
-            return;
+        if (string.IsNullOrWhiteSpace(nome)) return;
 
-        var turma = new Turma
-        {
-            Nome = nome,
-            Turno = turno
-        };
-
-        TurmaController.Register(turma);
+        var novaTurma = new Turma { Nome = nome, Turno = turno };
+        TurmaController.Register(novaTurma); 
         turmas = TurmaController.GetAll();
-
         showModal = false;
     }
 
-    void Excluir(Turma turma)
-    {
-        TurmaController.Delete(turma);
-    }
-    void GoToTurma(Guid id)
-    {
-        Navigation.NavigateTo($"/turma/{id}");
-    }
+    void GoToTurma(Guid id) => Navigation.NavigateTo($"/turma/{id}");
 }

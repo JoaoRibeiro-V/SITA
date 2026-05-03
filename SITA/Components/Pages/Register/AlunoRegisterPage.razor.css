@@ -1,1 +1,101 @@
-﻿
+﻿/* Container Principal */
+.container {
+    animation: fadeIn 0.5s ease-in-out; /* Suavidade ao abrir a tela */
+}
+
+/* Títulos e Divisores */
+h2, h4, h5 {
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Estilização dos Inputs e Selects */
+.form-control, .form-select {
+    border-radius: 6px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: #000080;
+        box-shadow: 0 0 8px rgba(0, 0, 128, 0.2);
+        outline: none;
+    }
+
+/* Rótulos (Labels) */
+label {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+/* Badges de Saúde (Alergias e Condições) */
+.badge {
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 20px;
+    padding: 6px 12px;
+    display: inline-block;
+    margin-top: 5px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Botões Customizados */
+.btn {
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.3s;
+}
+
+    .btn:hover {
+        transform: translateY(-2px); /* Efeito de elevação ao passar o mouse */
+        filter: brightness(1.1);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+    }
+
+/* Alertas de Sucesso/Erro */
+.alert {
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    animation: slideInRight 0.4s ease-out;
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px auto;
+        padding: 15px;
+    }
+}

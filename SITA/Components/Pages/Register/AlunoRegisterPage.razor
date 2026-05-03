@@ -3,151 +3,180 @@
 @using SITA.src.Model
 @using SITA.src.Controller
 @using SITA.src.Storage
-@using Microsoft.AspNetCore.Components.Web
 @inject NavigationManager Navigation
 
-<div style="background-color: white; padding: 20px; border-radius: 10px; border: 2px solid #000080; max-width: 800px; margin: auto;">
+<div class="container" style="background-color: white; padding: 30px; border-radius: 12px; border: 2px solid #000080; max-width: 950px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    
+    <div style="text-align: center; border-bottom: 2px solid #000080; margin-bottom: 30px; padding-bottom: 10px;">
+        <h2 style="color: #000080; font-weight: bold;">FICHA DE MATRÍCULA COMPLETA</h2>
+    </div>
 
-    <h2 style="color:#000080;text-align:center;">Ficha de Matrícula</h2>
+    <!-- SEÇÃO 1: Dados do Aluno -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="fw-bold" style="color: #000080;">Nome Completo do Aluno:</label>
+            <input class="form-control border-navy" @bind="novoAluno.Nome" />
+        </div>
+        <div class="col-md-3">
+            <label class="fw-bold" style="color: #000080;">Data de Nascimento:</label>
+            <input type="date" class="form-control border-navy" @bind="novoAluno.DataNascimento" @bind:after="() => CalcularIdade()" />
+        </div>
+        <div class="col-md-3">
+            <label class="fw-bold text-muted">Idade Calculada:</label>
+            <div class="p-2 bg-light border rounded">@idadeExtenso</div>
+        </div>
+    </div>
 
-    <label>Nome do Aluno:</label>
-    <input class="form-control" @bind="novoAluno.Nome" />
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label class="fw-bold" style="color: #000080;">RA:</label>
+            <input class="form-control border-navy" @bind="novoAluno.RA" />
+        </div>
+        <div class="col-md-4">
+            <label class="fw-bold" style="color: #000080;">Religião:</label>
+            <input class="form-control border-navy" @bind="novoAluno.Religiao" />
+        </div>
+        <div class="col-md-4">
+            <label class="fw-bold" style="color: #000080;">Turma:</label>
+            <select class="form-select border-navy" @bind="turmaId">
+                <option value="">Selecione...</option>
+                @foreach (var t in listaTurmas) { <option value="@t.Id">@t.Nome</option> }
+            </select>
+        </div>
+    </div>
 
-    <label class="mt-2">CPF do Responsável:</label>
-    <input class="form-control" @bind="responsavelCpf" />
+    <!-- SEÇÃO 2: Dados do Responsável -->
+    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #000080;">
+        <h5 style="color: #000080; font-weight: bold;">Dados do Responsável</h5>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label class="fw-bold">CPF do Responsável:</label>
+                <input class="form-control" @bind="responsavelCpf" placeholder="000.000.000-00" />
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Grau de Parentesco:</label>
+                <select class="form-select" @bind="tipoParentesco">
+                    <option value="1">Pai / Mãe</option>
+                    <option value="2">Avô / Avó</option>
+                    <option value="3">Tio / Tia</option>
+                    <option value="6">Outro Responsável</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-    <h4 style="margin-top:20px;color:#000080;">Saúde</h4>
+    <!-- SEÇÃO 3: Saúde e Emergência -->
+    <div style="background-color: #fff5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #d9534f;">
+        <h5 style="color: #d9534f; font-weight: bold;"><i class="oi oi-medical-cross"></i> Saúde e Emergência</h5>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label class="fw-bold">Pediatra do Aluno:</label>
+                <input class="form-control" @bind="novoAluno.NomePediatra" placeholder="Nome e Telefone do médico" />
+            </div>
+            <div class="col-md-6">
+                <label class="fw-bold">Orientações de Emergência:</label>
+                <textarea class="form-control" @bind="novoAluno.OrientacoesEmergencia" placeholder="Ex: Procedimentos para febre ou emergência."></textarea>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <label>Alergias (Enter):</label>
+                <input class="form-control" @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" />
+                <div class="mt-2">@foreach (var a in novoAluno.Alergias) { <span class="badge bg-danger me-1">@a</span> }</div>
+            </div>
+            <div class="col-md-6">
+                <label>Condições Especiais:</label>
+                <input class="form-control" @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" />
+                <div class="mt-2">@foreach (var c in novoAluno.CondicoesEspeciais) { <span class="badge bg-warning text-dark me-1">@c</span> }</div>
+            </div>
+        </div>
+    </div>
 
-    <label>Alergias:</label>
-    <input class="form-control" @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" />
+    <!-- Botões -->
+    <div class="d-flex gap-3 mt-4">
+        <button class="btn btn-outline-secondary w-25 p-3 fw-bold" @onclick='() => Navigation.NavigateTo("/alunos")'>CANCELAR</button>
+        <button class="btn w-75 p-3 fw-bold" style="background-color: #000080; color: white;" @onclick="SalvarAluno">
+            FINALIZAR MATRÍCULA E GERAR CARNÊ
+        </button>
+    </div>
 
-    @foreach (var a in novoAluno.Alergias)
-    {
-        <span class="badge bg-danger me-1">@a</span>
-    }
-
-    <label class="mt-2">Condições:</label>
-    <input class="form-control" @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" />
-
-    @foreach (var c in novoAluno.CondicoesEspeciais)
-    {
-        <span class="badge bg-warning text-dark me-1">@c</span>
-    }
-
-    <button class="btn"
-            style="background:#000080;color:white;width:100%;margin-top:20px;"
-            @onclick="SalvarAluno">
-
-        FINALIZAR MATRÍCULA
-    </button>
-
-    @if (!string.IsNullOrEmpty(msgErro))
-    {
-        <div class="alert alert-danger mt-3">@msgErro</div>
-    }
-
-    @if (exibirSucesso)
-    {
-        <div class="alert alert-success mt-3">Matrícula realizada!</div>
-    }
+    @if (!string.IsNullOrEmpty(msgErro)) { <div class="alert alert-danger mt-3">@msgErro</div> }
 </div>
 
 @code {
-    private Aluno novoAluno = new Aluno
-    {
-        Alergias = new List<string>(),
-        CondicoesEspeciais = new List<string>()
-    };
-
-    private Responsavel? responsavel;
-    private string responsavelCpf = "";
+    private Aluno novoAluno = new Aluno { Alergias = new List<string>(), CondicoesEspeciais = new List<string>() };
+    private List<Turma> listaTurmas = new();
+    private string idadeExtenso = "0 anos e 0 meses";
+    private string turmaId = "";
+    private string responsavelCpf = ""; 
+    private int tipoParentesco = 6;
     private string addAlergia = "";
     private string addCondicao = "";
     private string msgErro = "";
-    private bool exibirSucesso = false;
 
-    private async Task SalvarAluno()
+    protected override void OnInitialized() {
+        listaTurmas = TurmaController.GetAll(); // Busca turmas do Storage
+    }
+
+    private void CalcularIdade()
     {
-        if (string.IsNullOrWhiteSpace(novoAluno.Nome) ||
-            string.IsNullOrWhiteSpace(responsavelCpf))
-        {
-            msgErro = "Nome do aluno e CPF do responsável são obrigatórios.";
+        
+        DateTime data = novoAluno.DataNascimento ?? DateTime.Today;
+    
+        DateTime hoje = DateTime.Today;
+        int anos = hoje.Year - data.Year;
+        if (hoje < data.AddYears(anos)) anos--;
+
+        int meses = hoje.Month - data.Month;
+        if (hoje.Day < data.Day) meses--;
+        if (meses < 0) meses += 12;
+
+        idadeExtenso = $"{anos} anos e {meses} meses";
+        novoAluno.Idade = anos;
+    }
+
+    private async Task SalvarAluno() {
+        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(responsavelCpf)) {
+            msgErro = "Nome e CPF do responsável são obrigatórios.";
             return;
         }
 
-        try
-        {
-            responsavel = ResponsavelController.Get("CPF", responsavelCpf);
-
-            if (responsavel == null)
-            {
-                msgErro = "Responsável não encontrado.";
+        try {
+            // Busca o responsável pelo CPF
+            var resp = ResponsavelController.Get("CPF", responsavelCpf);
+            if (resp == null) {
+                msgErro = "Responsável não encontrado no sistema.";
                 return;
             }
 
-            // ensure lists exist (safety)
-            novoAluno.Alergias ??= new List<string>();
-            novoAluno.CondicoesEspeciais ??= new List<string>();
-
-            novoAluno.DataCadastro = DateTime.Now;
-
+            // Registra o Aluno
             AlunoController.Register(novoAluno);
+            
+            // Cria o vínculo de parentesco
+            ResponsavelController.AddParentesco(resp, novoAluno, tipoParentesco);
 
-            responsavel.AddParentesco(novoAluno, 6);
+            // Vínculo de Turma
+            if (!string.IsNullOrEmpty(turmaId)) {
+                var turma = TurmaController.Get("Id", turmaId);
+                turma?.Alunos.Add(novoAluno);
+                TurmaController.Register(turma); // Atualiza o storage da turma
+            }
 
-            GerarCarne(novoAluno);
-
-            exibirSucesso = true;
-            msgErro = "";
-
-            novoAluno = new Aluno
-            {
-                Alergias = new List<string>(),
-                CondicoesEspeciais = new List<string>()
-            };
-
-            await Task.Delay(2000);
-            exibirSucesso = false;
-        }
-        catch (Exception ex)
-        {
-            msgErro = ex.Message;
+            Navigation.NavigateTo("/alunos");
+        } catch (Exception ex) {
+            msgErro = "Erro: " + ex.Message;
         }
     }
 
-    private void GerarCarne(Aluno aluno)
-    {
-        DateTime baseDate = DateTime.Now;
-
-        for (int i = 1; i <= 12; i++)
-        {
-            Receita newReceita = new Receita
-            {
-                Aluno = aluno,
-                Responsavel = responsavel,
-                Valor = 850,
-                Descricao = $"Mensalidade {i}/12",
-                DataVencimento = new DateTime(baseDate.Year, baseDate.Month, 10).AddMonths(i),
-                Status = 0,
-                Origem = "Mensalidade"
-            };
-            ReceitaController.Register(newReceita);
-        }
-    }
-
-    private void HandleAlergiaKeyUp(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia))
-        {
+    private void HandleAlergiaKeyUp(KeyboardEventArgs e) {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia)) {
             novoAluno.Alergias.Add(addAlergia);
             addAlergia = "";
         }
     }
 
-    private void HandleCondicoesKeyUp(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao))
-        {
+    private void HandleCondicoesKeyUp(KeyboardEventArgs e) {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao)) {
             novoAluno.CondicoesEspeciais.Add(addCondicao);
             addCondicao = "";
         }
