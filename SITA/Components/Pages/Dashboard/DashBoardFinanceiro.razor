@@ -4,12 +4,12 @@
 @inject NavigationManager Navigation
 
 <div class="container-fluid" style="background-color: #f4f7f6; min-height: 100vh; padding: 20px;">
-    <h2 style="color: #000080; font-weight: bold; text-align: center; margin-bottom: 30px;">
-        📊 Dashboard Financeiro - Tudo Azul
+    <h2 class="text-center fw-bold mb-4" style="color:#000080;">
+        📊 Dashboard Financeiro
     </h2>
 
+    <!-- CARDS -->
     <div class="row text-center">
-        <!-- Card Saldo Real -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0" style="border-left: 5px solid #28a745;">
                 <div class="card-body">
@@ -19,17 +19,15 @@
             </div>
         </div>
 
-        <!-- Card Previsão (Receitas Pendentes) -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0" style="border-left: 5px solid #007bff;">
                 <div class="card-body">
-                    <h5 class="text-muted">Previsão (Mês)</h5>
+                    <h5 class="text-muted">Previsão</h5>
                     <h2 class="text-primary">R$ @previsaoReceita.ToString("N2")</h2>
                 </div>
             </div>
         </div>
 
-        <!-- Card Inadimplência -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0" style="border-left: 5px solid #dc3545;">
                 <div class="card-body">
@@ -40,12 +38,57 @@
         </div>
     </div>
 
+    <!-- FILTROS -->
     <div class="mt-5">
-        <h4 style="color: #000080;">Últimas Movimentações</h4>
-        <table class="table table-hover bg-white shadow-sm mt-3" style="border-radius: 10px; overflow: hidden;">
-            <thead style="background-color: #000080; color: white;">
+        <h4 style="color:#000080;">Últimas Movimentações</h4>
+
+        <div class="mb-3">
+            <div class="btn-group" role="group">
+                <button class="btn @(filtroTipo == null ? "btn-primary" : "btn-outline-primary")"
+                        @onclick="() => SetFiltro(null)">
+                    Todos
+                </button>
+
+                <button class="btn @(filtroTipo == Receita.ReceitaTipo.Mensalidade ? "btn-primary" : "btn-outline-primary")"
+                        @onclick="() => SetFiltro(Receita.ReceitaTipo.Mensalidade)">
+                    Mensalidade
+                </button>
+
+                <button class="btn @(filtroTipo == Receita.ReceitaTipo.Aquisicao ? "btn-primary" : "btn-outline-primary")"
+                        @onclick="() => SetFiltro(Receita.ReceitaTipo.Aquisicao)">
+                    Aquisição
+                </button>
+
+                <button class="btn @(filtroTipo == Receita.ReceitaTipo.Outros ? "btn-primary" : "btn-outline-primary")"
+                        @onclick="() => SetFiltro(Receita.ReceitaTipo.Outros)">
+                    Outros
+                </button>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label>Data Início</label>
+                <input type="date"
+                       class="form-control"
+                       value="@dataInicio?.ToString("yyyy-MM-dd")"
+                       @onchange="e => OnDataChanged(e, true)" />
+            </div>
+
+            <div class="col-md-3">
+                <label>Data Fim</label>
+                <input type="date"
+                       class="form-control"
+                       value="@dataFim?.ToString("yyyy-MM-dd")"
+                       @onchange="e => OnDataChanged(e, false)" />
+            </div>
+        </div>
+
+        <!-- TABELA -->
+        <table class="table table-hover bg-white shadow-sm mt-3">
+            <thead style="background-color:#000080; color:white;">
                 <tr>
-                    <th>Descrição</th>
+                    <th>Tipo</th>
                     <th>Valor</th>
                     <th>Vencimento</th>
                     <th>Status</th>
@@ -54,12 +97,22 @@
             <tbody>
                 @foreach (var item in receitasRecentes)
                 {
-                    <tr>
-                        <td>@item.Descricao</td>
-                        <td>R$ @item.Valor.ToString("N2")</td>
-                        <td>@item.DataVencimento.ToShortDateString()</td>
+                    <tr style="cursor:pointer"
+                        class="@(receitaSelecionada == item ? "table-primary" : "")"
+                        @onclick="() => SelecionarReceita(item)">
+
                         <td>
-                            <span class="badge @(item.Status == 1 ? "bg-success" : item.Status == 2 ? "bg-danger" : "bg-warning text-dark")">
+                            <span class="badge @GetTipoBadge(item.Type)">
+                                @item.GetTypeTexto()
+                            </span>
+                        </td>
+
+                        <td>R$ @item.Valor.ToString("N2")</td>
+
+                        <td>@item.DataVencimento.ToShortDateString()</td>
+
+                        <td>
+                            <span class="badge @GetStatusBadge(item.Status)">
                                 @item.GetStatusTexto()
                             </span>
                         </td>
@@ -67,37 +120,257 @@
                 }
             </tbody>
         </table>
+        <div class="d-flex justify-content-center align-items-center mt-3 gap-1">
+
+            <!-- Left -->
+            <button class="btn btn-link p-1"
+                    disabled="@(paginaAtual == 1)"
+                    @onclick="() => MudarPagina(paginaAtual - 1)">
+                ‹
+            </button>
+
+            <!-- Pages -->
+            @foreach (var p in GetPaginasVisiveis())
+            {
+                if (p == null)
+                {
+                    <span class="px-2">...</span>
+                }
+                else
+                {
+                    <button class="btn btn-sm @(paginaAtual == p ? "btn-primary" : "btn-outline-primary") px-2 py-0"
+                            @onclick="() => MudarPagina(p.Value)">
+                        @p
+                    </button>
+                }
+            }
+
+            <!-- Right -->
+            <button class="btn btn-link p-1"
+                    disabled="@(paginaAtual == totalPaginas)"
+                    @onclick="() => MudarPagina(paginaAtual + 1)">
+                ›
+            </button>
+
+        </div>
     </div>
+
+    <!-- DETALHES -->
+    @if (receitaSelecionada != null)
+    {
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="text-primary">Detalhes da Receita</h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Tipo:</strong> @receitaSelecionada.GetTypeTexto()</p>
+                        <p><strong>Valor:</strong> R$ @receitaSelecionada.Valor.ToString("N2")</p>
+                        <p><strong>Status:</strong> @receitaSelecionada.GetStatusTexto()</p>
+                        <p><strong>Vencimento:</strong> @receitaSelecionada.DataVencimento.ToShortDateString()</p>
+                    </div>
+
+                    <div class="col-md-6">
+                        <p><strong>Descrição:</strong> @receitaSelecionada.Descricao</p>
+                        <p><strong>Origem:</strong> @receitaSelecionada.Origem</p>
+                        <p><strong>Aluno:</strong> @receitaSelecionada.Aluno?.Nome</p>
+                        <p><strong>Responsável:</strong> @receitaSelecionada.Responsavel?.Nome</p>
+                    </div>
+                </div>
+                @if (receitaSelecionada.Type == Receita.ReceitaTipo.Mensalidade && receitaSelecionada.Status != Receita.ReceitaStatus.Pago)
+                {
+                    <button class="btn btn-success mt-3"
+                            @onclick="ConfirmarPagamento">
+                        Confirmar Pagamento
+                    </button>
+                }
+
+                <button class="btn btn-sm btn-secondary mt-3" @onclick="FecharDetalhes">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
+    private int paginaAtual = 1;
+    private int itensPorPagina = 8;
+    private int totalPaginas = 1;
+
+    private DateTime? dataInicio = null;
+    private DateTime? dataFim = null;
+
     private float saldoCaixa = 0;
     private float previsaoReceita = 0;
     private float valorAtraso = 0;
-    private List<Receita> receitasRecentes = new List<Receita>();
+
+    private List<Receita> todasReceitas = new();
+    private List<Receita> receitasRecentes = new();
+
+    private Receita.ReceitaTipo? filtroTipo = null;
+    private Receita? receitaSelecionada = null;
 
     protected override void OnInitialized()
     {
         CarregarDados();
     }
 
+    private void ConfirmarPagamento()
+    {
+        if (receitaSelecionada == null)
+            return;
+        receitaSelecionada.Status = Receita.ReceitaStatus.Pago;
+
+        // Recarrega tudo
+        CarregarDados();
+
+        // Mantém seleção atualizada (optional)
+        receitaSelecionada = todasReceitas
+            .FirstOrDefault(r => r.Id == receitaSelecionada.Id);
+    }
+
     private void CarregarDados()
     {
-        var todasReceitas = ReceitaController.GetAll();
+        todasReceitas = ReceitaController.GetAll();
         var todasDespesas = DespesaController.GetAll();
 
-        // 1. Calcula Saldo (Recebido - Pago)
-        float receitasPagas = todasReceitas.Where(r => r.Status == 1).Sum(r => r.Valor);
-        float despesasPagas = todasDespesas.Where(d => d.Status == 1).Sum(d => d.Valor);
+        float receitasPagas = todasReceitas
+            .Where(r => r.Status == Receita.ReceitaStatus.Pago)
+            .Sum(r => r.Valor);
+
+        float despesasPagas = todasDespesas
+            .Where(d => d.Status == 1)
+            .Sum(d => d.Valor);
+
         saldoCaixa = receitasPagas - despesasPagas;
 
-        // 2. Calcula Previsão (O que ainda vai entrar)
-        previsaoReceita = todasReceitas.Where(r => r.Status == 0).Sum(r => r.Valor);
+        previsaoReceita = todasReceitas
+            .Where(r => r.Status == Receita.ReceitaStatus.EmAndamento)
+            .Sum(r => r.Valor);
 
-        // 3. Calcula Inadimplência
-        valorAtraso = todasReceitas.Where(r => r.Status == 2).Sum(r => r.Valor);
+        valorAtraso = todasReceitas
+            .Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
+            .Sum(r => r.Valor);
 
-        // 4. Pega as últimas 8 para a tabela
-        receitasRecentes = todasReceitas.OrderByDescending(r => r.DataVencimento).Take(8).ToList();
+        AplicarFiltro();
     }
+
+    private void AplicarFiltro()
+    {
+        IEnumerable<Receita> query = todasReceitas;
+
+        // filtro por tipo
+        if (filtroTipo != null)
+            query = query.Where(r => r.Type == filtroTipo);
+
+        // filtro por data
+        if (dataInicio != null)
+            query = query.Where(r => r.DataVencimento.Date >= dataInicio.Value.Date);
+
+        if (dataFim != null)
+            query = query.Where(r => r.DataVencimento.Date <= dataFim.Value.Date);
+
+        // ordenação
+        query = query.OrderByDescending(r => r.DataVencimento);
+
+        // cálculo de páginas
+        int totalItens = query.Count();
+        totalPaginas = (int)Math.Ceiling(totalItens / (double)itensPorPagina);
+
+        // garantir página válida
+        if (paginaAtual > totalPaginas)
+            paginaAtual = totalPaginas == 0 ? 1 : totalPaginas;
+
+        // paginação
+        receitasRecentes = query
+            .Skip((paginaAtual - 1) * itensPorPagina)
+            .Take(itensPorPagina)
+            .ToList();
+    }
+
+    private void SetFiltro(Receita.ReceitaTipo? tipo)
+    {
+        filtroTipo = tipo;
+        paginaAtual = 1;
+        receitaSelecionada = null;
+        AplicarFiltro();
+    }
+
+    private void OnDataChanged(ChangeEventArgs e, bool isInicio)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            if (isInicio)
+                dataInicio = date;
+            else
+                dataFim = date;
+
+            paginaAtual = 1;
+            AplicarFiltro();
+        }
+    }
+
+    private List<int?> GetPaginasVisiveis()
+    {
+        var paginas = new List<int?>();
+
+        if (totalPaginas <= 7)
+        {
+            for (int i = 1; i <= totalPaginas; i++)
+                paginas.Add(i);
+
+            return paginas;
+        }
+
+        paginas.Add(1);
+
+        if (paginaAtual > 4)
+            paginas.Add(null); // "..."
+
+        int inicio = Math.Max(2, paginaAtual - 2);
+        int fim = Math.Min(totalPaginas - 1, paginaAtual + 2);
+
+        for (int i = inicio; i <= fim; i++)
+            paginas.Add(i);
+
+        if (paginaAtual < totalPaginas - 3)
+            paginas.Add(null); // "..."
+
+        paginas.Add(totalPaginas);
+
+        return paginas;
+    }
+
+    private void SelecionarReceita(Receita r)
+    {
+        receitaSelecionada = r;
+    }
+
+    private void FecharDetalhes()
+    {
+        receitaSelecionada = null;
+    }
+
+    private void MudarPagina(int pagina)
+    {
+        paginaAtual = pagina;
+        AplicarFiltro();
+    }
+
+    private string GetTipoBadge(Receita.ReceitaTipo tipo) => tipo switch
+    {
+        Receita.ReceitaTipo.Mensalidade => "bg-primary",
+        Receita.ReceitaTipo.Aquisicao => "bg-info",
+        Receita.ReceitaTipo.Outros => "bg-secondary",
+        _ => "bg-dark"
+    };
+
+    private string GetStatusBadge(Receita.ReceitaStatus status) => status switch
+    {
+        Receita.ReceitaStatus.Pago => "bg-success",
+        Receita.ReceitaStatus.EmAtraso => "bg-danger",
+        Receita.ReceitaStatus.EmAndamento => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
 }

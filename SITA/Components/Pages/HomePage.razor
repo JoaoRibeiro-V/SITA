@@ -46,18 +46,106 @@
         </div>
     </div>
 
+
     <div class="row">
         <!-- Calendário Escolar -->
         <div class="col-md-8">
             <div class="card p-3 shadow-sm border-0" style="border-radius: 15px; height: 100%;">
-                <h5 class="fw-bold mb-3" style="color: #000080;">Calendário de Eventos</h5>
-                <div class="calendar-placeholder d-flex align-items-center justify-content-center" style="background: #f1f1f1; height: 400px; border-radius: 10px;">
-                
-                    <p class="text-muted">Carregando Calendário Escolar...</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0" style="color: #000080;">Calendário Financeiro</h5>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Receitas ? "btn-success" : "btn-outline-success")" @onclick="() => AlterarTipo(TipoExibicao.Receitas)">
+                            Receitas
+                        </button>
+                        <button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Despesas ? "btn-danger" : "btn-outline-danger")" @onclick="() => AlterarTipo(TipoExibicao.Despesas)">
+                            Despesas
+                        </button>
+                        <button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Ambos ? "btn-primary" : "btn-outline-primary")" @onclick="() => AlterarTipo(TipoExibicao.Ambos)">
+                            Ambos
+                        </button>
+                    </div>
                 </div>
+
+                <div class="calendar-container p-2" style="height: 400px; overflow-y: auto;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;" @onclick="MesAnterior">
+                            ◄
+                        </button>
+                        <h6 class="mb-0 fw-bold">@mesAtual.ToString("MMMM yyyy")</h6>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;" @onclick="ProximoMes">
+                            ►
+                        </button>
+                    </div>
+
+                    <div class="calendar-grid" style="max-width: 100%;">
+                        <div class="calendar-header">
+                            <div class="calendar-day-name">Dom</div>
+                            <div class="calendar-day-name">Seg</div>
+                            <div class="calendar-day-name">Ter</div>
+                            <div class="calendar-day-name">Qua</div>
+                            <div class="calendar-day-name">Qui</div>
+                            <div class="calendar-day-name">Sex</div>
+                            <div class="calendar-day-name">Sáb</div>
+                        </div>
+                        <div class="calendar-days">
+                            @foreach (var dia in ObterDiasDoMes())
+                            {
+                                var isHoje = dia.Data.Date == DateTime.Now.Date;
+                                var isSelecionado = dia.Data.Date == dataSelecionada.Date;
+                                var cssClass = $"calendar-day {(dia.ForaDoMes ? "fora-mes" : "")} {(isHoje ? "hoje" : "")} {(isSelecionado ? "selecionado" : "")}";
+                        
+                                <div class="@cssClass" @onclick="() => SelecionarDia(dia.Data)">
+                                    <div class="day-number">@dia.Data.Day</div>
+                                    @if (!dia.ForaDoMes && dia.Total != 0)
+                                    {
+                                        <div class="day-value @(dia.Total > 0 ? "positivo" : "negativo")">
+                                            @(dia.Total > 0 ? "+" : "")@dia.Total.ToString("N0")
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (dataSelecionada != DateTime.MinValue)
+                    {
+                        <div class="mt-3 p-3" style="background: #f8f9fa; border-radius: 10px;">
+                            <h6 class="fw-bold mb-2">@dataSelecionada.ToString("dd/MM/yyyy")</h6>
+                            @if (ObterTransacoesDoDia().Any())
+                            {
+                                <div class="list-group list-group-flush">
+                                    @foreach (var item in ObterTransacoesDoDia())
+                                    {
+                                        <div class="list-group-item px-0 py-2 bg-transparent border-0">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <small class="text-muted">@item.Tipo</small>
+                                                    <div class="fw-bold" style="font-size: 0.9rem;">@item.Descricao</div>
+                                                    @if (!string.IsNullOrEmpty(item.Status))
+                                                    {
+                                                        <span class="badge @GetStatusBadgeClass(item.Status) mt-1" style="font-size: 0.7rem;">
+                                                            @item.Status
+                                                        </span>
+                                                    }
+                                                </div>
+                                                <span class="badge @(item.Valor > 0 ? "bg-success" : "bg-danger") ms-2">
+                                                    @(item.Valor > 0 ? "+" : "")R$ @Math.Abs(item.Valor).ToString("N2")
+                                                </span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted small mb-0">Nenhuma transação neste dia.</p>
+                            }
+                        </div>
+                    }
+                </div>
+            
             </div>
         </div>
-
         <!-- Resumo Financeiro Lateral -->
         <div class="col-md-4">
             <div class="card p-4 shadow-sm border-0" style="border-radius: 15px; background: white; height: 100%;">
@@ -92,9 +180,17 @@
 @code {
     private double totalMensalidades = 0;
     private double totalRecebido = 0;
-    private double totalDespesas = 4535.18; 
+    private double totalDespesas = 4535.18;
     private int percentualRecebido = 75;
     private int percentualPendente = 25;
+
+    private enum TipoExibicao { Receitas, Despesas, Ambos }
+    private TipoExibicao tipoExibicao = TipoExibicao.Ambos;
+    private DateTime mesAtual = DateTime.Now;
+    private DateTime dataSelecionada = DateTime.Now;
+
+    private List<Receita> todasReceitas = new();
+    private List<Despesa> todasDespesas = new();
 
     protected override void OnInitialized()
     {
@@ -104,22 +200,160 @@
             return;
         }
 
+        CarregarDados();
         CalcularDados();
+    }
+
+    private void CarregarDados()
+    {
+        todasReceitas = ReceitaController.GetAll();
+        todasDespesas = DespesaController.GetAll();
     }
 
     private void CalcularDados()
     {
-       
-        var todasReceitas = ReceitaController.GetAll();
-        totalRecebido = todasReceitas.Where(r => r.Status == 1).Sum(r => (double)r.Valor);
+        foreach (var r in todasReceitas)
+        {
+            Console.WriteLine($"Receita: {r.Descricao}, Valor: {r.Valor}, Status: {r.Status}, Vencimento: {r.DataVencimento}");
+        }
+        totalRecebido = todasReceitas.Where(r => r.Status == Receita.ReceitaStatus.Pago).Sum(r => (double)r.Valor);
         totalMensalidades = todasReceitas.Where(r => r.DataVencimento.Month == DateTime.Now.Month).Sum(r => (double)r.Valor);
         
-  
         double totalGeral = todasReceitas.Sum(r => (double)r.Valor);
         if (totalGeral > 0)
         {
             percentualRecebido = (int)((totalRecebido / totalGeral) * 100);
             percentualPendente = 100 - percentualRecebido;
         }
+    }
+
+    private void AlterarTipo(TipoExibicao tipo)
+    {
+        tipoExibicao = tipo;
+        StateHasChanged();
+    }
+
+    private void MesAnterior()
+    {
+        mesAtual = mesAtual.AddMonths(-1);
+    }
+
+    private void ProximoMes()
+    {
+        mesAtual = mesAtual.AddMonths(1);
+    }
+
+    private void SelecionarDia(DateTime data)
+    {
+        dataSelecionada = data;
+    }
+
+    private List<DiaCalendario> ObterDiasDoMes()
+    {
+        var dias = new List<DiaCalendario>();
+        var primeiroDia = new DateTime(mesAtual.Year, mesAtual.Month, 1);
+        var ultimoDia = primeiroDia.AddMonths(1).AddDays(-1);
+        
+        var diaSemanaInicio = (int)primeiroDia.DayOfWeek;
+        var dataInicio = primeiroDia.AddDays(-diaSemanaInicio);
+
+        for (int i = 0; i < 42; i++)
+        {
+            var data = dataInicio.AddDays(i);
+            var foraDoMes = data.Month != mesAtual.Month;
+            var total = CalcularTotalDoDia(data);
+            
+            dias.Add(new DiaCalendario
+            {
+                Data = data,
+                ForaDoMes = foraDoMes,
+                Total = total
+            });
+        }
+
+        return dias;
+    }
+
+    private float CalcularTotalDoDia(DateTime data)
+    {
+        float total = 0;
+
+        if (tipoExibicao == TipoExibicao.Receitas || tipoExibicao == TipoExibicao.Ambos)
+        {
+            total += todasReceitas
+                .Where(r => r.DataVencimento.Date == data.Date)
+                .Sum(r => r.Valor);
+        }
+
+        if (tipoExibicao == TipoExibicao.Despesas || tipoExibicao == TipoExibicao.Ambos)
+        {
+            total -= todasDespesas
+                .Where(d => d.DataPagamento.Date == data.Date)
+                .Sum(d => d.Valor);
+        }
+
+        return total;
+    }
+
+    private List<TransacaoDia> ObterTransacoesDoDia()
+    {
+        var transacoes = new List<TransacaoDia>();
+
+        if (tipoExibicao == TipoExibicao.Receitas || tipoExibicao == TipoExibicao.Ambos)
+        {
+            var receitas = todasReceitas
+                .Where(r => r.DataVencimento.Date == dataSelecionada.Date)
+                .Select(r => new TransacaoDia
+                {
+                    Descricao = r.Descricao ?? "Sem descrição",
+                    Valor = r.Valor,
+                    Tipo = r.GetTypeTexto(),
+                    Status = r.GetStatusTexto()
+                });
+            transacoes.AddRange(receitas);
+        }
+
+        if (tipoExibicao == TipoExibicao.Despesas || tipoExibicao == TipoExibicao.Ambos)
+        {
+            var despesas = todasDespesas
+                .Where(d => d.DataPagamento.Date == dataSelecionada.Date)
+                .Select(d => new TransacaoDia
+                {
+                    Descricao = d.Descricao ?? "Sem descrição",
+                    Valor = -d.Valor,
+                    Tipo = d.Categoria ?? "Despesa",
+                    Status = d.IsPago ? "Pago" : "Pendente"
+                });
+            transacoes.AddRange(despesas);
+        }
+
+        return transacoes.OrderByDescending(t => Math.Abs(t.Valor)).ToList();
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pago" => "bg-success",
+            "Em andamento" => "bg-warning text-dark",
+            "Em atraso" => "bg-danger",
+            "Pendente" => "bg-warning text-dark",
+            _ => "bg-secondary"
+        };
+    }
+
+    private class DiaCalendario
+    {
+        public DateTime Data { get; set; }
+        public bool ForaDoMes { get; set; }
+        public float Total { get; set; }
+    }
+
+    private class TransacaoDia
+    {
+        public string Descricao { get; set; }
+        public float Valor { get; set; }
+        public string Tipo { get; set; }
+        public string Status { get; set; }
     }
 }

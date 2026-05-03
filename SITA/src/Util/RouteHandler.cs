@@ -41,21 +41,32 @@ namespace SITA.src.Util
             public int MinAccessLevel { get; set; } = 0;
         }
 
+        /* Níveis de Acesso de cada usuário do sistema.
+     * 
+     * Níveis atuais:
+     * -1: Não Logado
+     * 0 : Responsável
+     * 1 : Funcionário
+     * 2 : Professor
+     * 3 : Secretário
+     * 4 : Diretor
+     * 
+     */
+
         public static List<RouteItem> MainNav = new()
         {
             new RouteItem { Name = "Aluno", Path = Aluno },
-            new RouteItem { Name = "Financeiro", Path = Financeiro },
-            new RouteItem { Name = "Turma", Path = Turmas },
-            new RouteItem { Name = "Relatórios", Path = Relatorio },
-            new RouteItem { Name = "Pedidos", Path = Pedidos },
-            new RouteItem { Name = "Perfil", Path = Perfil },
+            new RouteItem { Name = "Financeiro", Path = Financeiro, MinAccessLevel = 4 },
+            new RouteItem { Name = "Turma", Path = Turmas, MinAccessLevel = 2 },
+            new RouteItem { Name = "Relatórios", Path = Relatorio, MinAccessLevel = 3 },
+            new RouteItem { Name = "Pedidos", Path = Pedidos, MinAccessLevel = 1 }
         };
 
         public static List<RouteItem> CadastroNav = new()
         {
-            new RouteItem { Name = "Cadastro Responsável", Path = CadastroResponsavel },
-            new RouteItem { Name = "Cadastro Funcionário", Path = CadastroFuncionario },
-            new RouteItem { Name = "Cadastro Financeiro", Path = CadastroFinanceiro, MinAccessLevel = 4 },
+            new RouteItem { Name = "Cadastro Responsável", Path = CadastroResponsavel, MinAccessLevel = 3 },
+            new RouteItem { Name = "Cadastro Funcionário", Path = CadastroFuncionario, MinAccessLevel = 3 },
+            new RouteItem { Name = "Cadastro Financeiro", Path = CadastroFinanceiro, MinAccessLevel = 3 },
         };
     }
 }

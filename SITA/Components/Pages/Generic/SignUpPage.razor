@@ -8,35 +8,52 @@
 
 <div style="background-color: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 40px auto; border: 2px solid #000080; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
     
-    <h2 style="color: #000080; text-align: center; font-weight: bold; margin-bottom: 25px;">Criar Conta</h2>
+    <EditForm Model="this" OnValidSubmit="HandleSignUp">
 
-    <div style="display: grid; gap: 15px;">
-        <input @bind="newUser.Nome" class="form-control" placeholder="Nome Completo" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
-        
-        <input @bind="newUser.CPF" class="form-control" placeholder="CPF" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
+        <h2 style="color: #000080; text-align: center; font-weight: bold; margin-bottom: 25px;">Criar Conta</h2>
 
-        <input type="password" @bind="password" class="form-control" placeholder="Senha" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
-        
-        <input type="password" @bind="confirmPassword" class="form-control" placeholder="Confirmar Senha" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;" />
-    </div>
+        <div style="display: grid; gap: 15px;">
+            <input @bind="newUser.Nome" @ref="nomeInput" @onkeydown="HandleNomeKeyDown" class="form-control" placeholder="Nome Completo" />
+            
+            <input value="@cpf"
+                   @ref="cpfInput"
+                   @oninput="OnCpfInput"
+                   @onkeydown="HandleCpfKeyDown"
+                   onkeypress="onlyNumbers(event)"
+                   class="form-control"
+                   placeholder="CPF"
+                   maxlength="14" />
 
-    @if (showError) { <p style="color: red; text-align: center; margin-top: 15px;">@errorMessage</p> }
-    @if (showSuccess) { <p style="color: green; text-align: center; margin-top: 15px;">@successMessage</p> }
+            <input type="password" @bind="password" @ref="passwordInput" @onkeydown="HandlePasswordKeyDown" class="form-control" placeholder="Senha" />
+            
+            <input type="password" @bind="confirmPassword" class="form-control" placeholder="Confirmar Senha" />
+        </div>
 
-    <div style="margin-top: 25px; display: grid; gap: 10px;">
-        <button @onclick="HandleSignUp" style="background-color: #000080; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-            Cadastrar
-        </button>
-        
-        <button @onclick="GoBack" style="background: transparent; border: 1px solid #000080; color: #000080; padding: 10px; border-radius: 4px; cursor: pointer;">
-            Voltar
-        </button>
-    </div>
+        @if (showError)
+        {
+            <p style="color: red; text-align: center; margin-top: 15px;">@errorMessage</p>
+        }
+        @if (showSuccess)
+        {
+            <p style="color: green; text-align: center; margin-top: 15px;">@successMessage</p>
+        }
+
+        <div style="margin-top: 25px; display: grid; gap: 10px;">
+            <button type="submit" style="background-color: #000080; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                Cadastrar
+            </button>
+            
+            <button type="button" @onclick="GoBack" style="background: transparent; border: 1px solid #000080; color: #000080; padding: 10px; border-radius: 4px; cursor: pointer;">
+                Voltar
+            </button>
+        </div>
+
+    </EditForm>
 </div>
 
 @code {
     private User newUser = new User();
-    private string idadeString = "";
+    private string cpf = "";
     private string password = "";
     private string confirmPassword = "";
     private string errorMessage = "";
@@ -44,11 +61,37 @@
     private bool showError = false;
     private bool showSuccess = false;
 
+    ElementReference nomeInput;
+    ElementReference cpfInput;
+    ElementReference passwordInput;
+
+    async Task HandleNomeKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await cpfInput.FocusAsync();
+    }
+
+    async Task HandleCpfKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await passwordInput.FocusAsync();
+    }
+
+    async Task HandlePasswordKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") HandleSignUp();
+    }
+
+    void OnCpfInput(ChangeEventArgs e)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        cpf = Mask.FormatCpf(digits);
+    }
+
     private async Task HandleSignUp()
     {
         showError = false;
 
-        string cleanCpf = Mask.RemoveMask(newUser.CPF ?? "");
+        string cleanCpf = Mask.RemoveMask(cpf);
 
         string? error =
             Validator.ValidateRequired(
@@ -57,7 +100,6 @@
                 (password, "Senha")
             )
             ?? Validator.ValidateCPF(cleanCpf)
-            //  ?? Validator.ValidateEmail(newUser.Email ?? "")
             ?? Validator.ValidatePassword(password)
             ?? Validator.ValidateDuplicateCPF(cleanCpf)
             ?? Validator.ValidateDuplicateEmail(newUser.Email ?? "");

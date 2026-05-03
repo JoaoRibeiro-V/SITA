@@ -6,23 +6,27 @@
 
 <div class="form-container">
 
-    <h2>Cadastro de Turma</h2>
+    <EditForm Model="this" OnValidSubmit="Cadastrar">
 
-    <input @bind="nome" placeholder="Nome da Turma" />
+        <h2>Cadastro de Turma</h2>
 
-    <select @bind="turno">
-        @foreach (var t in Turma.Turnos)
+        <input @bind="nome" placeholder="Nome da Turma" />
+
+        <select @bind="turno">
+            @foreach (var t in Turma.Turnos)
+            {
+                <option value="@t">@t</option>
+            }
+        </select>
+
+        <button type="submit">Cadastrar</button>
+
+        @if (!string.IsNullOrEmpty(message))
         {
-            <option value="@t">@t</option>
+            <p class="msg">@message</p>
         }
-    </select>
 
-    <button @onclick="Cadastrar">Cadastrar</button>
-
-    @if (!string.IsNullOrEmpty(message))
-    {
-        <p class="msg">@message</p>
-    }
+    </EditForm>
 
 </div>
 

@@ -5,10 +5,20 @@
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
 }
+
+    .form-container form {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .form-container form > * {
+            margin-bottom: 12px;
+        }
+
+            .form-container form > *:last-child {
+                margin-bottom: 0;
+            }
 
     .form-container h2 {
         text-align: center;
@@ -19,6 +29,8 @@
         padding: 12px;
         border-radius: 8px;
         border: 1px solid #ccc;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .form-container button {
@@ -30,6 +42,7 @@
         font-weight: bold;
         cursor: pointer;
         transition: 0.2s;
+        width: 100%;
     }
 
         .form-container button:hover {

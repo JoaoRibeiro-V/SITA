@@ -8,16 +8,23 @@ namespace SITA.src.Model
 {
     public class Receita : Financeiro
     {
-        private Dictionary<int, string> StatusList = new Dictionary<int, string>
+        public enum ReceitaTipo
         {
-            { 0, "Em andamento" },
-            { 1, "Pago" },
-            { 2, "Em atraso" }
-        };
+            Mensalidade = 0,
+            Aquisicao = 1,
+            Outros = 2
+        }
+        public enum ReceitaStatus
+        {
+            EmAndamento = 0,
+            Pago = 1,
+            EmAtraso = 2
+        }
         public string Origem { get; set; }
         public Aluno Aluno { get; set; }
         public Responsavel Responsavel { get; set; }
-        public int Status { get; set; }
+        public ReceitaStatus Status { get; set; }
+        public ReceitaTipo Type { get; set; }
         public DateTime DataVencimento { get; set; }
         public Receita()
         {
@@ -25,7 +32,20 @@ namespace SITA.src.Model
                 DataEmissao = DateTime.Now;
                 Status = 0; // Em andamento
         }
-        public string GetStatusTexto() => StatusList.ContainsKey(Status) ? StatusList[Status] : "Indefinido";
+        public string GetStatusTexto() => Status switch
+        {
+            ReceitaStatus.EmAndamento => "Em andamento",
+            ReceitaStatus.Pago => "Pago",
+            ReceitaStatus.EmAtraso => "Em atraso",
+            _ => "Indefinido"
+        };
+        public string GetTypeTexto() => Type switch
+        {
+            ReceitaTipo.Mensalidade => "Mensalidade",
+            ReceitaTipo.Aquisicao => "Aquisição",
+            ReceitaTipo.Outros => "Outros",
+            _ => "Indefinido"
+        };
 
     }
 }

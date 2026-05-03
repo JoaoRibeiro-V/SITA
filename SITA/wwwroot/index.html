@@ -25,6 +25,13 @@
     </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script>
+        function onlyNumbers(event) {
+            if (!/[0-9]/.test(event.key)) {
+                event.preventDefault();
+            }
+        }
+    </script>
 
 </body>
 

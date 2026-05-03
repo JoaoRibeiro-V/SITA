@@ -8,30 +8,39 @@
 
     <h2>Cadastro de Responsável</h2>
 
-    <input @bind="nome" placeholder="Nome" />
+    <EditForm Model="this" OnValidSubmit="Cadastrar">
 
-    <input value="@cpf"
-           @oninput="OnCpfInput"
-           placeholder="CPF"
-           maxlength="14"/>
+        <input @bind="nome" @onkeydown="HandleNomeKeyDown" placeholder="Nome" />
 
-    <input @bind="email" placeholder="Email" />
+        <input value="@cpf"
+               @ref="cpfInput"
+               @oninput="OnCpfInput"
+               @onkeydown="HandleCpfKeyDown"
+               onkeypress="onlyNumbers(event)"
+               placeholder="CPF"
+               maxlength="14" />
 
-    <input value="@telefone"
-           @oninput="OnTelefoneInput"
-           placeholder="Telefone"
-           maxlength="15"/>
+        <input @bind="email" @ref="emailInput" @onkeydown="HandleEmailKeyDown" placeholder="Email" />
 
-    <input @bind="endereco" placeholder="Endereço" />
+        <input value="@telefone"
+               @ref="telefoneInput"
+               @oninput="OnTelefoneInput"
+               @onkeydown="HandleTelefoneKeyDown"
+               placeholder="Telefone"
+               maxlength="15" />
 
-    <input type="password" @bind="senha" placeholder="Senha" />
+        <input @bind="endereco" @ref="enderecoInput" @onkeydown="HandleEnderecoKeyDown" placeholder="Endereço" />
 
-    <button @onclick="Cadastrar">Cadastrar</button>
+        <input type="password" @bind="senha" placeholder="Senha" />
 
-    @if (!string.IsNullOrEmpty(message))
-    {
-        <p class="msg">@message</p>
-    }
+        <button type="submit">Cadastrar</button>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <p class="msg">@message</p>
+        }
+
+    </EditForm>
 
 </div>
 
@@ -44,27 +53,48 @@
     string senha = "";
     string message = "";
 
+    ElementReference cpfInput;
+    ElementReference emailInput;
+    ElementReference telefoneInput;
+    ElementReference enderecoInput;
+    ElementReference senhaInput;
+
+    async Task HandleNomeKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await cpfInput.FocusAsync();
+    }
+
+    async Task HandleCpfKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await emailInput.FocusAsync();
+    }
+
+    async Task HandleEmailKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await telefoneInput.FocusAsync();
+    }
+
+    async Task HandleTelefoneKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await enderecoInput.FocusAsync();
+    }
+
+    async Task HandleEnderecoKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await senhaInput.FocusAsync();
+    }
+
     void OnCpfInput(ChangeEventArgs e)
     {
-        var digits = new string((e.Value?.ToString() ?? "")
-            .Where(char.IsDigit)
-            .ToArray());
-
-        if (digits.Length > 11)
-            digits = digits[..11];
-
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
         cpf = Mask.FormatCpf(digits);
     }
 
     void OnTelefoneInput(ChangeEventArgs e)
     {
-        var digits = new string((e.Value?.ToString() ?? "")
-            .Where(char.IsDigit)
-            .ToArray());
-
-        if (digits.Length > 11)
-            digits = digits[..11];
-
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
         telefone = Mask.FormatPhone(digits);
     }
 

@@ -6,7 +6,7 @@ namespace SITA.src.Model
     {
         public string? Fornecedor { get; set; }
         public string? Categoria { get; set; }
-        public DateTime? DataPagamento { get; set; }
+        public DateTime DataPagamento { get; set; }
         public int Status { get; set; } // 0: Pendente, 1: Pago
 
         public Despesa() : base()
@@ -14,6 +14,6 @@ namespace SITA.src.Model
             Status = 0;
         }
 
-        public bool IsPago => DataPagamento.HasValue || Status == 1;
+        public bool IsPago => Status == 1;
     }
 }

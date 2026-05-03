@@ -3,10 +3,12 @@
 @using SITA.src.Model
 @using SITA.src.Controller
 @using SITA.src.Storage
+@using SITA.src.Util
 @inject NavigationManager Navigation
 
 <div class="container" style="background-color: white; padding: 30px; border-radius: 12px; border: 2px solid #000080; max-width: 950px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-    
+
+    ```
     <div style="text-align: center; border-bottom: 2px solid #000080; margin-bottom: 30px; padding-bottom: 10px;">
         <h2 style="color: #000080; font-weight: bold;">FICHA DE MATRÍCULA COMPLETA</h2>
     </div>
@@ -40,7 +42,10 @@
             <label class="fw-bold" style="color: #000080;">Turma:</label>
             <select class="form-select border-navy" @bind="turmaId">
                 <option value="">Selecione...</option>
-                @foreach (var t in listaTurmas) { <option value="@t.Id">@t.Nome</option> }
+                @foreach (var t in listaTurmas)
+                {
+                    <option value="@t.Id">@t.Nome</option>
+                }
             </select>
         </div>
     </div>
@@ -48,11 +53,40 @@
     <!-- SEÇÃO 2: Dados do Responsável -->
     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #000080;">
         <h5 style="color: #000080; font-weight: bold;">Dados do Responsável</h5>
-        <div class="row mt-3">
+        <div class="row mt-3 position-relative">
             <div class="col-md-6">
                 <label class="fw-bold">CPF do Responsável:</label>
-                <input class="form-control" @bind="responsavelCpf" placeholder="000.000.000-00" />
+
+                <input class="form-control @(responsavelSelecionado != null ? "border-success" : "")"
+                       value="@responsavelCpf"
+                       @oninput="OnCpfInput"
+                       onkeypress="onlyNumbers(event)"
+                       placeholder="000.000.000-00"
+                       maxlength="14" />
+
+                @if (sugestoesResponsaveis.Any())
+                {
+                    <div class="list-group position-absolute w-100" style="z-index: 1000;">
+                        @foreach (var r in sugestoesResponsaveis)
+                        {
+                            <button type="button"
+                                    class="list-group-item list-group-item-action"
+                                    @onclick="() => SelecionarResponsavel(r)">
+                                <strong>@r.Nome</strong><br />
+                                <small>@Mask.FormatCpf(r.CPF)</small>
+                            </button>
+                        }
+                    </div>
+                }
+
+                @if (responsavelSelecionado != null)
+                {
+                    <div class="text-success mt-1">
+                        ✔ @responsavelSelecionado.Nome selecionado
+                    </div>
+                }
             </div>
+
             <div class="col-md-6">
                 <label class="fw-bold">Grau de Parentesco:</label>
                 <select class="form-select" @bind="tipoParentesco">
@@ -67,27 +101,40 @@
 
     <!-- SEÇÃO 3: Saúde e Emergência -->
     <div style="background-color: #fff5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #d9534f;">
-        <h5 style="color: #d9534f; font-weight: bold;"><i class="oi oi-medical-cross"></i> Saúde e Emergência</h5>
+        <h5 style="color: #d9534f; font-weight: bold;">Saúde e Emergência</h5>
+
         <div class="row mt-3">
             <div class="col-md-6">
                 <label class="fw-bold">Pediatra do Aluno:</label>
-                <input class="form-control" @bind="novoAluno.NomePediatra" placeholder="Nome e Telefone do médico" />
+                <input class="form-control" @bind="novoAluno.NomePediatra" />
             </div>
             <div class="col-md-6">
                 <label class="fw-bold">Orientações de Emergência:</label>
-                <textarea class="form-control" @bind="novoAluno.OrientacoesEmergencia" placeholder="Ex: Procedimentos para febre ou emergência."></textarea>
+                <textarea class="form-control" @bind="novoAluno.OrientacoesEmergencia"></textarea>
             </div>
         </div>
+
         <div class="row mt-3">
             <div class="col-md-6">
                 <label>Alergias (Enter):</label>
                 <input class="form-control" @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" />
-                <div class="mt-2">@foreach (var a in novoAluno.Alergias) { <span class="badge bg-danger me-1">@a</span> }</div>
+                <div class="mt-2">
+                    @foreach (var a in novoAluno.Alergias)
+                    {
+                        <span class="badge bg-danger me-1">@a</span>
+                    }
+                </div>
             </div>
+
             <div class="col-md-6">
                 <label>Condições Especiais:</label>
                 <input class="form-control" @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" />
-                <div class="mt-2">@foreach (var c in novoAluno.CondicoesEspeciais) { <span class="badge bg-warning text-dark me-1">@c</span> }</div>
+                <div class="mt-2">
+                    @foreach (var c in novoAluno.CondicoesEspeciais)
+                    {
+                        <span class="badge bg-warning text-dark me-1">@c</span>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -100,29 +147,67 @@
         </button>
     </div>
 
-    @if (!string.IsNullOrEmpty(msgErro)) { <div class="alert alert-danger mt-3">@msgErro</div> }
+    @if (!string.IsNullOrEmpty(msgErro))
+    {
+        <div class="alert alert-danger mt-3">@msgErro</div>
+    }
+
 </div>
 
 @code {
     private Aluno novoAluno = new Aluno { Alergias = new List<string>(), CondicoesEspeciais = new List<string>() };
+
     private List<Turma> listaTurmas = new();
+    private List<Responsavel> listaResponsaveis = new();
+    private List<Responsavel> sugestoesResponsaveis = new();
+
+    private Responsavel? responsavelSelecionado = null;
+
     private string idadeExtenso = "0 anos e 0 meses";
     private string turmaId = "";
-    private string responsavelCpf = ""; 
+    private string responsavelCpf = "";
     private int tipoParentesco = 6;
+
     private string addAlergia = "";
     private string addCondicao = "";
     private string msgErro = "";
 
-    protected override void OnInitialized() {
-        listaTurmas = TurmaController.GetAll(); // Busca turmas do Storage
+    protected override void OnInitialized()
+    {
+        listaTurmas = TurmaController.GetAll();
+        listaResponsaveis = ResponsavelController.GetAll();
+    }
+
+    void OnCpfInput(ChangeEventArgs e)
+    {
+        var digits = new string((e.Value?.ToString() ?? "")
+            .Where(char.IsDigit)
+            .ToArray());
+
+        if (digits.Length > 11)
+            digits = digits[..11];
+
+        responsavelCpf = Mask.FormatCpf(digits);
+
+        sugestoesResponsaveis = listaResponsaveis
+            .Where(r => !string.IsNullOrEmpty(r.CPF) && r.CPF.Contains(digits))
+            .Take(5)
+            .ToList();
+
+        responsavelSelecionado = null;
+    }
+
+    void SelecionarResponsavel(Responsavel r)
+    {
+        responsavelSelecionado = r;
+        responsavelCpf = Mask.FormatCpf(r.CPF);
+        sugestoesResponsaveis.Clear();
     }
 
     private void CalcularIdade()
     {
-        
         DateTime data = novoAluno.DataNascimento ?? DateTime.Today;
-    
+
         DateTime hoje = DateTime.Today;
         int anos = hoje.Year - data.Year;
         if (hoje < data.AddYears(anos)) anos--;
@@ -135,48 +220,60 @@
         novoAluno.Idade = anos;
     }
 
-    private async Task SalvarAluno() {
-        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(responsavelCpf)) {
+    private async Task SalvarAluno()
+    {
+        var cpfSemMascara = Mask.RemoveMask(responsavelCpf);
+
+        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(cpfSemMascara))
+        {
             msgErro = "Nome e CPF do responsável são obrigatórios.";
             return;
         }
 
-        try {
-            // Busca o responsável pelo CPF
-            var resp = ResponsavelController.Get("CPF", responsavelCpf);
-            if (resp == null) {
+        try
+        {
+            var resp = responsavelSelecionado
+                       ?? ResponsavelController.Get("CPF", cpfSemMascara);
+
+            if (resp == null)
+            {
                 msgErro = "Responsável não encontrado no sistema.";
                 return;
             }
 
-            // Registra o Aluno
             AlunoController.Register(novoAluno);
-            
-            // Cria o vínculo de parentesco
-            ResponsavelController.AddParentesco(resp, novoAluno, tipoParentesco);
 
-            // Vínculo de Turma
-            if (!string.IsNullOrEmpty(turmaId)) {
+            ResponsavelController.AddParentesco(resp, novoAluno, tipoParentesco);
+            ReceitaController.GerarCarneAluno(novoAluno, resp,850.0m, DateTime.Today.AddYears(1));
+
+            if (!string.IsNullOrEmpty(turmaId))
+            {
                 var turma = TurmaController.Get("Id", turmaId);
                 turma?.Alunos.Add(novoAluno);
-                TurmaController.Register(turma); // Atualiza o storage da turma
+                TurmaController.Register(turma);
             }
 
             Navigation.NavigateTo("/alunos");
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             msgErro = "Erro: " + ex.Message;
         }
     }
 
-    private void HandleAlergiaKeyUp(KeyboardEventArgs e) {
-        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia)) {
+    private void HandleAlergiaKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia))
+        {
             novoAluno.Alergias.Add(addAlergia);
             addAlergia = "";
         }
     }
 
-    private void HandleCondicoesKeyUp(KeyboardEventArgs e) {
-        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao)) {
+    private void HandleCondicoesKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao))
+        {
             novoAluno.CondicoesEspeciais.Add(addCondicao);
             addCondicao = "";
         }

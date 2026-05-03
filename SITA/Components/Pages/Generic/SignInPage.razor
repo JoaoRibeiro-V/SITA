@@ -9,50 +9,54 @@
 <div class="body">
     <section class="fundo">
 
-        <div class="campos">
+        <EditForm Model="this" OnValidSubmit="HandleSignIn">
+            <div class="campos">
 
-            <!-- LOGO -->
-            <span>
-                <img src="assets/images/Logo.png" alt="logo" />
-            </span>
+                <!-- LOGO -->
+                <span>
+                    <img src="assets/images/Logo.png" alt="logo" />
+                </span>
 
-            <!-- USER (CPF) -->
-            <input @bind="userName"
-                   @oninput="OnCpfInput"
-                   class="form-control"
-                   type="text"
-                   placeholder="Usuário (CPF)"
-                   maxlength="14" />
+                <!-- USER (CPF) -->
+                <input @bind="userName"
+                       @oninput="OnCpfInput"
+                       @onkeydown="HandleCpfKeyDown"
+                       onkeypress="onlyNumbers(event)"
+                       class="form-control"
+                       placeholder="Usuário (CPF)"
+                       maxlength="14" />
 
-            <!-- PASSWORD -->
-            <input @bind="password"
-                   class="form-control"
-                   type="password"
-                   placeholder="Senha"
-                   />
+                <!-- PASSWORD -->
+                <input @bind="password"
+                       @ref="passwordInput"
+                       class="form-control"
+                       type="password"
+                       placeholder="Senha" />
 
-            <!-- ERROR -->
-            @if (showError)
-            {
-                <p style="color:red; text-align:center;">
-                    @errorMessage
-                </p>
-            }
+                <!-- ERROR -->
+                @if (showError)
+                {
+                    <p style="color:red; text-align:center;">
+                        @errorMessage
+                    </p>
+                }
 
-            <!-- LOGIN BUTTON -->
-            <button @onclick="HandleSignIn" id="confirmar">
-                Entrar
-            </button>
-
-            <!-- SIGNUP -->
-            <div style="text-align: center; margin-top: 20px;">
-                <button @onclick="IrParaCadastro"
-                        style="background: transparent; border: none; color: #000000; cursor: pointer; text-decoration: underline;">
-                    Não tem conta? Criar conta agora
+                <!-- LOGIN BUTTON -->
+                <button type="submit" id="confirmar">
+                    Entrar
                 </button>
-            </div>
 
-        </div>
+                <!-- SIGNUP -->
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="button"
+                            @onclick="IrParaCadastro"
+                            style="background: transparent; border: none; color: #000000; cursor: pointer; text-decoration: underline;">
+                        Não tem conta? Criar conta agora
+                    </button>
+                </div>
+
+            </div>
+        </EditForm>
     </section>
 
     <!-- BACKGROUND DECOR -->
@@ -81,12 +85,20 @@
     private string errorMessage = "";
     private bool showError = false;
 
+    private ElementReference passwordInput;
+
+    private async Task HandleCpfKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await passwordInput.FocusAsync();
+        }
+    }
+
     private void OnCpfInput(ChangeEventArgs e)
     {
-        var digits = new string((e.Value?.ToString() ?? "")
-            .Where(char.IsDigit)
-            .ToArray());
-
+        var raw = e.Value?.ToString() ?? "";
+        var digits = new string(raw.Where(char.IsDigit).ToArray());
         if (digits.Length > 11)
             digits = digits[..11];
 
