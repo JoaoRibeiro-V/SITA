@@ -1,4 +1,4 @@
-@page "/profile"
+@page "/"
 @namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
@@ -34,13 +34,8 @@
             var access = MauiProgram.AppSession.GetInstanceAccess();
             var userStorage = MauiProgram.AppStorage.GetStorage<User>();
 
-<<<<<<< HEAD
            
             currentUser = userStorage.GetAllData().FirstOrDefault(u => u.AccessType.Level == access.Level);
-=======
-            // 2. Busca o usuário correspondente ao nível de acesso
-            currentUser = MauiProgram.AppSession.GetLoggedInUser();
->>>>>>> bd992929f2e600202fe3945e1cee5003b33648a3
 
             if (currentUser == null)
             {
@@ -62,19 +57,6 @@
     {
         var access = MauiProgram.AppSession.GetInstanceAccess();
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-<<<<<<< HEAD
-=======
-        currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
-        currentUser.DataUltimoAcesso = DateTime.Now;
-        MauiProgram.AppSession.InitSession(new User
-        {
-            AccessType = new AccessType
-            {
-                Level = -1
-            }
-        });
-
->>>>>>> bd992929f2e600202fe3945e1cee5003b33648a3
         
  
         currentUser = userStorage.GetAllData().FirstOrDefault(u => u.AccessType.Level == access.Level);

@@ -2,7 +2,6 @@
 @namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
-@using SITA.src.Controller
 @using SITA.Maui
 @inject NavigationManager Navigation
 
@@ -48,26 +47,14 @@
     {
         showError = false;
 
-        string cleanCpf = Mask.RemoveMask(newUser.CPF ?? "");
-
-        string? error =
-            Validator.ValidateRequired(
-                (newUser.Nome ?? "", "Nome"),
-                (cleanCpf, "CPF"),
-                (password, "Senha")
-            )
-            ?? Validator.ValidateCPF(cleanCpf)
-            ?? Validator.ValidateEmail(newUser.Email ?? "")
-            ?? Validator.ValidatePassword(password)
-            ?? Validator.ValidateDuplicateCPF(cleanCpf)
-            ?? Validator.ValidateDuplicateEmail(newUser.Email ?? "");
-
-        if (error != null)
+        // 1. Validação de campos obrigatórios
+        if (string.IsNullOrEmpty(newUser.Nome) || string.IsNullOrEmpty(newUser.CPF) || string.IsNullOrEmpty(password))
         {
-            DisplayError(error);
+            DisplayError("Preencha todos os campos obrigatórios.");
             return;
         }
 
+        // 2. Validação de senha (Regras do PasswordHandler)
         if (password != confirmPassword)
         {
             DisplayError("As senhas não coincidem.");
@@ -78,7 +65,8 @@
         {
             DisplayError("Senha fraca. Use +6 caracteres, uma maiúscula e um número.");
             return;
-      
+        }
+
         // 3. Verifica se o usuário já existe (usando o CPF como critério de busca)
         var userStorage = MauiProgram.AppStorage.GetStorage<User>();
 
@@ -89,13 +77,13 @@
         }
 
         // 4. Prepara e salva o novo usuário
-
         newUser.Senha = PasswordHandler.HashPassword(password, newUser.Salt);
+        
+        // Nível 3 para Secretaria (Padrão de novos cadastros)
         newUser.AccessType = new AccessType { Level = 3 };
 
-        UserController.Register(newUser);
-
-        MauiProgram.AppSession.InitSession(newUser);
+        userStorage.AddData(newUser.Id.ToString(), newUser);
+        MauiProgram.AppSession.InitSession(newUser.AccessType);
 
         successMessage = "Conta criada! Redirecionando...";
         showSuccess = true;
