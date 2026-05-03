@@ -1,33 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SITA.src.Model
 {
     public class Responsavel : User
     {
+        public static Dictionary<int, string> TipoParentescoMap = new()
+        {
+            { 0, "Mãe" },
+            { 1, "Pai" },
+            { 2, "Tio" },
+            { 3, "Tia" },
+            { 4, "Avô" },
+            { 5, "Avó" },
+            { 6, "Outro" }
+        };
         public string? Telefone { get; set; }
         public string? Endereco { get; set; }
-        public List<Parentesco> Parentescos { get; set; } = new List<Parentesco>();
-
+        private List<Parentesco> Parentescos { get; set; } = new List<Parentesco>();
         public Responsavel()
         {
             Id = Guid.NewGuid();
+            Parentescos = new List<Parentesco>();
         }
-
+        public List<Parentesco>? GetParentescos()
+        {
+            return Parentescos;
+        }
         public void AddParentesco(Aluno aluno, int tipo)
         {
-            if (aluno == null) return;
-            if (!Parentescos.Any(p => p.AlunoId == aluno.Id))
+            Parentescos?.Add(new Parentesco { Aluno = aluno, Tipo = tipo });
+        }
+        public Aluno? GetAlunoByField(string field, string value)
+        {
+            foreach (var parentesco in Parentescos)
             {
-                Parentescos.Add(new Parentesco
+                var aluno = parentesco.Aluno;
+                var property = typeof(Aluno).GetProperty(field);
+                if (property != null)
                 {
-<<<<<<< HEAD
-                    AlunoId = aluno.Id,
-                    NomeAluno = aluno.Nome,
-                    Tipo = tipo
-                });
-=======
                     var propertyValue = property.GetValue(aluno)?.ToString();
                     if (propertyValue == value)
                     {
@@ -59,29 +73,9 @@ namespace SITA.src.Model
             }
             public string GetParentesco()
             {
-                return TipoParentesco[Tipo];
->>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
+                return Responsavel.TipoParentescoMap[Tipo];
             }
         }
 
-        public class Parentesco
-        {
-            public static readonly Dictionary<int, string> ListaTipos = new Dictionary<int, string>
-            {
-                { 0, "Mãe" },
-                { 1, "Pai" }, 
-                { 2, "Tio" }, 
-                { 3, "Tia" },
-                { 4, "Avô" }, 
-                { 5, "Avó" }, 
-                { 6, "Outro" }
-            };
-
-            public Guid AlunoId { get; set; }
-            public string? NomeAluno { get; set; }
-            public int Tipo { get; set; } = 6;
-            public int Prioridade { get; set; } = 0;
-            public string GetDescricaoTipo() => ListaTipos.ContainsKey(Tipo) ? ListaTipos[Tipo] : "Outro";
-        }
     }
 }

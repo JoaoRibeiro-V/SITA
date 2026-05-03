@@ -1,9 +1,7 @@
-@page "/visualizar-turma/{TurmaIdGuid:guid}"
+﻿@page "/turma/{TurmaIdGuid:guid}"
 @using SITA.src.Model
 @using SITA.src.Storage
-@inject IStorage<Turma> StorageTurma
-@inject IStorage<Aluno> StorageAluno
-@inject IStorage<Funcionario> StorageFuncionario
+@using SITA.src.Controller
 
 <div class="container mt-4" style="background-color: white; padding: 25px; border-radius: 12px; border: 2px solid #000080;">
     @if (turma == null)
@@ -69,7 +67,7 @@
 
 @code {
     [Parameter] public Guid TurmaIdGuid { get; set; }
-    
+
     private Turma? turma;
     private Funcionario? professor;
     private List<Aluno> alunosDaTurma = new List<Aluno>();
@@ -82,22 +80,18 @@
     private void CarregarDadosDaTurma()
     {
         // 1. Busca a Turma no Storage
-        turma = StorageTurma.GetData(TurmaIdGuid.ToString());
+        turma = TurmaController.Get(TurmaIdGuid.ToString(), null);
 
         if (turma != null)
         {
             // 2. Busca o Professor usando o ProfessorId armazenado na Turma
-            if (turma.ProfessorId.HasValue)
+            if (turma.Professor != null)
             {
-                professor = StorageFuncionario.GetData(turma.ProfessorId.Value.ToString());
+                professor = FuncionarioController.Get(turma.Professor.Id.ToString(), null);
             }
 
             // 3. Busca os Alunos comparando os IDs da lista da Turma com o Storage Global
-            var todosAlunos = StorageAluno.GetAllData();
-            alunosDaTurma = todosAlunos
-                .Where(a => turma.AlunosIds.Contains(a.Id))
-                .OrderBy(a => a.Nome)
-                .ToList();
+            alunosDaTurma = turma.Alunos.ToList();
         }
     }
 }

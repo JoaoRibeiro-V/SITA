@@ -1,0 +1,85 @@
+﻿.quadrados {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    flex-direction: row;
+    max-width: 1200px;
+    gap: 30px;
+    padding: 40px 20px;
+    margin: 0 auto;
+}
+
+.mensalidade,
+.despesa,
+.total {
+    /*divisão e o tamanho dos quadrados */
+    flex: 1;
+    min-width: 250px;
+    min-height: 140px;
+    /* conteudo */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mensalidade {
+    border-top: 3px solid yellow;
+}
+
+    .mensalidade:hover {
+        transform: translateY(-5px);
+    }
+
+.total {
+    border-top: 3px solid green;
+}
+
+    .total:hover {
+        transform: translateY(-5px);
+    }
+
+.despesa {
+    border-top: 3px solid red;
+}
+
+    .despesa:hover {
+        transform: translateY(-5px);
+    }
+
+.grafico-do-calendario {
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5%;
+}
+
+.campo-resumo {
+    max-width: 270px;
+    min-width: 270px;
+    background-color: blueviolet;
+    border-radius: 13px;
+    box-shadow: -1px 5px 10px rgba(0, 0, 0, 0.521);
+}
+
+.titulo {
+    display: flex;
+    justify-content: center;
+    padding: 3%;
+    background: none;
+}
+
+.linha {
+    margin-left: 5%;
+    background-color: black;
+    max-width: 90%;
+    min-width: 90%;
+    max-height: 1px;
+    min-height: 1px;
+}

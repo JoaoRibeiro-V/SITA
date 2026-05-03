@@ -1,5 +1,6 @@
 @page "/dashboard-financeiro"
 @using SITA.src.Model
+@using SITA.src.Controller
 @inject NavigationManager Navigation
 
 <div class="container-fluid" style="background-color: #f4f7f6; min-height: 100vh; padding: 20px;">
@@ -82,11 +83,8 @@
 
     private void CarregarDados()
     {
-        var storageReceita = MauiProgram.AppStorage.GetStorage<Receita>();
-        var storageDespesa = MauiProgram.AppStorage.GetStorage<Despesa>();
-
-        var todasReceitas = storageReceita.GetAllData();
-        var todasDespesas = storageDespesa.GetAllData();
+        var todasReceitas = ReceitaController.GetAll();
+        var todasDespesas = DespesaController.GetAll();
 
         // 1. Calcula Saldo (Recebido - Pago)
         float receitasPagas = todasReceitas.Where(r => r.Status == 1).Sum(r => r.Valor);
@@ -99,7 +97,7 @@
         // 3. Calcula Inadimplência
         valorAtraso = todasReceitas.Where(r => r.Status == 2).Sum(r => r.Valor);
 
-        // 4. Pega as últimas 5 para a tabela
-        receitasRecentes = todasReceitas.OrderByDescending(r => r.DataVencimento).Take(5).ToList();
+        // 4. Pega as últimas 8 para a tabela
+        receitasRecentes = todasReceitas.OrderByDescending(r => r.DataVencimento).Take(8).ToList();
     }
 }

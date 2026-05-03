@@ -1,8 +1,7 @@
 ﻿@page "/folha-pagamento"
 @using SITA.src.Model
 @using SITA.src.Storage
-@inject IStorage<Funcionario> StorageFuncionario
-@inject IStorage<Salario> StorageSalario
+@using SITA.src.Controller
 
 <div class="container mt-4" style="background-color: white; padding: 25px; border-radius: 12px; border: 2px solid #000080; max-width: 900px; margin: auto;">
     <h3 style="color: #000080; font-weight: bold; text-align: center;">💸 Gestão de Folha de Pagamento</h3>
@@ -33,7 +32,7 @@
         <div class="p-3 mt-2" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #000080;">
             <h5><b>Resumo do Lançamento:</b></h5>
             <p>Colaborador: <b>@funcionarioSelecionado.Nome</b></p>
-            <p>Salário Base: <span class="text-success">R$ @funcionarioSelecionado.SalarioBase.ToString("N2")</span></p>
+            <p>Salário Base: <span class="text-success">R$ @funcionarioSelecionado.SalarioBase.ToString()</span></p>
             
             <div class="row">
                 <div class="col-md-6">
@@ -71,7 +70,7 @@
     protected override void OnInitialized()
     {
         // Carrega os funcionários cadastrados
-        funcionariosDisponiveis = StorageFuncionario.GetAllData().OrderBy(f => f.Nome).ToList();
+        funcionariosDisponiveis = FuncionarioController.GetAll().OrderBy(f => f.Nome).ToList();
     }
 
     private void OnFuncionarioSelected(ChangeEventArgs e)
@@ -98,16 +97,15 @@
            
             var novoSalario = new Salario
             {
-                FuncionarioId = funcionarioSelecionado.Id,
+                Funcionario = funcionarioSelecionado,
                 MesReferencia = mesReferencia.ToString("MM/yyyy"),
                 Valor = (float)CalcularTotal(), 
                 DataEmissao = DateTime.Now,
-                Descricao = $"Salário - {funcionarioSelecionado.Nome} ({mesReferencia.ToString("MM/yyyy")})",
-                Status = 1 
+                Descricao = $"Salário - {funcionarioSelecionado.Nome} ({mesReferencia.ToString("MM/yyyy")})"
             };
 
            
-            StorageSalario.AddData(novoSalario.Id.ToString(), novoSalario);
+            SalarioController.Register(novoSalario);
 
             feedbackMsg = $"Sucesso! Pagamento de {funcionarioSelecionado.Nome} lançado no Financeiro.";
             ResetForm();

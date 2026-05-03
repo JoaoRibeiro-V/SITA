@@ -1,0 +1,155 @@
+﻿@page "/cadastro-aluno"
+@namespace SITA.Maui.Components
+@using SITA.src.Model
+@using SITA.src.Controller
+@using SITA.src.Storage
+@using Microsoft.AspNetCore.Components.Web
+@inject NavigationManager Navigation
+
+<div style="background-color: white; padding: 20px; border-radius: 10px; border: 2px solid #000080; max-width: 800px; margin: auto;">
+
+    <h2 style="color:#000080;text-align:center;">Ficha de Matrícula</h2>
+
+    <label>Nome do Aluno:</label>
+    <input class="form-control" @bind="novoAluno.Nome" />
+
+    <label class="mt-2">CPF do Responsável:</label>
+    <input class="form-control" @bind="responsavelCpf" />
+
+    <h4 style="margin-top:20px;color:#000080;">Saúde</h4>
+
+    <label>Alergias:</label>
+    <input class="form-control" @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" />
+
+    @foreach (var a in novoAluno.Alergias)
+    {
+        <span class="badge bg-danger me-1">@a</span>
+    }
+
+    <label class="mt-2">Condições:</label>
+    <input class="form-control" @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" />
+
+    @foreach (var c in novoAluno.CondicoesEspeciais)
+    {
+        <span class="badge bg-warning text-dark me-1">@c</span>
+    }
+
+    <button class="btn"
+            style="background:#000080;color:white;width:100%;margin-top:20px;"
+            @onclick="SalvarAluno">
+
+        FINALIZAR MATRÍCULA
+    </button>
+
+    @if (!string.IsNullOrEmpty(msgErro))
+    {
+        <div class="alert alert-danger mt-3">@msgErro</div>
+    }
+
+    @if (exibirSucesso)
+    {
+        <div class="alert alert-success mt-3">Matrícula realizada!</div>
+    }
+</div>
+
+@code {
+    private Aluno novoAluno = new Aluno
+    {
+        Alergias = new List<string>(),
+        CondicoesEspeciais = new List<string>()
+    };
+
+    private Responsavel? responsavel;
+    private string responsavelCpf = "";
+    private string addAlergia = "";
+    private string addCondicao = "";
+    private string msgErro = "";
+    private bool exibirSucesso = false;
+
+    private async Task SalvarAluno()
+    {
+        if (string.IsNullOrWhiteSpace(novoAluno.Nome) ||
+            string.IsNullOrWhiteSpace(responsavelCpf))
+        {
+            msgErro = "Nome do aluno e CPF do responsável são obrigatórios.";
+            return;
+        }
+
+        try
+        {
+            responsavel = ResponsavelController.Get("CPF", responsavelCpf);
+
+            if (responsavel == null)
+            {
+                msgErro = "Responsável não encontrado.";
+                return;
+            }
+
+            // ensure lists exist (safety)
+            novoAluno.Alergias ??= new List<string>();
+            novoAluno.CondicoesEspeciais ??= new List<string>();
+
+            novoAluno.DataCadastro = DateTime.Now;
+
+            AlunoController.Register(novoAluno);
+
+            responsavel.AddParentesco(novoAluno, 6);
+
+            GerarCarne(novoAluno);
+
+            exibirSucesso = true;
+            msgErro = "";
+
+            novoAluno = new Aluno
+            {
+                Alergias = new List<string>(),
+                CondicoesEspeciais = new List<string>()
+            };
+
+            await Task.Delay(2000);
+            exibirSucesso = false;
+        }
+        catch (Exception ex)
+        {
+            msgErro = ex.Message;
+        }
+    }
+
+    private void GerarCarne(Aluno aluno)
+    {
+        DateTime baseDate = DateTime.Now;
+
+        for (int i = 1; i <= 12; i++)
+        {
+            Receita newReceita = new Receita
+            {
+                Aluno = aluno,
+                Responsavel = responsavel,
+                Valor = 850,
+                Descricao = $"Mensalidade {i}/12",
+                DataVencimento = new DateTime(baseDate.Year, baseDate.Month, 10).AddMonths(i),
+                Status = 0,
+                Origem = "Mensalidade"
+            };
+            ReceitaController.Register(newReceita);
+        }
+    }
+
+    private void HandleAlergiaKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia))
+        {
+            novoAluno.Alergias.Add(addAlergia);
+            addAlergia = "";
+        }
+    }
+
+    private void HandleCondicoesKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao))
+        {
+            novoAluno.CondicoesEspeciais.Add(addCondicao);
+            addCondicao = "";
+        }
+    }
+}

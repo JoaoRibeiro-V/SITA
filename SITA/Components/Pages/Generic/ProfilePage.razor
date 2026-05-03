@@ -1,4 +1,4 @@
-@page "/"
+@page "/profile"
 @namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
@@ -31,17 +31,14 @@
     {
         try
         {
+            // 1. Pega o acesso da sessão ativa
             var access = MauiProgram.AppSession.GetInstanceAccess();
             var userStorage = MauiProgram.AppStorage.GetStorage<User>();
 
-<<<<<<< HEAD
-           
-            currentUser = userStorage.GetAllData().FirstOrDefault(u => u.AccessType.Level == access.Level);
-=======
             // 2. Busca o usuário correspondente ao nível de acesso
-            currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
->>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
+            currentUser = MauiProgram.AppSession.GetLoggedInUser();
 
+            // 3. Se não tem ninguém logado (nível -1), manda pro Login
             if (currentUser == null)
             {
                 Navigation.NavigateTo("/signin");
@@ -50,33 +47,28 @@
             {
                 accessName = access.GetAccessName();
             }
-        }
-        catch (Exception ex)
+        }catch(Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"SITA Erro: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Erro ao carregar perfil: {ex.Message}");
             Navigation.NavigateTo("/signin");
         }
+        
     }
 
     private void OnLogoutClicked()
     {
-        var access = MauiProgram.AppSession.GetInstanceAccess();
-        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-<<<<<<< HEAD
-=======
-        currentUser = userStorage.Values.FirstOrDefault(u => u.AccessType.Level == access.Level);
+        currentUser = MauiProgram.AppSession.GetLoggedInUser();
         currentUser.DataUltimoAcesso = DateTime.Now;
-        MauiProgram.AppSession.InitSession(new AccessType { Level = -1 });
+        MauiProgram.AppSession.InitSession(new User
+        {
+            AccessType = new AccessType
+            {
+                Level = -1
+            }
+        });
 
->>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
         
- 
-        currentUser = userStorage.GetAllData().FirstOrDefault(u => u.AccessType.Level == access.Level);
-        
-        if (currentUser != null)
-            currentUser.DataUltimoAcesso = DateTime.Now;
-
-        MauiProgram.AppSession.InitSession(new AccessType { Level = -1 });
+        // 5. Redireciona via Blazor
         Navigation.NavigateTo("/signin");
     }
 }

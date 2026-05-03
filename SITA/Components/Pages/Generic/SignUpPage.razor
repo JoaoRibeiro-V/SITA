@@ -2,6 +2,7 @@
 @namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Util
+@using SITA.src.Controller
 @using SITA.Maui
 @inject NavigationManager Navigation
 
@@ -47,14 +48,26 @@
     {
         showError = false;
 
-        // 1. Validação de campos obrigatórios
-        if (string.IsNullOrEmpty(newUser.Nome) || string.IsNullOrEmpty(newUser.CPF) || string.IsNullOrEmpty(password))
+        string cleanCpf = Mask.RemoveMask(newUser.CPF ?? "");
+
+        string? error =
+            Validator.ValidateRequired(
+                (newUser.Nome ?? "", "Nome"),
+                (cleanCpf, "CPF"),
+                (password, "Senha")
+            )
+            ?? Validator.ValidateCPF(cleanCpf)
+            ?? Validator.ValidateEmail(newUser.Email ?? "")
+            ?? Validator.ValidatePassword(password)
+            ?? Validator.ValidateDuplicateCPF(cleanCpf)
+            ?? Validator.ValidateDuplicateEmail(newUser.Email ?? "");
+
+        if (error != null)
         {
-            DisplayError("Preencha todos os campos obrigatórios.");
+            DisplayError(error);
             return;
         }
 
-        // 2. Validação de senha (Regras do PasswordHandler)
         if (password != confirmPassword)
         {
             DisplayError("As senhas não coincidem.");
@@ -67,31 +80,13 @@
             return;
         }
 
-<<<<<<< HEAD
-        // 3. Verifica se o usuário já existe (usando o CPF como critério de busca)
-        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-
-        if (userStorage.GetDataByField(u => u.CPF == newUser.CPF) != null)
-        {
-            DisplayError("Já existe um usuário com este CPF cadastrado.");
-=======
-        // 3. Verifica se o usuário já existe (usando o CPF/Nome como chave)
-        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
-        if (userStorage.GetDataByField("CPF", newUser.CPF) != null)
-        {
-            DisplayError("Já existe um usuário com esse nome.");
->>>>>>> parent of bd99292 (Frontend build | New pages | More backend logic (Routehandler/validator))
-            return;
-        }
-
-        // 4. Prepara e salva o novo usuário
+        newUser.CPF = cleanCpf;
         newUser.Senha = PasswordHandler.HashPassword(password, newUser.Salt);
-        
-        // Nível 3 para Secretaria (Padrão de novos cadastros)
         newUser.AccessType = new AccessType { Level = 3 };
 
-        userStorage.AddData(newUser.Id.ToString(), newUser);
-        MauiProgram.AppSession.InitSession(newUser.AccessType);
+        UserController.Register(newUser);
+
+        MauiProgram.AppSession.InitSession(newUser);
 
         successMessage = "Conta criada! Redirecionando...";
         showSuccess = true;
