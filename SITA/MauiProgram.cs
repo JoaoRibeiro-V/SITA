@@ -40,31 +40,6 @@ namespace SITA
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
-            User newUser = new User
-            {
-                Nome = "Responsável 1",
-                Email = "responsavel@gmail.com",
-                CPF = "11111111111"
-            };
-            newUser.Senha = BCrypt.Net.BCrypt.HashPassword("responsavel123", newUser.Salt);
-
-            UserController.Register(newUser);
-
-            Responsavel newResponsavel = ResponsavelController.CreateByUser(newUser);
-            newResponsavel.Telefone = "123456789";
-            newResponsavel.Endereco = "Rua Exemplo, 123";
-
-            Aluno filhoDoFulano = new Aluno
-            {
-                Nome = "Ciclano de Tal",
-                RA = "12345",
-            };
-
-            AlunoController.Register(filhoDoFulano);
-            ResponsavelController.AddParentesco(newResponsavel, filhoDoFulano, 1);
-
-            JsonHandler.PrintClass(newResponsavel);
-            System.Diagnostics.Debug.WriteLine($"Responsável: {newResponsavel.Nome}, Aluno: {newResponsavel.GetParentescos()?[0].Aluno.Nome}, Parentesco: {newResponsavel.GetParentescos()?[0].GetParentesco()}");
             return builder.Build();
         }
 
@@ -85,9 +60,7 @@ namespace SITA
             string json = File.ReadAllText(path);
 
             System.Diagnostics.Debug.WriteLine("JSON loaded: " + json);
-
-            var handler = new JsonHandler();
-            handler.LoadFromString(json, AppStorage);
+            JsonHandler.ImportFull(json);
 
             System.Diagnostics.Debug.WriteLine("IMPORT FINISHED");
         }

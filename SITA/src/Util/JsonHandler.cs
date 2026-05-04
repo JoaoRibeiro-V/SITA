@@ -1,95 +1,143 @@
-﻿using SITA.src.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using SITA.src.Controller;
+using SITA.src.Model;
+using SITA.src.Util;
 using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace SITA.src.Util
+public static class JsonHandler
 {
-    /*
-     * JsonHandler
-     * --------------------------------------------
-     * Responsável por:
-     * - Ler um arquivo JSON
-     * - Interpretar sua estrutura
-     * - Inserir os dados nos storages corretos
-     * 
-     * Estrutura obrigatória do JSON:
-     * 
-     * {
-     *   "groupClasses": [
-     *     {
-     *       "type": "NomeDaClasse",
-     *       "defaults": [ { objeto }, { objeto } ]
-     *     }
-     *   ]
-     * }
-     * 
-   * Funcionamento:
-     * - "type" deve corresponder ao nome da classe registrada no GeneralStorage
-     * - Cada item em "defaults" é convertido dinamicamente para o tipo correto
-     * - Os dados são inseridos via reflexão no Storage correspondente
-   */
-    public class JsonHandler
+    private class ImportRoot
     {
-        public static void PrintClass(object obj)
-        {
-            string jsonString = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
-            System.Diagnostics.Debug.WriteLine(jsonString);
-        }
-        public class Root
-        {
-            public List<GroupClass>? groupClasses { get; set; }
-        }
+        public AdminDTO? admin { get; set; }
+        public TurmaDTO? turma { get; set; }
+        public List<ResponsavelDTO>? responsaveis { get; set; }
+        public decimal mensalidade { get; set; }
+        public DateTime fimMatricula { get; set; }
+    }
+    private class AdminDTO
+    {
+        public string? nome { get; set; }
+        public string? cpf { get; set; }
+        public string? email { get; set; }
+        public string? senha { get; set; }
+    }
+    private class TurmaDTO
+    {
+        public string? nome { get; set; }
+        public string? turno { get; set; }
+    }
+    private class ResponsavelDTO
+    {
+        public string? nome { get; set; }
+        public string? cpf { get; set; }
+        public string? email { get; set; }
+        public string? senha { get; set; }
+        public string? telefone { get; set; }
+        public string? endereco { get; set; }
+        public List<AlunoDTO>? alunos { get; set; }
+    }
+    private class AlunoDTO
+    {
+        public string? nome { get; set; }
+        public DateTime? dataNascimento { get; set; }
+        public string? religiao { get; set; }
+        public string? nomePediatra { get; set; }
+        public string? orientacoesEmergencia { get; set; }
+        public List<string>? alergias { get; set; }
+        public List<string>? condicoesEspeciais { get; set; }
+    }
+    public static void ImportFull(string json)
+    {
+        var root = JsonSerializer.Deserialize<ImportRoot>(json);
+        if (root == null)
+            throw new Exception("JSON inválido");
 
-        public class GroupClass
+        if (root.admin != null)
         {
-            public string? type { get; set; }
-            public List<JsonElement>? defaults { get; set; }
-        }
-        // Carrega dados do JSON e distribui nos storages
-        // Existing method stays for your Console project
-        public void LoadIntoGeneralStorage(string path, GeneralStorage generalStorage)
-        {
-            string json = File.ReadAllText(path);
-            LoadFromString(json, generalStorage);
-        }
+            var existingAdmin = UserController.Get("CPF", root.admin.cpf);
 
-        // New method used by MAUI
-        public void LoadFromString(string json, GeneralStorage generalStorage)
-        {
-            Root? root = JsonSerializer.Deserialize<Root>(json);
-            if (root?.groupClasses == null) return;
-
-            var storages = generalStorage.GetGeneralStorage();
-
-            foreach (var group in root.groupClasses)
+            if (existingAdmin == null)
             {
-                System.Diagnostics.Debug.WriteLine("Looking for type: " + group.type);
-                System.Diagnostics.Debug.WriteLine("Available keys: " + string.Join(", ", storages.Keys));
-                if (group.type == null || group.defaults == null) continue;
-                if (!storages.TryGetValue(group.type, out var storageObj)) continue;
-
-                Type storageType = storageObj.GetType();
-                Type entityType = storageType.GetGenericArguments()[0];
-
-                var addMethod = storageType.GetMethod("AddData");
-                var nameProp = entityType.GetProperty("Nome");
-                var idProp = entityType.GetProperty("Id");
-
-                foreach (var item in group.defaults)
+                var admin = new User
                 {
-                    var obj = item.Deserialize(entityType);
-                    if (obj == null) continue;
+                    Nome = root.admin.nome,
+                    CPF = root.admin.cpf,
+                    Email = root.admin.email,
+                    DataCriacao = DateTime.Now,
+                    DataUltimoAcesso = DateTime.Now,
+                    Ativo = true,
+                    AccessType = new AccessType { Level = 5 }
+                };
+                admin.Senha = PasswordHandler.HashPassword(root.admin.senha ?? "admin", admin.Salt);
 
-                    string? key = idProp?.GetValue(obj)?.ToString();
-                    if (key == null) continue;
+                UserController.Register(admin);
+            }
+        }
 
-                    System.Diagnostics.Debug.WriteLine($"Adding to {storageObj.ToString()} with key {key}");
-                    addMethod?.Invoke(storageObj, new object[] { key, obj });
-                }
+        if (root.turma == null)
+            throw new Exception("Turma não informada");
+
+        var turma = new Turma
+        {
+            Nome = root.turma.nome ?? "Turma",
+            Turno = root.turma.turno ?? "Manhã"
+        };
+
+        TurmaController.Register(turma);
+        foreach (var respDTO in root.responsaveis ?? new())
+        {
+            var existingUser = UserController.Get("CPF", respDTO.cpf);
+            if (existingUser != null)
+                throw new Exception($"CPF já cadastrado: {respDTO.cpf}");
+
+            var user = new User
+            {
+                Nome = respDTO.nome,
+                CPF = respDTO.cpf,
+                Email = respDTO.email,
+                DataCriacao = DateTime.Now,
+                DataUltimoAcesso = DateTime.Now,
+                Ativo = true,
+                AccessType = new AccessType { Level = 1 }
+            };
+            user.Senha = PasswordHandler.HashPassword(respDTO.senha ?? "password", user.Salt);
+
+            UserController.Register(user);
+
+            var responsavel = ResponsavelController.CreateByUser(user);
+            responsavel.Telefone = respDTO.telefone;
+            responsavel.Endereco = respDTO.endereco;
+
+            ResponsavelController.Register(responsavel);
+
+            foreach (var alunoDTO in respDTO.alunos ?? new())
+            {
+                var aluno = new Aluno
+                {
+                    RA = Guid.NewGuid().ToString().Substring(0, 8),
+                    Nome = alunoDTO.nome,
+                    DataNascimento = alunoDTO.dataNascimento,
+                    Religiao = alunoDTO.religiao,
+                    NomePediatra = alunoDTO.nomePediatra,
+                    OrientacoesEmergencia = alunoDTO.orientacoesEmergencia,
+                    Alergias = alunoDTO.alergias ?? new List<string>(),
+                    CondicoesEspeciais = alunoDTO.condicoesEspeciais ?? new List<string>(),
+                    Turma = turma,
+                    DataCadastro = DateTime.Now
+                };
+
+                aluno.Idade = aluno.CalcularIdade();
+
+                AlunoController.Register(aluno);
+
+                ResponsavelController.AddParentesco(responsavel, aluno, 0);
+                TurmaController.AddAlunoToTurma(turma, aluno);
+
+                ReceitaController.GerarCarneAluno(
+                    aluno,
+                    responsavel,
+                    root.mensalidade,
+                    root.fimMatricula
+                );
             }
         }
     }

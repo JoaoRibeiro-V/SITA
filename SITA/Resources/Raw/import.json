@@ -1,23 +1,44 @@
 {
-	"groupClasses": [
+	"admin": {
+		"nome": "Admin",
+		"cpf": "00000000000",
+		"email": "admin@sistema.com",
+		"senha": "admin123"
+	},
+	"turma": {
+		"nome": "Turma A",
+		"turno": "Manhã"
+	},
+	"responsaveis": [
 		{
-			"type": "User",
-			"defaults":[
+			"nome": "Fulano de Tal",
+			"cpf": "11111111111",
+			"email": "fulano@email.com",
+			"senha": "responsavel123",
+			"telefone": "999999999",
+			"endereco": "Rua A, 123",
+			"alunos": [
 				{
-					"Id": "85887315-9b43-496d-9002-63bf5f1825fa",
-					"Nome": "Admin",
-					"CPF": "00000000000",
-					"DataCriacao": "2026-04-30T07:57:24.3651386-03:00",
-					"DataUltimoAcesso": "2026-04-30T07:57:24.3678226-03:00",
-					"Ativo": true,
-					"Email": "admin@gmail.com",
-					"Senha": "$2a$11$p.rRq749M5y0jSwrMhHDK.TDmCobh.oujEmoHSgbiA9599ekZAhNq",
-					"Salt": "$2a$11$p.rRq749M5y0jSwrMhHDK.",
-					"AccessType": {
-						"Level": 5
-					}
+					"nome": "Fulaninho",
+					"dataNascimento": "2015-05-01",
+					"religiao": "Católico",
+					"nomePediatra": "Dr. Ciclano",
+					"orientacoesEmergencia": "Nenhuma",
+					"alergias": [ "Leite" ],
+					"condicoesEspeciais": []
+				},
+				{
+					"nome": "Fulaninha",
+					"dataNascimento": "2017-03-10",
+					"religiao": "Católico",
+					"nomePediatra": "Dra. Ciclana",
+					"orientacoesEmergencia": "Asma",
+					"alergias": [],
+					"condicoesEspeciais": [ "Asma" ]
 				}
 			]
 		}
-	]
+	],
+	"mensalidade": 500.0,
+	"fimMatricula": "2026-12-01"
 }
