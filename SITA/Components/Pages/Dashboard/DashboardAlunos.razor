@@ -13,19 +13,59 @@
         </button>
     </div>
 </div>
+<section style="padding: 20px; width:100%" >
 
-<section class="container-card" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 20px;">
-    @foreach (var aluno in alunosFiltrados)
-    {
-        <div class="card" @onclick="() => GoAluno(aluno.Id)"
-             style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-top: 4px solid #000080; cursor: pointer;">
-            <h4 style="color: #000080;">@aluno.Nome</h4>
-            <p><strong>RA:</strong> @aluno.RA</p>
-            <p><strong>Idade:</strong> @aluno.Idade anos</p>
-            <p><strong>Turma:</strong> @(aluno.Turma?.Nome ?? "Sem Turma")</p>
-            <p><strong>Responsável:</strong> @GetResponsavelNome(aluno)</p>
-        </div>
-    }
+    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+
+        <!-- Cabeçalho -->
+        <thead>
+            <tr style="color: white;">
+                <th style="padding: 15px 12px; text-align: left; background: #000080; border-top-left-radius: 8px;">Nome</th>
+                <th style="padding: 15px 12px; text-align: left; background: #000080;">RA</th>
+                <th style="padding: 15px 12px; text-align: left; background: #000080;">Idade</th>
+                <th style="padding: 15px 12px; text-align: left; background: #000080;">Turma</th>
+                <th style="padding: 15px 12px; text-align: left; background: #000080;">Responsável</th>
+                <th style="padding: 15px 12px; text-align: left; background: #000080; border-top-right-radius: 8px;">Status</th>
+            </tr>
+        </thead>
+
+        <!-- Dados -->
+        <tbody>
+            @foreach (var aluno in alunosFiltrados)
+            {
+                <tr @onclick="() => GoAluno(aluno.Id)"
+                    style="cursor: pointer; background: transparent;">
+
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                        @aluno.Nome
+                    </td>
+
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                        @aluno.RA
+                    </td>
+
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                        @aluno.Idade anos
+                    </td>
+
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                        @(aluno.Turma?.Nome ?? "Sem Turma")
+                    </td>
+
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                        @GetResponsavelNome(aluno)
+                    </td>
+
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                        @(aluno.Turma != null ? "Ativo" : "Pendências")
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
 </section>
 
 @code {
