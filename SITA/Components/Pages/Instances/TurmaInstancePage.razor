@@ -2,6 +2,7 @@
 @using SITA.src.Model
 @using SITA.src.Storage
 @using SITA.src.Controller
+@inject NavigationManager Navigation
 
 <div class="container mt-4" style="background-color: white; padding: 25px; border-radius: 12px; border: 2px solid #000080;">
     @if (turma == null)
@@ -48,7 +49,8 @@
                     @foreach (var aluno in alunosDaTurma)
                     {
                         <tr>
-                            <td>@aluno.Nome</td>
+                            
+                                <td><a href="#" @onclick="() => GoAluno(aluno.Id)">@aluno.Nome</a></td>
                             <td>@aluno.RA</td>
                             <td>@aluno.CalcularIdade() anos</td>
                         </tr>
@@ -94,4 +96,5 @@
             alunosDaTurma = turma.Alunos.ToList();
         }
     }
+    void GoAluno(Guid id) => Navigation.NavigateTo($"/aluno-details/{id}");
 }

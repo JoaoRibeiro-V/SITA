@@ -113,7 +113,6 @@ public static class JsonHandler
             {
                 var aluno = new Aluno
                 {
-                    RA = Guid.NewGuid().ToString().Substring(0, 8),
                     Nome = alunoDTO.nome,
                     DataNascimento = alunoDTO.dataNascimento,
                     Religiao = alunoDTO.religiao,
@@ -126,10 +125,11 @@ public static class JsonHandler
                 };
 
                 aluno.Idade = aluno.CalcularIdade();
+                
 
                 AlunoController.Register(aluno);
 
-                ResponsavelController.AddParentesco(responsavel, aluno, 0);
+                ResponsavelController.AddParentesco(responsavel, aluno, 1);
                 TurmaController.AddAlunoToTurma(turma, aluno);
 
                 ReceitaController.GerarCarneAluno(

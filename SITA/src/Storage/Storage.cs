@@ -36,6 +36,21 @@ namespace SITA.src.Storage
             if (this.TryGetValue(key, out T data)) { return data; }
             return default;
         }
+        public T? Copy(T obj)
+        {
+            // Implementação de cópia superficial usando reflexão
+            if (obj == null) return default;
+            var copy = Activator.CreateInstance<T>();
+            foreach (var property in typeof(T).GetProperties())
+            {
+                if (property.CanRead && property.CanWrite)
+                {
+                    var value = property.GetValue(obj);
+                    property.SetValue(copy, value);
+                }
+            }
+            return copy;
+        }
         public T? GetDataByField(string field, string value)
         {
             var property = typeof(T).GetProperty(field);

@@ -32,7 +32,7 @@
     <div class="row mb-4">
         <div class="col-md-4">
             <label class="fw-bold" style="color: #000080;">RA:</label>
-            <input class="form-control border-navy" @bind="novoAluno.RA" />
+            <input readonly class="form-control border-navy" @bind="novoAluno.RA" />
         </div>
         <div class="col-md-4">
             <label class="fw-bold" style="color: #000080;">Religião:</label>
@@ -157,6 +157,7 @@
 @code {
     private Aluno novoAluno = new Aluno { Alergias = new List<string>(), CondicoesEspeciais = new List<string>() };
 
+
     private List<Turma> listaTurmas = new();
     private List<Responsavel> listaResponsaveis = new();
     private List<Responsavel> sugestoesResponsaveis = new();
@@ -174,6 +175,7 @@
 
     protected override void OnInitialized()
     {
+        novoAluno.GerarRA();
         listaTurmas = TurmaController.GetAll();
         listaResponsaveis = ResponsavelController.GetAll();
     }
@@ -240,17 +242,19 @@
                 msgErro = "Responsável não encontrado no sistema.";
                 return;
             }
-
+            novoAluno.DataCadastro = DateTime.Now;
             AlunoController.Register(novoAluno);
 
             ResponsavelController.AddParentesco(resp, novoAluno, tipoParentesco);
             ReceitaController.GerarCarneAluno(novoAluno, resp,850.0m, DateTime.Today.AddYears(1));
+            System.Diagnostics.Debug.WriteLine(turmaId);
 
             if (!string.IsNullOrEmpty(turmaId))
             {
-                var turma = TurmaController.Get("Id", turmaId);
-                turma?.Alunos.Add(novoAluno);
-                TurmaController.Register(turma);
+                System.Diagnostics.Debug.WriteLine("Entrou");
+                var turma = TurmaController.Get(turmaId, null);
+                System.Diagnostics.Debug.WriteLine(turma != null);
+                TurmaController.AddAlunoToTurma(turma, novoAluno);
             }
 
             Navigation.NavigateTo("/alunos");

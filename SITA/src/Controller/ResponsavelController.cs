@@ -15,6 +15,12 @@ namespace SITA.src.Controller
         public static void Delete(Responsavel obj) => BaseController<Responsavel>.Delete(obj, r => r.Id.ToString());
         public static Responsavel? Get(string field, string? value) => BaseController<Responsavel>.Get(field, value);
         public static List<Responsavel> GetAll() => BaseController<Responsavel>.GetAll();
+        public static Responsavel? GetResponsavelByAluno(Aluno aluno, Responsavel responsavel)
+        {
+            if (aluno == null)
+                throw new ArgumentNullException(nameof(aluno));
+            return responsavel.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == aluno.Id)?.Aluno != null ? responsavel : null;
+        }
         public static Responsavel CreateByUser(User user)
         {
             if (user == null)
@@ -39,6 +45,7 @@ namespace SITA.src.Controller
         public static void AddParentesco(Responsavel responsavel, Aluno aluno, int tipoParentesco)
         {
             responsavel.AddParentesco(aluno, tipoParentesco);
+            aluno.Responsaveis.Add(responsavel);
         }
     }
 }

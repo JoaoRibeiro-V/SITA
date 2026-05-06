@@ -38,6 +38,20 @@ namespace SITA.src.Controller
             if (aluno == null)
                 throw new ArgumentNullException(nameof(aluno));
             turma.Alunos.Add(aluno);
+            aluno.Turma = turma;
+        }
+        public static void MoverAlunoParaOutraTurma(Turma newTurma, Turma oldTurma, Aluno aluno)
+        {
+            if (newTurma == null)
+                throw new ArgumentNullException(nameof(newTurma));
+            if (oldTurma == null)
+                throw new ArgumentNullException(nameof(oldTurma));
+            if (aluno == null)
+                throw new ArgumentNullException(nameof(aluno));
+            if (newTurma == oldTurma) return;
+            newTurma.Alunos.Add(aluno);
+            oldTurma.Alunos.Remove(aluno);
+            aluno.Turma = newTurma;
         }
     }
 }

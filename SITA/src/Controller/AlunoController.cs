@@ -19,7 +19,10 @@ namespace SITA.src.Controller
 
         // Registra um novo aluno no armazenamento
         public static void Register(Aluno obj)
-        => BaseController<Aluno>.Register(obj, a => a.Id.ToString());
+        {
+            obj.GerarRA(); // Gera o RA do aluno antes de registrá-lo
+            ClassStorage.AddData(obj.Id.ToString(), obj);
+        }
 
         public static void Delete(Aluno obj)
             => BaseController<Aluno>.Delete(obj, a => a.Id.ToString());
@@ -36,5 +39,7 @@ namespace SITA.src.Controller
          */
         public static Aluno? Get(string field, string? value)
             => BaseController<Aluno>.Get(field, value);
+        public static Aluno? Copy(Aluno obj)
+            => ClassStorage.Copy(obj);
     }
 }

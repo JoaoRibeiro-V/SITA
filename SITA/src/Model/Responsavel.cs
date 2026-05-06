@@ -30,6 +30,10 @@ namespace SITA.src.Model
         {
             return Parentescos;
         }
+        public Parentesco GetAlunoParentesco(Aluno aluno)
+        {
+            return Parentescos.FirstOrDefault(p => p.Aluno.Id == aluno.Id);
+        }
         public void AddParentesco(Aluno aluno, int tipo)
         {
             Parentescos?.Add(new Parentesco { Aluno = aluno, Tipo = tipo });

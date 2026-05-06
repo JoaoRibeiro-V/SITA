@@ -15,7 +15,6 @@ namespace SITA.src.Controller
         {
             Storage.Remove(getId(obj));
         }
-
         public static T? Get(string field, string? value)
         {
             if (value == null)
@@ -26,6 +25,10 @@ namespace SITA.src.Controller
         public static List<T> GetAll()
         {
             return Storage.Values.ToList();
+        }
+        public static T? Copy(T obj)
+        {
+            return Storage.Copy(obj);
         }
     }
 }
