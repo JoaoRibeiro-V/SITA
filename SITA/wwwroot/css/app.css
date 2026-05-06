@@ -1,8 +1,11 @@
 ﻿/*#if (SampleContent)*/
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    scrollbar-gutter: stable;
 }
-
+::-webkit-scrollbar {
+    width: 0px;
+}
 a, .btn-link {
     color: #006bb7;
 }

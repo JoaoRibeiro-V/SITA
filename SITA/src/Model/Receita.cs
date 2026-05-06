@@ -23,14 +23,32 @@ namespace SITA.src.Model
         public string Origem { get; set; }
         public Aluno? Aluno { get; set; } = null;
         public Responsavel? Responsavel { get; set; } = null;
-        public ReceitaStatus Status { get; set; }
+        public ReceitaStatus Status
+        {
+            get
+            {
+                if (_status == ReceitaStatus.Pago)
+                    return ReceitaStatus.Pago;
+
+                if (DataVencimento < DateTime.Now)
+                    return ReceitaStatus.EmAtraso;
+
+                return ReceitaStatus.EmAndamento;
+            }
+            set
+            {
+                _status = value;
+            }
+        }
+
+        private ReceitaStatus _status;
         public ReceitaTipo Type { get; set; }
         public DateTime DataVencimento { get; set; }
         public Receita()
         {
                 Id = Guid.NewGuid();
                 DataEmissao = DateTime.Now;
-                Status = 0; // Em andamento
+                _status = ReceitaStatus.EmAndamento; // Em andamento
         }
         public string GetStatusTexto() => Status switch
         {

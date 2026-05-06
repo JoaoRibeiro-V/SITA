@@ -1,0 +1,15 @@
+﻿.btn-square {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border-radius: 6px; /* or 0 if you want perfect square */
+}
+th:last-child,
+td:last-child {
+    width: 1%;
+    white-space: nowrap;
+}

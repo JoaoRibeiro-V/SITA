@@ -144,6 +144,11 @@
             SALVAR
         </button>
     </div>
+    <div class="d-flex gap-6 mt-4">
+        <button class="btn w-10 p-1 fw-bold" style="background-color: #000080; color: white;" @onclick="IrParaFinanceiro">
+            FINANCEIRO
+        </button>
+    </div>
 
     @if (!string.IsNullOrEmpty(msgErro))
     {
@@ -207,7 +212,10 @@
         listaTurmas = TurmaController.GetAll();
         listaResponsaveis = ResponsavelController.GetAll();
     }
-
+    void IrParaFinanceiro()
+    {
+        Navigation.NavigateTo($"/folha-pagamento/{aluno.Id}");
+    }
     void CancelarEdicao()
     {
         Navigation.NavigateTo("/alunos");

@@ -196,13 +196,6 @@
                         <p><strong>Responsável:</strong> @receitaSelecionada.Responsavel?.Nome</p>
                     </div>
                 </div>
-                @if (receitaSelecionada.Type == Receita.ReceitaTipo.Mensalidade && receitaSelecionada.Status != Receita.ReceitaStatus.Pago)
-                {
-                    <button class="btn btn-success mt-3"
-                            @onclick="ConfirmarPagamento">
-                        Confirmar Pagamento
-                    </button>
-                }
 
                 <button class="btn btn-sm btn-secondary mt-3" @onclick="FecharDetalhes">
                     Fechar
@@ -233,20 +226,6 @@
     protected override void OnInitialized()
     {
         CarregarDados();
-    }
-
-    private void ConfirmarPagamento()
-    {
-        if (receitaSelecionada == null)
-            return;
-        receitaSelecionada.Status = Receita.ReceitaStatus.Pago;
-
-        // Recarrega tudo
-        CarregarDados();
-
-        // Mantém seleção atualizada (optional)
-        receitaSelecionada = todasReceitas
-            .FirstOrDefault(r => r.Id == receitaSelecionada.Id);
     }
 
     private void CarregarDados()
