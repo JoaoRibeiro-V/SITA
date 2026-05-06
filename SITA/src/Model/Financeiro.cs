@@ -13,7 +13,7 @@ namespace SITA.src.Model
         public string? Descricao { get; set; }
         public DateTime DataEmissao { get; set; }
         public string? Observacao { get; set; }
-        public User UsuarioCriacao { get; set; }
+        public User? UsuarioCriacao { get; set; } = null;
         public Financeiro()
         {
             Id = Guid.NewGuid();

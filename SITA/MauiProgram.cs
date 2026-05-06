@@ -9,21 +9,9 @@ namespace SITA
 {
     public static class MauiProgram
     {
-        public static GeneralStorage AppStorage = new GeneralStorage();
-        public static Session AppSession = new Session();
-        private static void RegisterStorages()
-        {
-            AppStorage.AddStorage<User>();
-            AppStorage.AddStorage<Aluno>();
-            AppStorage.AddStorage<Responsavel>();
-            AppStorage.AddStorage<Turma>();
-            AppStorage.AddStorage<Funcionario>();
-            AppStorage.AddStorage<Receita>();
-            AppStorage.AddStorage<Despesa>();
-        }
         public static MauiApp CreateMauiApp()
         {
-            RegisterStorages();
+            GeneralStorage.InitStorage();
             EnsureJsonCopied().GetAwaiter().GetResult();
             LoadImportSync();
             var builder = MauiApp.CreateBuilder();

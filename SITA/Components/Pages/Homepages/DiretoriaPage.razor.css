@@ -9,6 +9,7 @@
     padding: 40px 20px;
     margin: 0 auto;
 }
+
 .calendar-grid {
     display: flex;
     flex-direction: column;
@@ -95,6 +96,7 @@
         color: #c62828;
         background: #ffebee;
     }
+
 .mensalidade,
 .despesa,
 .total {
@@ -168,6 +170,7 @@
     max-height: 1px;
     min-height: 1px;
 }
+
 .card-kpi {
     background: white;
     padding: 20px;

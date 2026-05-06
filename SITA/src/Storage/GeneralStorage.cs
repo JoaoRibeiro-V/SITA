@@ -1,3 +1,4 @@
+using SITA.src.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,11 +18,11 @@ namespace SITA.src.Storage
      *      
      * Permite acesso dinâmico para diferentes tipos de dados
      */
-    public class GeneralStorage
+    public static class GeneralStorage
     {
-        public Dictionary<string, object> ProgramStorage = new Dictionary<string, object>();
+        public static Dictionary<string, object> ProgramStorage = new Dictionary<string, object>();
         // Registra um novo tipo de armazenamento
-        public void AddStorage<T>()
+        public static void AddStorage<T>()
         {
             ProgramStorage.Add(typeof(T).Name, new Storage<T>());
         }
@@ -30,7 +31,7 @@ namespace SITA.src.Storage
          * Caso não for encontrado é criado um storage da classe providenciada
          */
 
-        public Storage<T> TryGetOrAddStorage<T>()
+        public static Storage<T> TryGetOrAddStorage<T>()
         {
             if (ProgramStorage.TryGetValue(typeof(T).Name, out var storage))
             {
@@ -38,21 +39,31 @@ namespace SITA.src.Storage
             }
             else
             {
-                this.AddStorage<T>();
-                return this.GetStorage<T>();
+                AddStorage<T>();
+                return GetStorage<T>();
             }
         }
         /* Retorna um storage especificado por classe com restrição de ele já estar cadastrado
          * Caso não for encontrado é exibido um erro
          */
-        public Storage<T> GetStorage<T>()
+        public static Storage<T> GetStorage<T>()
         {
             return (Storage<T>) ProgramStorage[typeof(T).Name];
         }
         // Retorna o dicionário geral
-        public Dictionary<string, object> GetGeneralStorage()
+        public static Dictionary<string, object> GetGeneralStorage()
         {
             return ProgramStorage;
+        }
+        public static void InitStorage()
+        {
+            GeneralStorage.AddStorage<User>();
+            GeneralStorage.AddStorage<Aluno>();
+            GeneralStorage.AddStorage<Responsavel>();
+            GeneralStorage.AddStorage<Turma>();
+            GeneralStorage.AddStorage<Funcionario>();
+            GeneralStorage.AddStorage<Receita>();
+            GeneralStorage.AddStorage<Despesa>();
         }
 
     }

@@ -71,7 +71,7 @@
         try
         {
             // 1. Puxamos o storage específico de Receita
-            var storage = MauiProgram.AppStorage.GetStorage<Receita>();
+            var storage = GeneralStorage.GetStorage<Receita>();
 
             // 2. FORÇA BRUTA: Convertemos explicitamente para IEnumerable para liberar o LINQ
             // Isso remove o erro CS1061 pois força o compilador a tratar como uma lista de Receitas

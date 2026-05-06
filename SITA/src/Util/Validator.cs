@@ -1,6 +1,7 @@
 ﻿using SITA.src.Model;
 using System;
 using System.Linq;
+using SITA.src.Storage;
 using System.Net.Mail;
 
 namespace SITA.src.Util
@@ -48,7 +49,7 @@ namespace SITA.src.Util
 
         public static string? ValidateDuplicateCPF(string cpf)
         {
-            var storage = MauiProgram.AppStorage.GetStorage<User>();
+            var storage = GeneralStorage.GetStorage<User>();
 
             var existing = storage.GetDataByField("CPF", cpf);
 
@@ -60,7 +61,7 @@ namespace SITA.src.Util
 
         public static string? ValidateDuplicateEmail(string email)
         {
-            var storage = MauiProgram.AppStorage.GetStorage<User>();
+            var storage = GeneralStorage.GetStorage<User>();
 
             var exists = storage.Values
                 .Any(u => u.Email == email);
@@ -72,7 +73,7 @@ namespace SITA.src.Util
         }
         public static string? ValidateDuplicateMatricula(string matricula)
         {
-            var storage = MauiProgram.AppStorage.GetStorage<Aluno>();
+            var storage = GeneralStorage.GetStorage<Aluno>();
             var exists = storage.Values
                 .Any(u => u.RA == matricula);
             if (exists)

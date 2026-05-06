@@ -10,7 +10,7 @@ namespace SITA.src.Controller
 {
     public static class ResponsavelController
     {
-        static Storage<Responsavel> ClassStorage = MauiProgram.AppStorage.GetStorage<Responsavel>();
+        static Storage<Responsavel> ClassStorage = GeneralStorage.GetStorage<Responsavel>();
         public static void Register(Responsavel obj) => BaseController<Responsavel>.Register(obj, r => r.Id.ToString());
         public static void Delete(Responsavel obj) => BaseController<Responsavel>.Delete(obj, r => r.Id.ToString());
         public static Responsavel? Get(string field, string? value) => BaseController<Responsavel>.Get(field, value);

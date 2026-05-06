@@ -30,7 +30,7 @@ namespace SITA.src.Util
 
         ==========================================================================
         REMOVER MASK:
-        var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+        var userStorage = GeneralStorage.GetStorage<User>();
         User? user = userStorage.GetDataByField("CPF", Mask.RemoveMask(userName));
         ==========================================================================
          */

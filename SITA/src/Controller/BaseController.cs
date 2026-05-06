@@ -4,7 +4,7 @@ namespace SITA.src.Controller
 {
     public static class BaseController<T> where T : class
     {
-        private static Storage<T> Storage => MauiProgram.AppStorage.GetStorage<T>();
+        private static Storage<T> Storage => GeneralStorage.GetStorage<T>();
 
         public static void Register(T obj, Func<T, string> getId)
         {

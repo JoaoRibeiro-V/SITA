@@ -1,8 +1,8 @@
-﻿@page "/"
-@namespace SITA.Maui.Components
+﻿@namespace SITA.Maui.Components
 @using SITA.src.Model
 @using SITA.src.Controller
 @using SITA.src.Storage
+@using SITA.src.Util
 @inject NavigationManager Navigation
 
 <div class="container-fluid p-4" style="background-color: #f8f9fa; min-height: 100vh;">
@@ -194,7 +194,7 @@
 
     protected override void OnInitialized()
     {
-        if (MauiProgram.AppSession.GetInstanceAccess().Level <= -1)
+        if (Session.GetInstanceAccess().Level <= -1)
         {
             Navigation.NavigateTo("/signin");
             return;

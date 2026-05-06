@@ -1,0 +1,33 @@
+﻿@page "/"
+@namespace SITA.Maui.Components
+@using SITA.Components.Pages.Homepages
+@using SITA.src.Model
+@using SITA.src.Controller
+@using SITA.src.Storage
+@using SITA.src.Util
+@inject NavigationManager Navigation
+
+@if(LoggedInUser != null)
+{
+    switch (LoggedInUser.AccessType.Level)
+    {
+        case 5:
+        <DiretoriaPage/>
+            break;
+        case 4:
+        <DiretoriaPage/>
+            break;
+        case 3:
+            <SecretariaPage />
+            break;
+    }
+}
+else
+{
+    Navigation.NavigateTo("/signin");
+}
+
+
+@code {
+    private User? LoggedInUser = Session.IsLoggedIn() ? Session.GetLoggedInUser() : null;
+}

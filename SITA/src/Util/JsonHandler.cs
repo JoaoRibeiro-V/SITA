@@ -7,18 +7,19 @@ public static class JsonHandler
 {
     private class ImportRoot
     {
-        public AdminDTO? admin { get; set; }
+        public List<UserDTO>? users { get; set; }
         public TurmaDTO? turma { get; set; }
         public List<ResponsavelDTO>? responsaveis { get; set; }
         public decimal mensalidade { get; set; }
         public DateTime fimMatricula { get; set; }
     }
-    private class AdminDTO
+    private class UserDTO
     {
         public string? nome { get; set; }
         public string? cpf { get; set; }
         public string? email { get; set; }
         public string? senha { get; set; }
+        public int nivelAcesso { get; set; }
     }
     private class TurmaDTO
     {
@@ -50,27 +51,26 @@ public static class JsonHandler
         var root = JsonSerializer.Deserialize<ImportRoot>(json);
         if (root == null)
             throw new Exception("JSON inválido");
-
-        if (root.admin != null)
+        foreach(var userDTO in root.users ?? new())
         {
-            var existingAdmin = UserController.Get("CPF", root.admin.cpf);
-
-            if (existingAdmin == null)
+            var existingUser = UserController.Get("CPF", userDTO.cpf);
+            if (existingUser != null)
+                throw new Exception($"CPF já cadastrado: {userDTO.cpf}");
+            var user = new User
             {
-                var admin = new User
+                Nome = userDTO.nome,
+                CPF = userDTO.cpf,
+                Email = userDTO.email,
+                DataCriacao = DateTime.Now,
+                DataUltimoAcesso = DateTime.Now,
+                Ativo = true,
+                AccessType = new AccessType
                 {
-                    Nome = root.admin.nome,
-                    CPF = root.admin.cpf,
-                    Email = root.admin.email,
-                    DataCriacao = DateTime.Now,
-                    DataUltimoAcesso = DateTime.Now,
-                    Ativo = true,
-                    AccessType = new AccessType { Level = 5 }
-                };
-                admin.Senha = PasswordHandler.HashPassword(root.admin.senha ?? "admin", admin.Salt);
-
-                UserController.Register(admin);
-            }
+                    Level = userDTO.nivelAcesso     
+                }
+            };
+            user.Senha = PasswordHandler.HashPassword(userDTO.senha ?? "password", user.Salt);
+            UserController.Register(user);
         }
 
         if (root.turma == null)

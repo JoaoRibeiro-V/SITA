@@ -10,7 +10,7 @@ namespace SITA.src.Controller
 {
     public static class FuncionarioController
     {
-        static Storage<Funcionario> ClassStorage = MauiProgram.AppStorage.GetStorage<Funcionario>();
+        static Storage<Funcionario> ClassStorage = GeneralStorage.GetStorage<Funcionario>();
         public static void Register(Funcionario obj) => BaseController<Funcionario>.Register(obj, f => f.Id.ToString());
         public static void Delete(Funcionario obj) => BaseController<Funcionario>.Delete(obj, f => f.Id.ToString());
         public static Funcionario? Get(string field, string? value) => BaseController<Funcionario>.Get(field, value);

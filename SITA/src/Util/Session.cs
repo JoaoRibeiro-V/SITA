@@ -14,11 +14,10 @@ namespace SITA.src.Util
      * Armazenada dentro da raíz do projeto de forma pública para ter acesso
      * em diferentes lugares dentro do projeto
      */
-    public class Session
+    public static class Session
     {
-        private static Session Instance = new Session();
-        private AccessType AccessType = new AccessType();
-        private User? AccessUser = null;
+        private static AccessType AccessType = new AccessType();
+        private static User? AccessUser = null;
         /* 
          * public void InitSession(AccessType NewAccess) ->  Inicia uma sessão apartir de um valor AccessType passado
          * por parâmetro, podendo ser independente ou provinda de um usuário.
@@ -44,31 +43,30 @@ namespace SITA.src.Util
 
          * ==============================================
          */
-        public void InitSession(User user)
+        public static void InitSession(User user)
         {
-            Instance.AccessType = user.AccessType;
-            Instance.AccessUser = user;
-            //Console.WriteLine("Changed access to: " + Instance.AccessType.Name);
+            AccessType = user.AccessType;
+            AccessUser = user;
         }
 
         // Retorna apenas AccessType da instância privada
-        public AccessType GetInstanceAccess()
+        public static AccessType GetInstanceAccess()
         {
-            return Instance.AccessType;
+            return AccessType;
         }
-        public bool IsLoggedIn()
+        public static bool IsLoggedIn()
         {
-            return Instance.AccessType.Level >= 0;
+            return AccessType.Level >= 0;
         }
-        private string? LoggedInKey;
+        private static string? LoggedInKey;
 
-        public void InitSession(AccessType newAccess, string? key = null)
+        public static void InitSession(AccessType newAccess, string? key = null)
         {
-            Instance.AccessType = newAccess;
-            Instance.LoggedInKey = key;
+            AccessType = newAccess;
+            LoggedInKey = key;
         }
 
-        public string? GetLoggedInKey() => Instance.LoggedInKey;
-        public User? GetLoggedInUser() => Instance.AccessUser;
+        public static string? GetLoggedInKey() => LoggedInKey;
+        public static User? GetLoggedInUser() => AccessUser;
     }
 }

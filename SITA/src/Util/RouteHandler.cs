@@ -12,8 +12,7 @@ namespace SITA.src.Util
     MainNav.Concat(CadastroNav).ToList();
         public static bool CanAccess(string path)
         {
-            var session = MauiProgram.AppSession;
-            int userLevel = session.GetInstanceAccess().Level;
+            int userLevel = Session.GetInstanceAccess().Level;
 
             var cleanPath = path.Split('?')[0];
             var route = AllRoutes.FirstOrDefault(r => r.Path == cleanPath);
@@ -56,7 +55,7 @@ namespace SITA.src.Util
         public static List<RouteItem> MainNav = new()
         {
             new RouteItem { Name = "Aluno", Path = Aluno },
-            new RouteItem { Name = "Financeiro", Path = Financeiro, MinAccessLevel = 4 },
+            new RouteItem { Name = "Financeiro", Path = Financeiro, MinAccessLevel = 3 },
             new RouteItem { Name = "Turma", Path = Turmas, MinAccessLevel = 2 },
             new RouteItem { Name = "Relatórios", Path = Relatorio, MinAccessLevel = 3 },
             new RouteItem { Name = "Pedidos", Path = Pedidos, MinAccessLevel = 1 }

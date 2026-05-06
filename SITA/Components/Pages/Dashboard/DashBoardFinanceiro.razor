@@ -1,42 +1,47 @@
 @page "/dashboard-financeiro"
 @using SITA.src.Model
+@using SITA.src.Util
 @using SITA.src.Controller
 @inject NavigationManager Navigation
 
 <div class="container-fluid" style="background-color: #f4f7f6; min-height: 100vh; padding: 20px;">
     <h2 class="text-center fw-bold mb-4" style="color:#000080;">
-        📊 Dashboard Financeiro
+        Dashboard Financeiro
     </h2>
 
-    <!-- CARDS -->
-    <div class="row text-center">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0" style="border-left: 5px solid #28a745;">
-                <div class="card-body">
-                    <h5 class="text-muted">Saldo em Caixa</h5>
-                    <h2 class="text-success">R$ @saldoCaixa.ToString("N2")</h2>
+    @if(Session.GetInstanceAccess().Level >= 4)
+    {
+        <!-- CARDS -->
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0" style="border-left: 5px solid #28a745;">
+                    <div class="card-body">
+                        <h5 class="text-muted">Saldo em Caixa</h5>
+                        <h2 class="text-success">R$ @saldoCaixa.ToString("N2")</h2>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0" style="border-left: 5px solid #007bff;">
-                <div class="card-body">
-                    <h5 class="text-muted">Previsão</h5>
-                    <h2 class="text-primary">R$ @previsaoReceita.ToString("N2")</h2>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0" style="border-left: 5px solid #007bff;">
+                    <div class="card-body">
+                        <h5 class="text-muted">Previsão</h5>
+                        <h2 class="text-primary">R$ @previsaoReceita.ToString("N2")</h2>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0" style="border-left: 5px solid #dc3545;">
-                <div class="card-body">
-                    <h5 class="text-muted">Inadimplência</h5>
-                    <h2 class="text-danger">R$ @valorAtraso.ToString("N2")</h2>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0" style="border-left: 5px solid #dc3545;">
+                    <div class="card-body">
+                        <h5 class="text-muted">Inadimplência</h5>
+                        <h2 class="text-danger">R$ @valorAtraso.ToString("N2")</h2>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+    
 
     <!-- FILTROS -->
     <div class="mt-5">
@@ -107,7 +112,12 @@
                             </span>
                         </td>
 
-                        <td>R$ @item.Valor.ToString("N2")</td>
+                        <td>@if (Session.GetInstanceAccess().Level >= 4) {
+                            <span>R$ @item.Valor.ToString("N2")</span>
+                        } else { <span>
+                                    R$ XX.XX
+                        </span>}
+                    </td>
 
                         <td>@item.DataVencimento.ToShortDateString()</td>
 
@@ -124,6 +134,7 @@
 
             <!-- Left -->
             <button class="btn btn-link p-1"
+            style="width: 24px; height: 24px; line-height: 1; text-decoration: none;"
                     disabled="@(paginaAtual == 1)"
                     @onclick="() => MudarPagina(paginaAtual - 1)">
                 ‹
@@ -134,11 +145,12 @@
             {
                 if (p == null)
                 {
-                    <span class="px-2">...</span>
+                    <span class="px-2" style="font-size: 0.8rem;">...</span>
                 }
                 else
                 {
                     <button class="btn btn-sm @(paginaAtual == p ? "btn-primary" : "btn-outline-primary") px-2 py-0"
+                    style="width:32px; height:28px; font-size:0.75rem; display:flex; align-items:center; justify-content:center;"
                             @onclick="() => MudarPagina(p.Value)">
                         @p
                     </button>
@@ -147,6 +159,7 @@
 
             <!-- Right -->
             <button class="btn btn-link p-1"
+                    style="width: 24px; height: 24px; line-height: 1; text-decoration: none;"
                     disabled="@(paginaAtual == totalPaginas)"
                     @onclick="() => MudarPagina(paginaAtual + 1)">
                 ›
@@ -165,8 +178,14 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong>Tipo:</strong> @receitaSelecionada.GetTypeTexto()</p>
-                        <p><strong>Valor:</strong> R$ @receitaSelecionada.Valor.ToString("N2")</p>
-                        <p><strong>Status:</strong> @receitaSelecionada.GetStatusTexto()</p>
+                        <p><strong>Valor:</strong> @if (Session.GetInstanceAccess().Level >= 4) {
+                                                        <span> R$ @receitaSelecionada.Valor.ToString("N2")</span>
+                            }
+                            else
+                            {
+                                <span> R$ XX.XX</span>
+                            }</p>
+                            <p><strong>Status:</strong> @receitaSelecionada.GetStatusTexto()</p>
                         <p><strong>Vencimento:</strong> @receitaSelecionada.DataVencimento.ToShortDateString()</p>
                     </div>
 
@@ -272,7 +291,7 @@
             query = query.Where(r => r.DataVencimento.Date <= dataFim.Value.Date);
 
         // ordenação
-        query = query.OrderByDescending(r => r.DataVencimento);
+        query = query.OrderBy(r => r.DataVencimento);
 
         // cálculo de páginas
         int totalItens = query.Count();

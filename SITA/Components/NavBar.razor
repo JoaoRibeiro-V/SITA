@@ -76,8 +76,7 @@
 
     protected override void OnInitialized()
     {
-        var session = new Session();
-        userLevel = session.GetInstanceAccess().Level;
+        userLevel = Session.GetInstanceAccess().Level;
     }
 
     bool CanAccess(RouteHandler.RouteItem item)
@@ -104,7 +103,7 @@
 
     void Logout()
     {
-        MauiProgram.AppSession.InitSession(new User
+        Session.InitSession(new User
         {
             AccessType = new AccessType
             {

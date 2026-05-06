@@ -33,9 +33,10 @@ namespace SITA.src.Controller
                     Responsavel = responsavel,
                     Valor = (float)valorMensalidade,
                     DataVencimento = dataVencimento,
-                    Descricao = $"Mensalidade do aluno {aluno.Nome} referente ao mês de {dataVencimento:MMMM/yyyy}",
-                    Type = 0 // Mensalidade
+                    Descricao = $"Mensalidade do aluno {aluno.Nome} referente ao mês de {dataVencimento:MMMM/yyyy}"
                 };
+                receita.Type = Receita.ReceitaTipo.Mensalidade;
+                
                 Register(receita);
             }
         }

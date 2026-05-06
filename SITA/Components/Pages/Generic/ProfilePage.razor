@@ -1,6 +1,7 @@
 @page "/profile"
 @namespace SITA.Maui.Components
 @using SITA.src.Model
+@using SITA.src.Storage
 @using SITA.src.Util
 @using SITA.Maui
 @inject NavigationManager Navigation
@@ -32,11 +33,11 @@
         try
         {
             // 1. Pega o acesso da sessão ativa
-            var access = MauiProgram.AppSession.GetInstanceAccess();
-            var userStorage = MauiProgram.AppStorage.GetStorage<User>();
+            var access = Session.GetInstanceAccess();
+            var userStorage = GeneralStorage.GetStorage<User>();
 
             // 2. Busca o usuário correspondente ao nível de acesso
-            currentUser = MauiProgram.AppSession.GetLoggedInUser();
+            currentUser = Session.GetLoggedInUser();
 
             // 3. Se não tem ninguém logado (nível -1), manda pro Login
             if (currentUser == null)
@@ -57,9 +58,9 @@
 
     private void OnLogoutClicked()
     {
-        currentUser = MauiProgram.AppSession.GetLoggedInUser();
+        currentUser = Session.GetLoggedInUser();
         currentUser.DataUltimoAcesso = DateTime.Now;
-        MauiProgram.AppSession.InitSession(new User
+        Session.InitSession(new User
         {
             AccessType = new AccessType
             {

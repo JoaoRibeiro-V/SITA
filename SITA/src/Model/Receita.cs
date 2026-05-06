@@ -21,8 +21,8 @@ namespace SITA.src.Model
             EmAtraso = 2
         }
         public string Origem { get; set; }
-        public Aluno Aluno { get; set; }
-        public Responsavel Responsavel { get; set; }
+        public Aluno? Aluno { get; set; } = null;
+        public Responsavel? Responsavel { get; set; } = null;
         public ReceitaStatus Status { get; set; }
         public ReceitaTipo Type { get; set; }
         public DateTime DataVencimento { get; set; }

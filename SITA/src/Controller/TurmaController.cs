@@ -15,7 +15,7 @@ namespace SITA.src.Controller
          * Esta classe fornece métodos estáticos para registrar, obter e gerenciar turmas.
          * Utiliza a classe Storage para persistência de dados.
          */
-        static Storage<Turma> ClassStorage = MauiProgram.AppStorage.GetStorage<Turma>();
+        static Storage<Turma> ClassStorage = GeneralStorage.GetStorage<Turma>();
         // Registra uma nova turma no armazenamento
         public static void Register(Turma obj) => BaseController<Turma>.Register(obj, t => t.Id.ToString());
         public static void Delete(Turma obj) => BaseController<Turma>.Delete(obj, t => t.Id.ToString());

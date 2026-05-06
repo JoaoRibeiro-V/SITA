@@ -15,7 +15,7 @@ namespace SITA.src.Controller
          * Esta classe fornece métodos estáticos para registrar e obter alunos.
          * Utiliza a classe Storage para persistência de dados.
          */
-        static Storage<Aluno> ClassStorage = MauiProgram.AppStorage.GetStorage<Aluno>();
+        static Storage<Aluno> ClassStorage = GeneralStorage.GetStorage<Aluno>();
 
         // Registra um novo aluno no armazenamento
         public static void Register(Aluno obj)
