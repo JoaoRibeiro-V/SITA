@@ -1,19 +1,21 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 
-namespace SITA.src.Model
-{
-    public class Despesa : Financeiro
-    {
+namespace SITA.src.Model{
+    public class Despesa : Financeiro {
+
         public string? Fornecedor { get; set; }
         public string? Categoria { get; set; }
         public DateTime DataPagamento { get; set; }
-        public int Status { get; set; } // 0: Pendente, 1: Pago
+        public DateTime DataVencimento { get; set; }
+        public bool Status { get; set; } // true: Pago, false: Pendente
 
         public Despesa() : base()
         {
-            Status = 0;
-        }
+            Status = false; // Começa pendente
 
-        public bool IsPago => Status == 1;
+        }
+        public bool IsPago => Status == true;
     }
+
 }

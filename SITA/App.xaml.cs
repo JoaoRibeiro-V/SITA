@@ -7,11 +7,21 @@ namespace SITA
         public App()
         {
             InitializeComponent();
+            MainPage = new MainPage();
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new MainPage()) { Title = "SITA" };
+            var window = base.CreateWindow(activationState);
+            window.Title = "SITA";
+
+          
+            window.Width = 1920;
+            window.Height = 1080;
+
+         
+
+            return window;
         }
     }
 }
