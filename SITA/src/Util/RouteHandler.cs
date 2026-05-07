@@ -26,7 +26,7 @@ namespace SITA.src.Util
         public const string Financeiro = "/dashboard-financeiro";
         public const string Turmas = "/turmas";
         public const string Relatorio = "/folha-pagamento";
-        public const string Pedidos = "/pedidos";
+        public const string Despesas = "/despesas";
         public const string AlunoDetails = "/aluno-details";
         public const string CadastroResponsavel = "/cadastro-responsavel";
         public const string CadastroFuncionario = "/cadastro-funcionario";
@@ -58,7 +58,7 @@ namespace SITA.src.Util
             new RouteItem { Name = "Financeiro", Path = Financeiro, MinAccessLevel = 3 },
             new RouteItem { Name = "Turma", Path = Turmas, MinAccessLevel = 2 },
             new RouteItem { Name = "Relatórios", Path = Relatorio, MinAccessLevel = 3 },
-            new RouteItem { Name = "Pedidos", Path = Pedidos, MinAccessLevel = 1 }
+            new RouteItem { Name = "Despesas", Path = Despesas, MinAccessLevel = 1 }
         };
 
         public static List<RouteItem> CadastroNav = new()
