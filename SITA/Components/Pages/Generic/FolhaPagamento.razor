@@ -2,60 +2,61 @@
 @using SITA.src.Model
 @using SITA.src.Storage
 @using SITA.src.Controller
+@inject NavigationManager Navigation
 
 <div class="container mt-4" style="background-color: white; padding: 25px; border-radius: 12px; border: 2px solid #000080; max-width: 1000px; margin: auto;">
     
     <h3 style="color: #000080; font-weight: bold; text-align: center;">Gestão Financeira</h3>
     <hr />
-
+    <h4> FUNCIONÁRIO </h4>
     <!-- ================= FUNCIONÁRIO ================= -->
     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #000080;">
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label><b>Selecionar Funcionário:</b></label>
-            <select class="form-select" @onchange="OnFuncionarioSelected">
-                <option value="">Selecione um colaborador...</option>
-                @foreach (var f in funcionariosDisponiveis)
-                {
-                    <option value="@f.Id">@f.Nome (@f.Cargo)</option>
-                }
-            </select>
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label><b>Mês de Referência:</b></label>
-            <input type="month" class="form-control" @bind="mesReferencia" />
-        </div>
-    </div>
-
-    @if (funcionarioSelecionado != null)
-    {
-        <div class="p-3 mt-2" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #000080;">
-            <h5><b>Resumo do Lançamento:</b></h5>
-            <p>Colaborador: <b>@funcionarioSelecionado.Nome</b></p>
-            <p>Salário Base: <span class="text-success">R$ @funcionarioSelecionado.SalarioBase</span></p>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <label>Bônus/Extras:</label>
-                    <input type="number" class="form-control" @bind="bonus" />
-                </div>
-                <div class="col-md-6">
-                    <label>Descontos:</label>
-                    <input type="number" class="form-control" @bind="descontos" />
-                </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label><b>Selecionar Funcionário:</b></label>
+                <select class="form-select" @onchange="OnFuncionarioSelected">
+                    <option value="">Selecione um colaborador...</option>
+                    @foreach (var f in funcionariosDisponiveis)
+                    {
+                        <option value="@f.Id">@f.Nome (@f.Cargo)</option>
+                    }
+                </select>
             </div>
 
-            <h4 class="mt-3">Total: <b>R$ @CalcularTotal().ToString("N2")</b></h4>
-
-            <button class="btn btn-success w-100 mt-3" @onclick="GerarPagamento">
-                CONFIRMAR
-            </button>
+            <div class="col-md-6 mb-3">
+                <label><b>Mês de Referência:</b></label>
+                <input type="month" class="form-control" @bind="mesReferencia" />
+            </div>
         </div>
-    }
+
+        @if (funcionarioSelecionado != null)
+        {
+            <div class="p-3 mt-2" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #000080;">
+                <h5><b>Resumo do Lançamento:</b></h5>
+                <p>Colaborador: <b>@funcionarioSelecionado.Nome</b></p>
+                <p>Salário Base: <span class="text-success">R$ @funcionarioSelecionado.SalarioBase</span></p>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Bônus/Extras:</label>
+                        <input type="number" class="form-control" @bind="bonus" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Descontos:</label>
+                        <input type="number" class="form-control" @bind="descontos" />
+                    </div>
+                </div>
+
+                <h4 class="mt-3">Total: <b>R$ @CalcularTotal().ToString("N2")</b></h4>
+
+                <button class="btn btn-success w-100 mt-3" @onclick="GerarPagamento">
+                    CONFIRMAR
+                </button>
+            </div>
+        }
     </div>
     <hr />
-
+    <h4> ALUNO </h4>
     <!-- ================= ALUNO ================= -->
     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #000080;">
         <h5 style="color: #000080; font-weight: bold;">Selecionar Aluno</h5>
@@ -90,7 +91,7 @@
         </div>
     </div>
 
-    <!-- ================= TABELA ================= -->
+    <!-- ================= TABELA MENSALIDADES ================= -->
     @if (alunoSelecionado != null)
     {
         <h5 style="color:#000080;"><b>Mensalidades</b></h5>
@@ -121,7 +122,7 @@
                             </td>
                             <td>
                                 <button class="btn btn-outline-primary btn-square"
-                                        @onclick="() => ConfirmarPagamento(r)">
+                                        @onclick="() => ConfirmarPagamentoReceita(r)">
                                     ✓
                                 </button>
                             </td>
@@ -131,8 +132,6 @@
             </table>
 
             <div class="d-flex justify-content-center align-items-center mt-3 gap-1">
-
-                <!-- Left -->
                 <button class="btn btn-link p-1"
                         style="width: 24px; height: 24px; line-height: 1; text-decoration: none;"
                         disabled="@(paginaAtual == 1)"
@@ -140,7 +139,6 @@
                     ‹
                 </button>
 
-                <!-- Pages -->
                 @foreach (var p in GetPaginasVisiveis())
                 {
                     if (p == null)
@@ -157,20 +155,113 @@
                     }
                 }
 
-                <!-- Right -->
                 <button class="btn btn-link p-1"
                         style="width: 24px; height: 24px; line-height: 1; text-decoration: none;"
                         disabled="@(paginaAtual == totalPaginas)"
                         @onclick="() => MudarPagina(paginaAtual + 1)">
                     ›
                 </button>
-
             </div>
         }
         else
         {
             <div class="alert alert-warning">Nenhuma mensalidade encontrada.</div>
         }
+    }
+
+    <h4> DESPESAS </h4>
+    <hr />
+
+    <div style="background-color: #fff5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #d9534f;">
+        <h5 style="color: #d9534f; font-weight: bold;">Selecionar Despesa</h5>
+
+        <div class="position-relative">
+            <input class="form-control @(despesaSelecionada != null ? "border-success" : "")"
+                   value="@buscaDespesa"
+                   @oninput="OnDespesaInput"
+                   placeholder="Descrição, fornecedor ou categoria..." />
+
+            @if (sugestoesDespesas.Any())
+            {
+                <div class="list-group position-absolute w-100" style="z-index: 1000;">
+                    @foreach (var d in sugestoesDespesas)
+                    {
+                        <button type="button"
+                                class="list-group-item list-group-item-action"
+                                @onclick="() => SelecionarDespesa(d)">
+                            <strong>@d.Descricao</strong>
+                            <small class="text-muted"> - @d.Fornecedor</small>
+                            <br />
+                            <small class="text-muted">@d.Categoria | R$ @d.Valor.ToString("N2")</small>
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (despesaSelecionada != null)
+            {
+                <div class="text-success mt-1">
+                    ✔ @despesaSelecionada.Descricao selecionada
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ================= DETALHES DA DESPESA ================= -->
+    @if (despesaSelecionada != null)
+    {
+        <div style="background-color: #fff5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #d9534f;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 style="color: #d9534f; font-weight: bold; margin: 0;">Detalhes da Despesa</h5>
+                <button style="width: 10%" class="btn btn-sm btn-outline-secondary" @onclick="LimparDespesa">
+                    Limpar
+                </button>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p><strong>Descrição:</strong> @despesaSelecionada.Descricao</p>
+                    <p><strong>Fornecedor:</strong> @despesaSelecionada.Fornecedor</p>
+                    <p><strong>Categoria:</strong> @despesaSelecionada.Categoria</p>
+                    @if (!string.IsNullOrEmpty(despesaSelecionada.NumeroNotaFiscal))
+                    {
+                        <p><strong>Nota Fiscal:</strong> @despesaSelecionada.NumeroNotaFiscal</p>
+                    }
+                    @if (!string.IsNullOrEmpty(despesaSelecionada.CnpjFornecedor))
+                    {
+                        <p><strong>CNPJ Fornecedor:</strong> @despesaSelecionada.CnpjFornecedor</p>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Vencimento:</strong> @despesaSelecionada.DataVencimento.ToString("dd/MM/yyyy")</p>
+                    <p><strong>Valor:</strong> <span class="text-danger fw-bold">R$ @despesaSelecionada.Valor.ToString("N2")</span></p>
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="badge @(despesaSelecionada.IsPago ? "bg-success" : "bg-warning text-dark")">
+                            @(despesaSelecionada.IsPago ? "Pago" : "Pendente")
+                        </span>
+                    </p>
+                    @if (!string.IsNullOrEmpty(despesaSelecionada.QuemPagou))
+                    {
+                        <p><strong>Pago por:</strong> @despesaSelecionada.QuemPagou</p>
+                    }
+                    <p><strong>Usuário de emissão:</strong> @despesaSelecionada.UsuarioCriacao?.Nome</p>
+                </div>
+            </div>
+
+            @if (!despesaSelecionada.IsPago)
+            {
+                <button class="btn btn-success w-100 mt-3" @onclick="ConfirmarPagamentoDespesa">
+                    CONFIRMAR PAGAMENTO
+                </button>
+            }
+            else
+            {
+                <div class="alert alert-success mt-3 mb-0">
+                    <i class="oi oi-check"></i> Despesa já paga em @despesaSelecionada.DataPagamento.ToString("dd/MM/yyyy")
+                </div>
+            }
+        </div>
     }
 
     @if (!string.IsNullOrEmpty(feedbackMsg))
@@ -186,8 +277,12 @@
     private List<Aluno> alunos = new();
     private List<Aluno> sugestoesAlunos = new();
     private List<Receita> receitasAluno = new();
+    
+    private List<Despesa> todasDespesas = new();
+    private List<Despesa> sugestoesDespesas = new();
 
     private string buscaAluno = "";
+    private string buscaDespesa = "";
     private Aluno? alunoSelecionado;
 
     private Funcionario? funcionarioSelecionado;
@@ -196,7 +291,8 @@
     private decimal descontos = 0;
     private string feedbackMsg = "";
 
-    // PAGINAÇÃO
+    private Despesa? despesaSelecionada;
+
     private int paginaAtual = 1;
     private int itensPorPagina = 6;
 
@@ -213,15 +309,26 @@
     {
         funcionariosDisponiveis = FuncionarioController.GetAll().OrderBy(f => f.Nome).ToList();
         alunos = AlunoController.GetAll().OrderBy(a => a.Nome).ToList();
+        todasDespesas = DespesaController.GetAll().OrderBy(d => d.DataVencimento).ToList();
     }
 
     protected override void OnParametersSet()
     {
-        if (AlunoId.HasValue && alunos.Any())
+        if (AlunoId.HasValue)
         {
             var aluno = alunos.FirstOrDefault(a => a.Id == AlunoId.Value);
             if (aluno != null)
+            {
                 SelecionarAluno(aluno);
+            }
+            else
+            {
+                var despesa = DespesaController.Get("Id", AlunoId.Value.ToString());
+                if (despesa != null)
+                {
+                    SelecionarDespesa(despesa);
+                }
+            }
         }
     }
 
@@ -238,6 +345,7 @@
         if (funcionarioSelecionado == null) return 0;
         return funcionarioSelecionado.SalarioBase + bonus - descontos;
     }
+
     private List<int?> GetPaginasVisiveis()
     {
         var paginas = new List<int?>();
@@ -253,7 +361,7 @@
         paginas.Add(1);
 
         if (paginaAtual > 4)
-            paginas.Add(null); // "..."
+            paginas.Add(null);
 
         int inicio = Math.Max(2, paginaAtual - 2);
         int fim = Math.Min(totalPaginas - 1, paginaAtual + 2);
@@ -262,7 +370,7 @@
             paginas.Add(i);
 
         if (paginaAtual < totalPaginas - 3)
-            paginas.Add(null); // "..."
+            paginas.Add(null);
 
         paginas.Add(totalPaginas);
 
@@ -315,7 +423,7 @@
             .OrderBy(r => r.DataVencimento)
             .ToList();
 
-        paginaAtual = 1; // RESET PAGINAÇÃO
+        paginaAtual = 1;
     }
 
     private void MudarPagina(int p)
@@ -323,18 +431,52 @@
         if (p >= 1 && p <= totalPaginas)
             paginaAtual = p;
     }
-    private void ConfirmarPagamento(Receita receitaSelecionada)
+
+    private void ConfirmarPagamentoReceita(Receita receita)
     {
-        if (receitaSelecionada == null)
-            return;
-        receitaSelecionada.Status = Receita.ReceitaStatus.Pago;
+        if (receita == null) return;
 
-        // Recarrega tudo
+        receita.Status = Receita.ReceitaStatus.Pago;
+
         CarregarReceitas();
+        feedbackMsg = "Receita confirmada como paga!";
+    }
 
-        // Mantém seleção atualizada (optional)
-        receitaSelecionada = receitasAluno
-            .FirstOrDefault(r => r.Id == receitaSelecionada.Id);
+    private void OnDespesaInput(ChangeEventArgs e)
+    {
+        buscaDespesa = e.Value?.ToString() ?? "";
+
+        sugestoesDespesas = todasDespesas
+            .Where(d => (d.Descricao?.ToLower().Contains(buscaDespesa.ToLower()) ?? false)
+                     || (d.Fornecedor?.ToLower().Contains(buscaDespesa.ToLower()) ?? false)
+                     || (d.Categoria?.ToLower().Contains(buscaDespesa.ToLower()) ?? false))
+            .Take(5)
+            .ToList();
+    }
+
+    private void SelecionarDespesa(Despesa d)
+    {
+        despesaSelecionada = d;
+        buscaDespesa = d.Descricao ?? "";
+        sugestoesDespesas.Clear();
+    }
+
+    private void LimparDespesa()
+    {
+        despesaSelecionada = null;
+        buscaDespesa = "";
+        sugestoesDespesas.Clear();
+    }
+
+    private void ConfirmarPagamentoDespesa()
+    {
+        if (despesaSelecionada == null) return;
+
+        despesaSelecionada.Status = true;
+        despesaSelecionada.DataPagamento = DateTime.Now;
+
+        feedbackMsg = "Despesa confirmada como paga!";
+        StateHasChanged();
     }
 
     private string GetStatusBadge(Receita.ReceitaStatus status) => status switch

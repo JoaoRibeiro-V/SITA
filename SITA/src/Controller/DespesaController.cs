@@ -10,7 +10,6 @@ namespace SITA.src.Controller
       
         public static void Register(Despesa obj) => BaseController<Despesa>.Register(obj, f => f.Id.ToString());
         public static void Delete(Despesa obj) => BaseController<Despesa>.Delete(obj, f => f.Id.ToString());
-        public static void Update(Despesa obj) => BaseController<Despesa>.Register(obj, f => f.Id.ToString()); 
         public static Despesa? Get(string field, string? value) => BaseController<Despesa>.Get(field, value);
         public static List<Despesa> GetAll() => BaseController<Despesa>.GetAll();
 

@@ -51,7 +51,7 @@
                                 </span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary" @onclick="() => SelecionarDespesa(despesa)">
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => IrParaFinanceiro(despesa)">
                                     Ver
                                 </button>
                             </td>
@@ -61,35 +61,10 @@
             </tbody>
         </table>
     </div>
-
-    @if (despesaSelecionada != null)
-    {
-        <div class="mt-4 p-3 border rounded bg-white shadow-sm animate__animated animate__fadeIn">
-            <h5 class="fw-bold text-primary">Detalhes: @despesaSelecionada.Descricao</h5>
-            <hr />
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Fornecedor:</strong> @despesaSelecionada.Fornecedor</p>
-                    <p><strong>Categoria:</strong> @despesaSelecionada.Categoria</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Vencimento:</strong> @despesaSelecionada.DataVencimento.ToShortDateString()</p>
-                    <p><strong>Valor:</strong> R$ @despesaSelecionada.Valor.ToString("N2")</p>
-                </div>
-            </div>
-            <button class="btn btn-sm btn-secondary" @onclick="() => despesaSelecionada = null">Fechar Detalhes</button>
-        </div>
-    }
-</div> 
+</div>
 
 @code {
-    private Despesa despesaSelecionada;
     private List<Despesa> listaDespesas = new List<Despesa>();
-
-    private void SelecionarDespesa(Despesa d)
-    {
-        despesaSelecionada = d;
-    }
 
     protected override void OnInitialized() => CarregarDespesas();
 
@@ -97,13 +72,9 @@
     {
         try
         {
-            var storage = GeneralStorage.GetStorage<Despesa>();
-            if (storage != null)
-            {
-                listaDespesas = storage.Values
-                    .OrderBy(d => d.DataVencimento)
-                    .ToList();
-            }
+            listaDespesas = DespesaController.GetAll()
+                 .OrderBy(d => d.DataVencimento)
+                 .ToList();
         }
         catch (Exception ex)
         {
@@ -112,4 +83,9 @@
     }
 
     private void AbrirModalNovaDespesa() => Navigation.NavigateTo("/nova-despesa");
+
+    private void IrParaFinanceiro(Despesa despesa)
+    {
+        Navigation.NavigateTo($"/folha-pagamento/{despesa.Id}");
+    }
 }

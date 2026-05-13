@@ -24,6 +24,7 @@ namespace SITA.src.Model
         {
             Status = false;
             DataVencimento = DateTime.Now;
+
         }
          public bool IsPago => Status == true;
     }
