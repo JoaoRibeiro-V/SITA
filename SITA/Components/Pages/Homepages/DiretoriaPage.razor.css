@@ -195,6 +195,29 @@
     font-size: 24px;
     color: #000080;
 }
+.dashboard-card {
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 120px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-1px);
+    }
+.dropdown-content {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease;
+}
+
+    .dropdown-content.open {
+        max-height: 500px;
+        opacity: 1;
+        transform: translateY(0);
+    }
 
 .progress {
     border-radius: 10px;

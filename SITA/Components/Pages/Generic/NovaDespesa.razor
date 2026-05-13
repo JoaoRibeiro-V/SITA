@@ -20,17 +20,69 @@
                 </div>
                 <div class="col-md-4">
                     <label class="fw-bold">Categoria:</label>
+
                     <select class="form-select" @bind="novaDespesa.Categoria">
-                        <option value="Infraestrutura">Manutenção</option>
-                        <option value="Limpeza">Limpeza</option>
-                        <option value="Papelaria">Administrativo</option>
-                        <option value="Eventos">Eventos</option>
-                        <option value="Outros">Outros</option>
+
+                        <optgroup label="Contas">
+                            <option>Conta de Luz</option>
+                            <option>Conta de Água</option>
+                            <option>Internet</option>
+                            <option>Telefone</option>
+                            <option>Aluguel</option>
+                        </optgroup>
+
+                        <optgroup label="Funcionários">
+                            <option>Salários</option>
+                            <option>Treinamentos</option>
+                        </optgroup>
+
+                        <optgroup label="Materiais">
+                            <option>Material Escolar</option>
+                            <option>Papelaria</option>
+                            <option>Livros Didáticos</option>
+                            <option>Uniformes</option>
+                        </optgroup>
+
+                        <optgroup label="Infraestrutura">
+                            <option>Limpeza</option>
+                            <option>Produtos de Higiene</option>
+                            <option>Manutenção do Prédio</option>
+                        </optgroup>
+
+                        <optgroup label="Tecnologia">
+                            <option>Computadores</option>
+                            <option>Impressoras</option>
+                            <option>Equipamentos</option>
+                        </optgroup>
+
+                        <optgroup label="Administrativo">
+                            <option>Eventos</option>
+                        </optgroup>
+
+                        <optgroup label="Transporte">
+                            <option>Combustível</option>
+                            <option>Transporte</option>
+                        </optgroup>
+
+                        <option>Outros</option>
+
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="fw-bold">Valor Total (R$):</label>
-                    <input type="number" class="form-control border-primary" @bind="valorDigitado" step="0.01" />
+                    <label class="fw-bold">Valor Total:</label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            R$
+                        </span>
+
+                        <input type="text"
+                               class="form-control border-primary text-end"
+                               placeholder="0,00"
+                               @bind="valorDigitadoTexto" />
+
+                    </div>
                 </div>
 
                 <div class="col-12 mt-4"><h5 class="text-secondary border-bottom pb-2">Dados Fiscais (NF-e)</h5></div>
@@ -84,10 +136,12 @@
 </div>
 
 @code {
+
     private Despesa novaDespesa = new Despesa();
-    private float valorDigitado = 0; 
+    private string valorDigitadoTexto = string.Empty;
     private string cnpjFormatado = "";
 
+    
     protected override void OnInitialized()
     {
         novaDespesa.DataVencimento = DateTime.Today;
@@ -117,8 +171,29 @@
         novaDespesa.Status = bool.Parse(e.Value?.ToString() ?? "false");
     }
 
+    private float ParseValor(string texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+            return 0;
+
+        texto = texto.Trim();
+        texto = texto.Replace(".", ",");
+
+        if (float.TryParse(
+            texto,
+            System.Globalization.NumberStyles.Any,
+            new System.Globalization.CultureInfo("pt-BR"),
+            out float valor))
+        {
+            return valor;
+        }
+
+        return 0;
+    }
+
     private void Salvar()
     {
+        float valorDigitado = ParseValor(valorDigitadoTexto);
         if (valorDigitado <= 0 || string.IsNullOrWhiteSpace(novaDespesa.Descricao)) return;
 
         try
