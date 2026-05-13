@@ -1,6 +1,138 @@
 ﻿@page "/nova-despesa"
+@using SITA.src.Model
+@using SITA.src.Controller
+@inject NavigationManager Navigation
 
-<h1 teste  </h1>
+<div class="container" style="max-width: 900px; margin-top: 30px; margin-bottom: 50px;">
+    <div class="card shadow-lg border-0" style="border-radius: 15px; border-top: 8px solid #000080;">
+        <div class="card-header bg-white p-4">
+            <h3 class="fw-bold" style="color: #000080;">📄 Registro de Despesa e Nota Fiscal</h3>
+            <p class="text-muted">CNPJ da Escola: <strong>00.000.000/0001-00</strong></p>
+        </div>
+
+        <div class="card-body p-4" style="background-color: #fcfcfc;">
+            <div class="row g-3">
+                <div class="col-12"><h5 class="text-secondary border-bottom pb-2">Informações Gerais</h5></div>
+
+                <div class="col-md-5">
+                    <label class="fw-bold">Descrição do Item/Serviço:</label>
+                    <input type="text" class="form-control" @bind="novaDespesa.Descricao" placeholder="Ex: Produtos de Limpeza" />
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">Categoria:</label>
+                    <select class="form-select" @bind="novaDespesa.Categoria">
+                        <option value="Infraestrutura">Manutenção</option>
+                        <option value="Limpeza">Limpeza</option>
+                        <option value="Papelaria">Administrativo</option>
+                        <option value="Eventos">Eventos</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold">Valor Total (R$):</label>
+                    <input type="number" class="form-control border-primary" @bind="valorDigitado" step="0.01" />
+                </div>
+
+                <div class="col-12 mt-4"><h5 class="text-secondary border-bottom pb-2">Dados Fiscais (NF-e)</h5></div>
+
+                <div class="col-md-6">
+                    <label class="fw-bold">Fornecedor (Razão Social):</label>
+                    <input type="text" class="form-control" @bind="novaDespesa.Fornecedor" />
+                </div>
+                <div class="col-md-6">
+                    <label class="fw-bold">CNPJ do Fornecedor:</label>
+                    <input type="text" class="form-control"
+                           value="@cnpjFormatado"
+                           @oninput="OnCnpjInput"
+                           placeholder="00.000.000/0000-00"
+                           maxlength="18" />
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">Nº da Nota Fiscal:</label>
+                    <input type="text" class="form-control" @bind="novaDespesa.NumeroNotaFiscal" maxlength="9" />
+                </div>
+                <div class="col-md-8">
+                    <label class="fw-bold">Chave de Acesso (44 dígitos):</label>
+                    <input type="text" class="form-control" @bind="novaDespesa.ChaveAcessoNF" maxlength="44" />
+                </div>
+
+                <div class="col-12 mt-4"><h5 class="text-secondary border-bottom pb-2">Controle de Pagamento</h5></div>
+
+                <div class="col-md-5">
+                    <label class="fw-bold">Quem realizou o pagamento?</label>
+                    <input type="text" class="form-control" @bind="novaDespesa.QuemPagou" placeholder="Nome do Responsável" />
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">Data de Vencimento:</label>
+                    <input type="date" class="form-control" @bind="novaDespesa.DataVencimento" />
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold">Status:</label>
+                    <select class="form-select" @onchange="OnStatusChange">
+                        <option value="false">Pendente</option>
+                        <option value="true">Pago</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white p-4 d-flex justify-content-end gap-2">
+            <button class="btn btn-light px-4" @onclick="Cancelar">Voltar</button>
+            <button class="btn btn-success px-5 fw-bold" @onclick="Salvar">EFETIVAR REGISTRO</button>
+        </div>
+    </div>
+</div>
+
 @code {
+    private Despesa novaDespesa = new Despesa();
+    private float valorDigitado = 0; 
+    private string cnpjFormatado = "";
 
+    protected override void OnInitialized()
+    {
+        novaDespesa.DataVencimento = DateTime.Today;
+        novaDespesa.Categoria = "Infraestrutura";
+    }
+
+    private void OnCnpjInput(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString() ?? "";
+        // Remove tudo que não é número
+        string apenasNumeros = new string(input.Where(char.IsDigit).ToArray());
+
+        if (apenasNumeros.Length > 14) apenasNumeros = apenasNumeros.Substring(0, 14);
+
+     
+        cnpjFormatado = apenasNumeros;
+        if (apenasNumeros.Length > 2) cnpjFormatado = cnpjFormatado.Insert(2, ".");
+        if (apenasNumeros.Length > 5) cnpjFormatado = cnpjFormatado.Insert(6, ".");
+        if (apenasNumeros.Length > 8) cnpjFormatado = cnpjFormatado.Insert(10, "/");
+        if (apenasNumeros.Length > 12) cnpjFormatado = cnpjFormatado.Insert(15, "-");
+
+        novaDespesa.CnpjFornecedor = cnpjFormatado;
+    }
+
+    private void OnStatusChange(ChangeEventArgs e)
+    {
+        novaDespesa.Status = bool.Parse(e.Value?.ToString() ?? "false");
+    }
+
+    private void Salvar()
+    {
+        if (valorDigitado <= 0 || string.IsNullOrWhiteSpace(novaDespesa.Descricao)) return;
+
+        try
+        {
+            novaDespesa.Valor = valorDigitado;
+            DespesaController.Register(novaDespesa);
+            Navigation.NavigateTo("/despesas");
+        }
+        catch (Exception ex)
+        {
+           
+            System.Diagnostics.Debug.WriteLine($"ERRO SITA: {ex.Message}");
+        }
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/despesas");
 }

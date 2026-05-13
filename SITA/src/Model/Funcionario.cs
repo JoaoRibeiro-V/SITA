@@ -2,16 +2,21 @@
 
 namespace SITA.src.Model
 {
+    // A mágica acontece aqui: ":" significa herança
     public class Funcionario : User
     {
-        public string Cargo { get; set; } = string.Empty;
+        // Propriedades de RH que o User comum não tem
+        public string? Cargo { get; set; }
+        public string? Departamento { get; set; }
+        public DateTime DataAdmissao { get; set; }
         public decimal SalarioBase { get; set; }
-        public DateTime DataAdmissao { get; set; } = DateTime.Now;
-        public string Telefone { get; set; } = string.Empty;
+        public string? Telefone { get; set; }
+        public string? ChavePix { get; set; }
 
-        public Funcionario()
+        public Funcionario() : base() // Chama o construtor do User para gerar o ID
         {
-            Id = Guid.NewGuid();
+            DataAdmissao = DateTime.Today;
+            Ativo = true;
         }
     }
 }

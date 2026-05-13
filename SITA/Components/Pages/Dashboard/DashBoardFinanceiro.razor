@@ -1,6 +1,7 @@
 @page "/dashboard-financeiro"
 @using SITA.src.Model
 @using SITA.src.Util
+@using SITA.src.Storage
 @using SITA.src.Controller
 @inject NavigationManager Navigation
 
@@ -228,28 +229,37 @@
         CarregarDados();
     }
 
+    private float totalDespesasValor = 0;
+
     private void CarregarDados()
     {
         todasReceitas = ReceitaController.GetAll();
         var todasDespesas = DespesaController.GetAll();
 
+        // 1. Receitas Pagas 
         float receitasPagas = todasReceitas
             .Where(r => r.Status == Receita.ReceitaStatus.Pago)
-            .Sum(r => r.Valor);
+            .Sum(r => (float)r.Valor);
 
+        // 2. Despesas Pagas 
         float despesasPagas = todasDespesas
             .Where(d => d.Status == true)
-            .Sum(d => d.Valor);
+            .Sum(d => (float)d.Valor);
 
-        saldoCaixa = receitasPagas - despesasPagas;
+        // Dentro do método CarregarDados do Dashboard:
+        var storageDespesas = GeneralStorage.GetStorage<Despesa>();
+        if (storageDespesas != null)
+        {
+            totalDespesasValor = storageDespesas.Values.Sum(d => (float)d.Valor);
 
-        previsaoReceita = todasReceitas
-            .Where(r => r.Status == Receita.ReceitaStatus.EmAndamento)
-            .Sum(r => r.Valor);
+            // O Saldo deve ser (Receitas Pagas) - (Despesas Pagas)
+            despesasPagas = storageDespesas.Values.Where(d => d.Status).Sum(d => (float)d.Valor);
+            saldoCaixa = receitasPagas - despesasPagas;
+        }
 
-        valorAtraso = todasReceitas
-            .Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
-            .Sum(r => r.Valor);
+        // 5. Previsões e Atrasos
+        previsaoReceita = todasReceitas.Where(r => r.Status == Receita.ReceitaStatus.EmAndamento).Sum(r => (float)r.Valor);
+        valorAtraso = todasReceitas.Where(r => r.Status == Receita.ReceitaStatus.EmAtraso).Sum(r => (float)r.Valor);
 
         AplicarFiltro();
     }

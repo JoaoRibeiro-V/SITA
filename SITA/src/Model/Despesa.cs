@@ -1,21 +1,30 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 
-namespace SITA.src.Model{
-    public class Despesa : Financeiro {
+namespace SITA.src.Model
+{
+    public class Despesa : Financeiro
 
+
+    {
         public string? Fornecedor { get; set; }
         public string? Categoria { get; set; }
         public DateTime DataPagamento { get; set; }
         public DateTime DataVencimento { get; set; }
-        public bool Status { get; set; } // true: Pago, false: Pendente
+        public bool Status { get; set; }
+
+        // Novos Campos Robustos
+        public string? QuemPagou { get; set; } // Nome do funcionário
+        public string? CnpjEscola { get; set; } = "00.000.000/0001-00"; // CNPJ Fixo da Instituição
+        public string? CnpjFornecedor { get; set; }
+        public string? NumeroNotaFiscal { get; set; }
+        public string? ChaveAcessoNF { get; set; }
+        public string? AnexoCaminho { get; set; } // Caminho do PDF/Imagem
 
         public Despesa() : base()
         {
-            Status = false; // Começa pendente
-
+            Status = false;
+            DataVencimento = DateTime.Now;
         }
-        public bool IsPago => Status == true;
+         public bool IsPago => Status == true;
     }
-
 }

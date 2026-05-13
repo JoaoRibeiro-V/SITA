@@ -4,25 +4,26 @@
 @using SITA.src.Storage
 @inject NavigationManager Navigation
 
-<div class="container" style="background-color: #f4f7f6; padding: 25px; border-radius: 15px; border-top: 5px solid ##000080; margin-top: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+<div class="container" style="background-color: #f4f7f6; padding: 25px; border-radius: 15px; border-top: 5px solid #000080; margin-top: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 style="color: #000080; font-weight: bold;">Gestão de Despesas</h2>
-        <button class="btn-NovaDespesa" @onclick="AbrirModalNovaDespesa"
-            style="background-color: #000080; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+        <button class="btn" @onclick="AbrirModalNovaDespesa"
+                style="background-color: #000080; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
             + Cadastrar Nova Despesa
         </button>
     </div>
 
-    <div class="table-responsive" style="background: white; border-radius: 10px; padding: 15px;">
-        <table class="table table-hover">
+    <div class="table-responsive" style="background: white; border-radius: 10px; padding: 15px; width: 100%;">
+        <table class="table table-hover w-100" style="table-layout: fixed;">
             <thead style="background-color: #000080; color: white;">
                 <tr>
-                    <th>Data</th>
-                    <th>Categoria</th>
-                    <th>Item</th>
-                    <th>Valor</th>
-                    <th>Status</th>
+                    <th style="width: 15%;">Data</th>
+                    <th style="width: 20%;">Categoria</th>
+                    <th style="width: 30%;">Item</th>
+                    <th style="width: 15%;">Valor</th>
+                    <th style="width: 10%;">Status</th>
+                    <th style="width: 10%;">Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,21 +37,21 @@
                 {
                     @foreach (var despesa in listaDespesas)
                     {
-                        <tr>
+                        <tr class="align-middle">
                             <td>@despesa.DataVencimento.ToString("dd/MM/yyyy")</td>
                             <td><span class="badge bg-secondary">@despesa.Categoria</span></td>
-                            <td>
-                                <strong>@despesa.Descricao</strong><br />
+                            <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <div class="fw-bold">@despesa.Descricao</div>
                                 <small class="text-muted">@despesa.Fornecedor</small>
                             </td>
-                            <td class="text-danger fw-bold">R$ @despesa.Valor.ToString("F2")</td>
+                            <td class="text-danger fw-bold">R$ @despesa.Valor.ToString("N2")</td>
                             <td>
                                 <span class="badge @(despesa.Status ? "bg-success" : "bg-warning text-dark")">
                                     @(despesa.Status ? "Pago" : "Pendente")
                                 </span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary" @onclick="() => VerDetalhes(despesa)">
+                                <button class="btn btn-sm btn-outline-primary" @onclick="() => SelecionarDespesa(despesa)">
                                     Ver
                                 </button>
                             </td>
@@ -60,10 +61,35 @@
             </tbody>
         </table>
     </div>
-</div>
+
+    @if (despesaSelecionada != null)
+    {
+        <div class="mt-4 p-3 border rounded bg-white shadow-sm animate__animated animate__fadeIn">
+            <h5 class="fw-bold text-primary">Detalhes: @despesaSelecionada.Descricao</h5>
+            <hr />
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Fornecedor:</strong> @despesaSelecionada.Fornecedor</p>
+                    <p><strong>Categoria:</strong> @despesaSelecionada.Categoria</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Vencimento:</strong> @despesaSelecionada.DataVencimento.ToShortDateString()</p>
+                    <p><strong>Valor:</strong> R$ @despesaSelecionada.Valor.ToString("N2")</p>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-secondary" @onclick="() => despesaSelecionada = null">Fechar Detalhes</button>
+        </div>
+    }
+</div> 
 
 @code {
+    private Despesa despesaSelecionada;
     private List<Despesa> listaDespesas = new List<Despesa>();
+
+    private void SelecionarDespesa(Despesa d)
+    {
+        despesaSelecionada = d;
+    }
 
     protected override void OnInitialized() => CarregarDespesas();
 
@@ -72,9 +98,12 @@
         try
         {
             var storage = GeneralStorage.GetStorage<Despesa>();
-            listaDespesas = storage.Values
-                .OrderBy(d => d.DataVencimento)
-                .ToList();
+            if (storage != null)
+            {
+                listaDespesas = storage.Values
+                    .OrderBy(d => d.DataVencimento)
+                    .ToList();
+            }
         }
         catch (Exception ex)
         {
@@ -83,9 +112,4 @@
     }
 
     private void AbrirModalNovaDespesa() => Navigation.NavigateTo("/nova-despesa");
-
-    private void VerDetalhes(Despesa despesa)
-    {
-        System.Diagnostics.Debug.WriteLine($"Detalhes: {despesa.Descricao}");
-    }
 }
