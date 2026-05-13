@@ -71,5 +71,67 @@
     }
   ],
   "mensalidade": 500.0,
-  "fimMatricula": "2026-12-01"
+  "fimMatricula": "2026-12-01",
+  "despesas": [
+    {
+      "valor": 350.00,
+      "descricao": "Conta de Energia",
+      "observacao": "Pagamento mensal da escola",
+
+      "fornecedor": "Enel",
+      "categoria": "Energia",
+
+      "dataPagamento": "2026-05-05",
+      "dataVencimento": "2026-05-10",
+
+      "status": true,
+
+      "quemPagou": "Admin",
+
+      "cnpjFornecedor": "12.345.678/0001-99",
+      "numeroNotaFiscal": "NF-10293",
+      "chaveAcessoNF": "12345678901234567890",
+      "anexoCaminho": "notas/energia-maio.pdf"
+    },
+    {
+      "valor": 170.50,
+      "descricao": "Material Escolar",
+      "observacao": "Compra de materiais pedagógicos",
+
+      "fornecedor": "Papelaria Central",
+      "categoria": "Materiais",
+
+      "dataPagamento": "2026-05-08",
+      "dataVencimento": "2026-05-15",
+
+      "status": true,
+
+      "quemPagou": "Diretoria",
+
+      "cnpjFornecedor": "98.765.432/0001-11",
+      "numeroNotaFiscal": "NF-5541",
+      "chaveAcessoNF": "98765432109876543210",
+      "anexoCaminho": "notas/material-maio.pdf"
+    },
+    {
+      "valor": 200.00,
+      "descricao": "Internet Escola",
+      "observacao": "Plano fibra 1GB",
+
+      "fornecedor": "Vivo",
+      "categoria": "Internet",
+
+      "dataPagamento": "2026-05-01",
+      "dataVencimento": "2026-05-12",
+
+      "status": false,
+
+      "quemPagou": "Secretaria",
+
+      "cnpjFornecedor": "22.333.444/0001-55",
+      "numeroNotaFiscal": "NF-9001",
+      "chaveAcessoNF": "55555555555555555555",
+      "anexoCaminho": "notas/internet-maio.pdf"
+    }
+  ]
 }
