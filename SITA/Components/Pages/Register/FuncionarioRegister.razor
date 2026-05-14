@@ -7,17 +7,17 @@
     <div class="card shadow-lg border-0" style="border-radius: 15px; border-top: 8px solid #000080;">
         
         <div class="card-header bg-white p-4 text-center">
-            <h3 class="fw-bold" style="color: #000080;">👥 Registro de Novo Colaborador</h3>
-            <p class="text-muted">Integração entre Perfil de Usuário e Gestão de RH</p>
+            <h3 class="fw-bold" style="color: #000080;"> Registro de Novo Colaborador</h3>
+            
         </div>
 
         <div class="card-body p-4" style="background-color: #fcfcfc;">
             <div class="row g-3">
-                <div class="col-12"><h5 class="text-primary border-bottom pb-2">🔐 Credenciais e Identificação</h5></div>
+                <div class="col-12"><h5 class="text-primary border-bottom pb-2">Credenciais e Identificação</h5></div>
                 
                 <div class="col-md-8">
                     <label class="fw-bold">Nome Completo:</label>
-                    <input type="text" class="form-control" @bind="novoFuncionario.Nome" placeholder="Nome para o sistema e folha" />
+                    <input type="text" class="form-control" @bind="novoFuncionario.Nome" placeholder="Nome Completo" />
                 </div>
                 <div class="col-md-4">
                     <label class="fw-bold">CPF:</label>
@@ -28,32 +28,31 @@
                 </div>
 
                 <div class="col-md-7">
-                    <label class="fw-bold">E-mail Institucional (Login):</label>
-                    <input type="email" class="form-control" @bind="novoFuncionario.Email" placeholder="funcionario@sita.com" />
+                    <label class="fw-bold">E-mail (Login):</label>
+                    <input type="email" class="form-control" @bind="novoFuncionario.Email" placeholder="funcionario@gmail.com" />
                 </div>
                 <div class="col-md-5">
                     <label class="fw-bold">Nível de Acesso:</label>
                     <select class="form-select" @bind="nivelAcessoDigitado">
-                        <option value="1">Operacional (Visualização)</option>
-                        <option value="2">Secretaria (Edição)</option>
-                        <option value="3">Financeiro (Gestão total)</option>
-                        <option value="4">Diretoria (Admin)</option>
+                        <option value="1">Operacional</option>
+                        <option value="2">Professor</option>
+                        <option value="3">Secretaria (Edição)</option>
+                        <option value="4">Diretoria (Gestão total)</option>
                     </select>
                 </div>
 
-                <div class="col-12 mt-4"><h5 class="text-primary border-bottom pb-2">💼 Informações Contratuais</h5></div>
+                <div class="col-12 mt-4"><h5 class="text-primary border-bottom pb-2">Informações Contratuais</h5></div>
 
                 <div class="col-md-5">
                     <label class="fw-bold">Cargo:</label>
-                    <input type="text" class="form-control border-info" @bind="novoFuncionario.Cargo" placeholder="Ex: Analista de Redes" />
+                    <input type="text" class="form-control border-info" @bind="novoFuncionario.Cargo" placeholder="Ex: Professora" />
                 </div>
                 <div class="col-md-4">
                     <label class="fw-bold">Departamento:</label>
                     <select class="form-select border-info" @bind="novoFuncionario.Departamento">
-                        <option value="TI">Tecnologia da Informação</option>
+                        <option value="Assistente"></option>
                         <option value="Administrativo">Administrativo</option>
                         <option value="Docente">Corpo Docente</option>
-                        <option value="Manutencao">Manutenção</option>
                     </select>
                 </div>
                 <div class="col-md-3">
