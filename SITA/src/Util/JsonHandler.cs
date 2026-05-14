@@ -10,8 +10,30 @@ public static class JsonHandler
         public List<UserDTO>? users { get; set; }
         public TurmaDTO? turma { get; set; }
         public List<ResponsavelDTO>? responsaveis { get; set; }
+        public List<DespesaDTO>? despesas { get; set; }
         public decimal mensalidade { get; set; }
         public DateTime fimMatricula { get; set; }
+    }
+    private class DespesaDTO
+    {
+        public float valor { get; set; }
+        public string? descricao { get; set; }
+        public string? observacao { get; set; }
+
+        public string? fornecedor { get; set; }
+        public string? categoria { get; set; }
+
+        public DateTime dataPagamento { get; set; }
+        public DateTime dataVencimento { get; set; }
+
+        public bool status { get; set; }
+
+        public string? quemPagou { get; set; }
+
+        public string? cnpjFornecedor { get; set; }
+        public string? numeroNotaFiscal { get; set; }
+        public string? chaveAcessoNF { get; set; }
+        public string? anexoCaminho { get; set; }
     }
     private class UserDTO
     {
@@ -51,7 +73,33 @@ public static class JsonHandler
         var root = JsonSerializer.Deserialize<ImportRoot>(json);
         if (root == null)
             throw new Exception("JSON inválido");
-        foreach(var userDTO in root.users ?? new())
+        foreach (var despesaDTO in root.despesas ?? new())
+        {
+            var despesa = new Despesa
+            {
+                Valor = despesaDTO.valor,
+                Descricao = despesaDTO.descricao,
+                Observacao = despesaDTO.observacao,
+
+                Fornecedor = despesaDTO.fornecedor,
+                Categoria = despesaDTO.categoria,
+
+                DataPagamento = despesaDTO.dataPagamento,
+                DataVencimento = despesaDTO.dataVencimento,
+
+                Status = despesaDTO.status,
+
+                QuemPagou = despesaDTO.quemPagou,
+
+                CnpjFornecedor = despesaDTO.cnpjFornecedor,
+                NumeroNotaFiscal = despesaDTO.numeroNotaFiscal,
+                ChaveAcessoNF = despesaDTO.chaveAcessoNF,
+                AnexoCaminho = despesaDTO.anexoCaminho
+            };
+
+            DespesaController.Register(despesa);
+        }
+        foreach (var userDTO in root.users ?? new())
         {
             var existingUser = UserController.Get("CPF", userDTO.cpf);
             if (existingUser != null)
@@ -138,6 +186,10 @@ public static class JsonHandler
                     root.mensalidade,
                     root.fimMatricula
                 );
+                var matriculas = ReceitaController.GetAll()
+                    .Where(r => r.Aluno.Id == aluno.Id)
+                    .ToList().FirstOrDefault();
+                matriculas.Status = Receita.ReceitaStatus.Pago;
             }
         }
     }
