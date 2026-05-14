@@ -1,6 +1,8 @@
 ﻿@page "/cadastro-funcionario"
 @using SITA.src.Model
+@using SITA.src.Util
 @using SITA.src.Controller
+@using System.Text.Json
 @inject NavigationManager Navigation
 
 <div class="container" style="max-width: 950px; margin-top: 20px; padding-bottom: 50px;">
@@ -45,11 +47,11 @@
 
                 <div class="col-md-5">
                     <label class="fw-bold">Cargo:</label>
-                    <input type="text" class="form-control border-info" @bind="novoFuncionario.Cargo" placeholder="Ex: Professora" />
+                    <input type="text" class="form-control border-info" @bind="cargo" placeholder="Ex: Professora" />
                 </div>
                 <div class="col-md-4">
                     <label class="fw-bold">Departamento:</label>
-                    <select class="form-select border-info" @bind="novoFuncionario.Departamento">
+                    <select class="form-select border-info" @bind="departamento">
                         <option value="Assistente"></option>
                         <option value="Administrativo">Administrativo</option>
                         <option value="Docente">Corpo Docente</option>
@@ -62,18 +64,18 @@
 
                 <div class="col-md-4">
                     <label class="fw-bold">Data de Admissão:</label>
-                    <input type="date" class="form-control" @bind="novoFuncionario.DataAdmissao" />
+                    <input type="date" class="form-control" @bind="dataAdmissao" />
                 </div>
                 <div class="col-md-4">
                     <label class="fw-bold">Telefone:</label>
                     <input type="text" class="form-control"
-                           value="@novoFuncionario.Telefone"
+                           value="@telefone"
                            @oninput="OnTelefoneInput"
                            placeholder="(12) 99999-9999" maxlength="15" />
                 </div>
                 <div class="col-md-4">
                     <label class="fw-bold">Chave PIX (Pagamento):</label>
-                    <input type="text" class="form-control" @bind="novoFuncionario.ChavePix" />
+                    <input type="text" class="form-control" @bind="chavePix" />
                 </div>
             </div>
         </div>
@@ -88,27 +90,25 @@
 </div>
 
 @code {
-    private Funcionario novoFuncionario = new Funcionario();
+    private User novoFuncionario = new User();
+    private Funcionario funcionarioNew = new Funcionario();
+    private string departamento = string.Empty;
+    private string chavePix = string.Empty;
+    private string cargo = string.Empty;
+    private string telefone = string.Empty;
+    private DateTime dataAdmissao = DateTime.Now;
     private decimal salarioDigitado = 0;
     private string nivelAcessoDigitado = "1";
 
     protected override void OnInitialized()
     {
-        novoFuncionario.DataAdmissao = DateTime.Today;
+        dataAdmissao = DateTime.Today;
     }
     private void OnCpfInput(ChangeEventArgs e)
     {
         string input = e.Value?.ToString() ?? "";
-        string apenasNumeros = new string(input.Where(char.IsDigit).ToArray());
 
-        if (apenasNumeros.Length > 11) apenasNumeros = apenasNumeros.Substring(0, 11);
-
-        string formatado = apenasNumeros;
-        if (apenasNumeros.Length > 3) formatado = formatado.Insert(3, ".");
-        if (apenasNumeros.Length > 6) formatado = formatado.Insert(7, ".");
-        if (apenasNumeros.Length > 9) formatado = formatado.Insert(11, "-");
-
-        novoFuncionario.CPF = formatado;
+        novoFuncionario.CPF = Mask.FormatCpf(input);
     }
 
     private void OnTelefoneInput(ChangeEventArgs e)
@@ -123,7 +123,7 @@
         if (apenasNumeros.Length > 2) formatado = formatado.Insert(3, ") ");
         if (apenasNumeros.Length > 7) formatado = formatado.Insert(10, "-");
 
-        novoFuncionario.Telefone = formatado;
+        telefone = formatado;
     }
     private void SalvarFuncionario()
     {
@@ -132,17 +132,29 @@
 
         try
         {
-           
+
             novoFuncionario.AccessType = new SITA.src.Model.AccessType
             {
                 Level = int.Parse(nivelAcessoDigitado)
             };
-            
-            
-            novoFuncionario.Senha = "123456"; 
+
+
+            novoFuncionario.Senha = PasswordHandler.HashPassword("123456", novoFuncionario.Salt);
+            novoFuncionario.CPF = Mask.RemoveMask(novoFuncionario.CPF);
+            UserController.Register(novoFuncionario);
+            string jsonString = JsonSerializer.Serialize(novoFuncionario, new JsonSerializerOptions { WriteIndented = true });
+            System.Diagnostics.Debug.WriteLine(jsonString);
+            funcionarioNew = FuncionarioController.CreateByUser(novoFuncionario);
+            funcionarioNew.Telefone = telefone;
+            funcionarioNew.Cargo = cargo;
+            funcionarioNew.Departamento = departamento;
+            funcionarioNew.ChavePix = chavePix;
+            funcionarioNew.SalarioBase = salarioDigitado;
+            funcionarioNew.DataAdmissao = dataAdmissao;
 
             // Salvando através do Controller
-            FuncionarioController.Register(novoFuncionario);
+            FuncionarioController.Register(funcionarioNew);
+            
 
             // Redireciona para a lista (que faremos a seguir)
             Navigation.NavigateTo("/lista-funcionarios");
