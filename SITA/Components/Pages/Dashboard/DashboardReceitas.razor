@@ -1,0 +1,597 @@
+@page "/dashboard-financeiro"
+@using SITA.src.Model
+@using SITA.src.Util
+@using SITA.src.Storage
+@using SITA.src.Controller
+@inject NavigationManager Navigation
+
+<div class="container"
+     style="background-color: #f4f7f6;
+    padding: 25px;
+    border-radius: 15px;
+    border-top: 5px solid #3650a1;
+    margin-top: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+
+    <h2 class="text-center fw-bold mb-4" style="color:#3650a1;">
+        Dashboard Financeiro
+    </h2>
+
+    @if (Session.GetInstanceAccess().Level >= 4)
+    {
+        <!-- CARDS -->
+        <div class="row text-center mb-4">
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0"
+                     style="border-left: 5px solid #28a745;">
+
+                    <div class="card-body">
+                        <h5 class="text-muted">Saldo em Caixa</h5>
+
+                        <h2 class="text-success">
+                            R$ @saldoCaixa.ToString("N2")
+                        </h2>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0"
+                     style="border-left: 5px solid #007bff;">
+
+                    <div class="card-body">
+                        <h5 class="text-muted">Previsão</h5>
+
+                        <h2 class="text-primary">
+                            R$ @previsaoReceita.ToString("N2")
+                        </h2>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0"
+                     style="border-left: 5px solid #dc3545;">
+
+                    <div class="card-body">
+                        <h5 class="text-muted">Inadimplência</h5>
+
+                        <h2 class="text-danger">
+                            R$ @valorAtraso.ToString("N2")
+                        </h2>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    }
+
+    <!-- RECEITAS -->
+    <div class="mt-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="color: #3650a1; font-weight: bold;">
+                Gestão de Receitas
+            </h2>
+        </div>
+
+        <hr />
+
+        <!-- FILTROS -->
+        <div class="card border-0 shadow-sm mb-4"
+             style="border-radius: 12px;">
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <!-- PESQUISA -->
+                    <div class="col-md-4">
+
+                        <label class="fw-bold">
+                            Pesquisar
+                        </label>
+
+                        <input class="form-control"
+                               placeholder="Aluno, responsável, origem ou descrição..."
+                               @bind="pesquisa"
+                               @bind:event="oninput" />
+
+                    </div>
+
+                    <!-- TIPO -->
+                    <div class="col-md-2">
+
+                        <label class="fw-bold">
+                            Tipo
+                        </label>
+
+                        <select class="form-select"
+                                @bind="tipoFiltro">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            @foreach (var tipo in tiposDisponiveis)
+                            {
+                                <option value="@tipo">
+                                    @tipo
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="col-md-2">
+
+                        <label class="fw-bold">
+                            Status
+                        </label>
+
+                        <select class="form-select"
+                                @bind="statusFiltro">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            <option value="Pago">
+                                Pago
+                            </option>
+
+                            <option value="EmAndamento">
+                                Em Andamento
+                            </option>
+
+                            <option value="EmAtraso">
+                                Em Atraso
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- DATA INICIAL -->
+                    <div class="col-md-2">
+
+                        <label class="fw-bold">
+                            Data Inicial
+                        </label>
+
+                        <input type="date"
+                               class="form-control"
+                               @bind="dataInicio" />
+
+                    </div>
+
+                    <!-- DATA FINAL -->
+                    <div class="col-md-2">
+
+                        <label class="fw-bold">
+                            Data Final
+                        </label>
+
+                        <input type="date"
+                               class="form-control"
+                               @bind="dataFim" />
+
+                    </div>
+
+                    <!-- ORDENAÇÃO -->
+                    <div class="col-md-3">
+
+                        <label class="fw-bold">
+                            Ordenar Valor
+                        </label>
+
+                        <select class="form-select"
+                                @bind="ordemValor">
+
+                            <option value="">
+                                Padrão
+                            </option>
+
+                            <option value="asc">
+                                Menor → Maior
+                            </option>
+
+                            <option value="desc">
+                                Maior → Menor
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TABELA -->
+        <div class="table-responsive"
+             style="background: white;
+            border-radius: 10px;
+            padding: 15px;
+            width: 100%;">
+
+            <table class="table table-hover w-100"
+                   style="table-layout: fixed;">
+
+                <thead style="background-color:#3650a1; color:white;">
+
+                    <tr>
+                        <th style="width: 15%;">Data</th>
+                        <th style="width: 20%;">Tipo</th>
+                        <th style="width: 30%;">Descrição</th>
+                        <th style="width: 15%;">Valor</th>
+                        <th style="width: 10%;">Status</th>
+                        <th style="width: 10%;">Ações</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @if (!ReceitasPaginadas.Any())
+                    {
+                        <tr>
+                            <td colspan="6"
+                                class="text-center text-muted">
+
+                                Nenhuma receita encontrada.
+
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in ReceitasPaginadas)
+                        {
+                            <tr class="align-middle">
+
+                                <!-- DATA -->
+                                <td>
+                                    @item.DataVencimento.ToString("dd/MM/yyyy")
+                                </td>
+
+                                <!-- TIPO -->
+                                <td>
+                                    <span class="badge @GetTipoBadge(item.Type)">
+                                        @item.GetTypeTexto()
+                                    </span>
+                                </td>
+
+                                <!-- DESCRIÇÃO -->
+                                <td style="word-break: break-word;
+                                    white-space: normal;">
+
+                                    <div class="fw-bold">
+                                        @item.Descricao
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        @(item.Aluno?.Nome
+                                            ?? item.Responsavel?.Nome
+                                            ?? item.Origem)
+
+                                    </small>
+
+                                </td>
+
+                                <!-- VALOR -->
+                                <td class="text-success fw-bold">
+
+                                    @if (Session.GetInstanceAccess().Level >= 4)
+                                    {
+                                        <span>
+                                            R$ @item.Valor.ToString("N2")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            R$ XX.XX
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <!-- STATUS -->
+                                <td>
+
+                                    <span class="badge @GetStatusBadge(item.Status)">
+                                        @item.GetStatusTexto()
+                                    </span>
+
+                                </td>
+
+                                <!-- AÇÕES -->
+                                <td>
+
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => IrParaRelatorioReceita(item)">
+
+                                        Ver
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- PAGINAÇÃO -->
+        <div class="d-flex justify-content-center align-items-center mt-3 gap-1">
+
+            <!-- LEFT -->
+            <button class="btn btn-link p-1"
+                    style="width: 24px;
+                height: 24px;
+                line-height: 1;
+                text-decoration: none;"
+                    disabled="@(paginaAtual == 1)"
+                    @onclick="() => MudarPagina(paginaAtual - 1)">
+
+                ‹
+
+            </button>
+
+            <!-- PAGES -->
+            @foreach (var p in GetPaginasVisiveis())
+            {
+                if (p == null)
+                {
+                    <span class="px-2"
+                          style="font-size: 0.8rem;">
+
+                        ...
+
+                    </span>
+                }
+                else
+                {
+                    <button class="btn btn-sm @(paginaAtual == p ? "btn-primary" : "btn-outline-primary") px-2 py-0"
+                            style="width:32px;
+                        height:28px;
+                        font-size:0.75rem;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;"
+                            @onclick="() => MudarPagina(p.Value)">
+
+                        @p
+
+                    </button>
+                }
+            }
+
+            <!-- RIGHT -->
+            <button class="btn btn-link p-1"
+                    style="width: 24px;
+                height: 24px;
+                line-height: 1;
+                text-decoration: none;"
+                    disabled="@(paginaAtual == totalPaginas)"
+                    @onclick="() => MudarPagina(paginaAtual + 1)">
+
+                ›
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    private float saldoCaixa = 0;
+    private float previsaoReceita = 0;
+    private float valorAtraso = 0;
+
+    private List<Receita> todasReceitas = new();
+
+    private string pesquisa = "";
+    private string tipoFiltro = "";
+    private string statusFiltro = "";
+    private string ordemValor = "";
+
+    private DateTime? dataInicio;
+    private DateTime? dataFim;
+
+    private int paginaAtual = 1;
+    private int itensPorPagina = 8;
+
+    private List<string> tiposDisponiveis =>
+        todasReceitas
+            .Select(r => r.GetTypeTexto())
+            .Distinct()
+            .OrderBy(t => t)
+            .ToList();
+
+    private IEnumerable<Receita> ReceitasFiltradas
+    {
+        get
+        {
+            var query = todasReceitas.AsEnumerable();
+
+            // PESQUISA
+            if (!string.IsNullOrWhiteSpace(pesquisa))
+            {
+                query = query.Where(r =>
+                    (r.Descricao?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (r.Origem?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (r.Aluno?.Nome?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (r.Responsavel?.Nome?.Contains(pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                );
+            }
+
+            // TIPO
+            if (!string.IsNullOrWhiteSpace(tipoFiltro))
+            {
+                query = query.Where(r =>
+                    r.GetTypeTexto() == tipoFiltro);
+            }
+
+            // STATUS
+            if (statusFiltro == "Pago")
+            {
+                query = query.Where(r =>
+                    r.Status == Receita.ReceitaStatus.Pago);
+            }
+            else if (statusFiltro == "EmAndamento")
+            {
+                query = query.Where(r =>
+                    r.Status == Receita.ReceitaStatus.EmAndamento);
+            }
+            else if (statusFiltro == "EmAtraso")
+            {
+                query = query.Where(r =>
+                    r.Status == Receita.ReceitaStatus.EmAtraso);
+            }
+
+            // DATA INICIAL
+            if (dataInicio.HasValue)
+            {
+                query = query.Where(r =>
+                    r.DataVencimento.Date >= dataInicio.Value.Date);
+            }
+
+            // DATA FINAL
+            if (dataFim.HasValue)
+            {
+                query = query.Where(r =>
+                    r.DataVencimento.Date <= dataFim.Value.Date);
+            }
+
+            // ORDENAÇÃO
+            query = ordemValor switch
+            {
+                "asc" => query.OrderBy(r => r.Valor),
+                "desc" => query.OrderByDescending(r => r.Valor),
+                _ => query.OrderBy(r => r.DataVencimento)
+            };
+
+            return query;
+        }
+    }
+
+    private int totalPaginas =>
+        (int)Math.Ceiling(
+            (double)ReceitasFiltradas.Count() / itensPorPagina);
+
+    private List<Receita> ReceitasPaginadas =>
+        ReceitasFiltradas
+            .Skip((paginaAtual - 1) * itensPorPagina)
+            .Take(itensPorPagina)
+            .ToList();
+
+    protected override void OnInitialized()
+    {
+        CarregarDados();
+    }
+
+    private void CarregarDados()
+    {
+        todasReceitas = ReceitaController.GetAll();
+
+        var todasDespesas = DespesaController.GetAll();
+
+        float receitasPagas = todasReceitas
+            .Where(r => r.Status == Receita.ReceitaStatus.Pago)
+            .Sum(r => (float)r.Valor);
+
+        float despesasPagas = todasDespesas
+            .Where(d => d.Status)
+            .Sum(d => (float)d.Valor);
+
+        saldoCaixa = receitasPagas - despesasPagas;
+
+        previsaoReceita = todasReceitas
+            .Where(r => r.Status == Receita.ReceitaStatus.EmAndamento)
+            .Sum(r => (float)r.Valor);
+
+        valorAtraso = todasReceitas
+            .Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
+            .Sum(r => (float)r.Valor);
+    }
+
+    private void MudarPagina(int pagina)
+    {
+        if (pagina >= 1 && pagina <= totalPaginas)
+        {
+            paginaAtual = pagina;
+        }
+    }
+
+    private List<int?> GetPaginasVisiveis()
+    {
+        var paginas = new List<int?>();
+
+        if (totalPaginas <= 7)
+        {
+            for (int i = 1; i <= totalPaginas; i++)
+                paginas.Add(i);
+
+            return paginas;
+        }
+
+        paginas.Add(1);
+
+        if (paginaAtual > 4)
+            paginas.Add(null);
+
+        int inicio = Math.Max(2, paginaAtual - 2);
+        int fim = Math.Min(totalPaginas - 1, paginaAtual + 2);
+
+        for (int i = inicio; i <= fim; i++)
+            paginas.Add(i);
+
+        if (paginaAtual < totalPaginas - 3)
+            paginas.Add(null);
+
+        paginas.Add(totalPaginas);
+
+        return paginas;
+    }
+
+    private void IrParaRelatorioReceita(Receita receita)
+    {
+        Navigation.NavigateTo($"/folha-pagamento/receita/{receita.Id}#receita-section");
+    }
+
+    private string GetTipoBadge(Receita.ReceitaTipo tipo) => tipo switch
+    {
+        Receita.ReceitaTipo.Mensalidade => "bg-primary",
+        Receita.ReceitaTipo.Aquisicao => "bg-info",
+        Receita.ReceitaTipo.Outros => "bg-secondary",
+        _ => "bg-dark"
+    };
+
+    private string GetStatusBadge(Receita.ReceitaStatus status) => status switch
+    {
+        Receita.ReceitaStatus.Pago => "bg-success",
+        Receita.ReceitaStatus.EmAtraso => "bg-danger",
+        Receita.ReceitaStatus.EmAndamento => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+
+}

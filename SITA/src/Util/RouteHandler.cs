@@ -55,10 +55,10 @@ namespace SITA.src.Util
         public static List<RouteItem> MainNav = new()
         {
             new RouteItem { Name = "Aluno", Path = Aluno },
-            new RouteItem { Name = "Financeiro", Path = Financeiro, MinAccessLevel = 3 },
             new RouteItem { Name = "Turma", Path = Turmas, MinAccessLevel = 2 },
             new RouteItem { Name = "Relatórios", Path = Relatorio, MinAccessLevel = 3 },
-            new RouteItem { Name = "Despesas", Path = Despesas, MinAccessLevel = 1 }
+            new RouteItem { Name = "Receitas", Path = Financeiro, MinAccessLevel = 3 },
+            new RouteItem { Name = "Despesas", Path = Despesas, MinAccessLevel = 1 },
         };
 
         public static List<RouteItem> CadastroNav = new()

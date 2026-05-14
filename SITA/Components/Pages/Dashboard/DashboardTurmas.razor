@@ -6,11 +6,11 @@
 
 @* Cabeçalho padronizado com a tela de Alunos *@
 <div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-    <h1 style="color: #000080; font-weight: bold;">Gestão de Turmas</h1>
+    <h1 style="color: #3650a1; font-weight: bold;">Gestão de Turmas</h1>
     <div style="display: flex; gap: 10px;">
         <input @bind="search" @bind:event="oninput" placeholder="Buscar turma..." style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
         <button class="btn-cadastrar" @onclick="AbrirModal"
-                style="background-color: #000080; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                style="background-color: #3650a1; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
             + Nova Turma
         </button>
     </div>
@@ -21,9 +21,9 @@
     @foreach (var turma in TurmasFiltradas)
     {
         <div class="card" @onclick="() => GoToTurma(turma.Id)"
-             style=" height:auto; color:black; background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-top: 4px solid #000080; cursor: pointer; transition: 0.3s;">
+             style=" height:auto; color:black; background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-top: 4px solid #3650a1; cursor: pointer; transition: 0.3s;">
             
-            <h4 style="color: #000080; font-weight: bold; margin-bottom: 10px;">@turma.Nome</h4>
+            <h4 style="color: #3650a1; font-weight: bold; margin-bottom: 10px;">@turma.Nome</h4>
             
             <p style="margin-bottom: 5px;"><strong>Turno:</strong> @turma.Turno</p>
             <p style="margin-bottom: 5px;"><strong>Professor:</strong> @(turma.Professor?.Nome ?? "A definir")</p>
@@ -39,16 +39,16 @@
 @* Modal de Cadastro *@
 <Modal IsOpen="showModal" OnClose="FecharModal">
     <div style="padding: 20px;">
-        <h3 style="color: #000080; font-weight: bold; margin-bottom: 20px;">Nova Turma</h3>
+        <h3 style="color: #3650a1; font-weight: bold; margin-bottom: 20px;">Nova Turma</h3>
         
         <div class="mb-3">
-            <label class="fw-bold" style="color: #000080;">Nome da Turma:</label>
-            <input class="form-control" @bind="nome" placeholder="Ex: Maternal A" style="border: 1px solid #000080;" />
+            <label class="fw-bold" style="color: #3650a1;">Nome da Turma:</label>
+            <input class="form-control" @bind="nome" placeholder="Ex: Maternal A" style="border: 1px solid #3650a1;" />
         </div>
 
         <div class="mb-4">
-            <label class="fw-bold" style="color: #000080;">Período / Turno:</label>
-            <select class="form-select" @bind="turno" style="border: 1px solid #000080;">
+            <label class="fw-bold" style="color: #3650a1;">Período / Turno:</label>
+            <select class="form-select" @bind="turno" style="border: 1px solid #3650a1;">
                 @foreach (var t in Turma.Turnos)
                 {
                     <option value="@t">@t</option>

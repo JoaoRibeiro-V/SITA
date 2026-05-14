@@ -4,11 +4,11 @@
 @inject NavigationManager Navigation
 
 <div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-    <h1 style="color: #000080; font-weight: bold;">Alunos Matriculados</h1>
+    <h1 style="color: #3650a1; font-weight: bold;">Alunos Matriculados</h1>
     <div style="display: flex; gap: 10px;">
         <input @bind="search" @bind:event="oninput" placeholder="Pesquisar aluno..." style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
         <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-aluno")'
-                style="background-color: #000080; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                style="background-color: #3650a1; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
             + Nova Matrícula
         </button>
     </div>
@@ -20,12 +20,12 @@
         <!-- Cabeçalho -->
         <thead>
             <tr style="color: white;">
-                <th style="padding: 15px 12px; text-align: left; background: #000080; border-top-left-radius: 8px;">Nome</th>
-                <th style="padding: 15px 12px; text-align: left; background: #000080;">RA</th>
-                <th style="padding: 15px 12px; text-align: left; background: #000080;">Idade</th>
-                <th style="padding: 15px 12px; text-align: left; background: #000080;">Turma</th>
-                <th style="padding: 15px 12px; text-align: left; background: #000080;">Responsável</th>
-                <th style="padding: 15px 12px; text-align: left; background: #000080; border-top-right-radius: 8px;">Status</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1; border-top-left-radius: 8px;">Nome</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">RA</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Idade</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Turma</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Responsável</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1; border-top-right-radius: 8px;">Status</th>
             </tr>
         </thead>
 
@@ -36,27 +36,27 @@
                 <tr @onclick="() => GoAluno(aluno.Id)"
                     style="cursor: pointer; background: transparent;">
 
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
                         @aluno.Nome
                     </td>
 
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
                         @aluno.RA
                     </td>
 
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
                         @aluno.Idade anos
                     </td>
 
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
                         @(aluno.Turma?.Nome ?? "Sem Turma")
                     </td>
 
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
                         @GetResponsavelNome(aluno)
                     </td>
 
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #000080;">
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
                         @(aluno.Turma != null ? "Ativo" : "Pendências")
                     </td>
 

@@ -6,20 +6,20 @@
 @using SITA.Maui
 @inject NavigationManager Navigation
 
-<div style="background-color: white; padding: 32px; border-radius: 12px; border: 2px solid #000080; max-width: 500px; margin: 40px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-    <h2 style="color: #000080; text-align: center; font-weight: bold; margin-bottom: 25px;">Perfil do Usuário</h2>
+<div style="background-color: white; padding: 32px; border-radius: 12px; border: 2px solid #3650a1; max-width: 500px; margin: 40px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <h2 style="color: #3650a1; text-align: center; font-weight: bold; margin-bottom: 25px;">Perfil do Usuário</h2>
 
     @if (currentUser != null)
     {
         <div style="color: #333; font-size: 18px; line-height: 2;">
             <p><strong>Nome:</strong> @currentUser.Nome</p>
             <p><strong>CPF:</strong> @Mask.FormatCpf(currentUser.CPF)</p>
-            <p style="color: #000080;"><strong>Nível de Acesso:</strong> @accessName</p>
+            <p style="color: #3650a1;"><strong>Nível de Acesso:</strong> @accessName</p>
         </div>
     }
 
     <button @onclick="OnLogoutClicked" 
-            style="background-color: #000080; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; margin-top: 30px; cursor: pointer;">
+            style="background-color: #3650a1; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; margin-top: 30px; cursor: pointer;">
         Sair do Sistema
     </button>
 </div>

@@ -1,16 +1,20 @@
-﻿@page "/folha-pagamento/{AlunoId:guid?}"
+﻿@page "/folha-pagamento/aluno/{AlunoId:guid?}"
+@page "/folha-pagamento/receita/{ReceitaId:guid?}"
+@page "/folha-pagamento/despesas/{DespesaId:guid?}"
 @using SITA.src.Model
 @using SITA.src.Storage
 @using SITA.src.Controller
 @inject NavigationManager Navigation
 
-<div class="container mt-4" style="background-color: white; padding: 25px; border-radius: 12px; border: 2px solid #000080; max-width: 1000px; margin: auto;">
-    
-    <h3 style="color: #000080; font-weight: bold; text-align: center;">Gestão Financeira</h3>
+<div class="container mt-4" style="background-color: white; padding: 25px; border-radius: 12px; border: 2px solid #3650a1; max-width: 1000px; margin: auto;">
+
+    <h3 style="color: #3650a1; font-weight: bold; text-align: center;">Gestão Financeira</h3>
     <hr />
+    <br />
     <h4> FUNCIONÁRIO </h4>
+        <hr />
     <!-- ================= FUNCIONÁRIO ================= -->
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #000080;">
+    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #3650a1;">
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label><b>Selecionar Funcionário:</b></label>
@@ -31,7 +35,7 @@
 
         @if (funcionarioSelecionado != null)
         {
-            <div class="p-3 mt-2" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #000080;">
+            <div class="p-3 mt-2" style="background-color: #f8f9fa; border-radius: 8px; border: 1px dashed #3650a1;">
                 <h5><b>Resumo do Lançamento:</b></h5>
                 <p>Colaborador: <b>@funcionarioSelecionado.Nome</b></p>
                 <p>Salário Base: <span class="text-success">R$ @funcionarioSelecionado.SalarioBase</span></p>
@@ -55,11 +59,12 @@
             </div>
         }
     </div>
-    <hr />
+    
     <h4> ALUNO </h4>
+    <hr />
     <!-- ================= ALUNO ================= -->
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #000080;">
-        <h5 style="color: #000080; font-weight: bold;">Selecionar Aluno</h5>
+    <div id="aluno-section" style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #3650a1;">
+        <h5 style="color: #3650a1; font-weight: bold;">Selecionar Aluno</h5>
 
         <div class="position-relative">
             <input class="form-control @(alunoSelecionado != null ? "border-success" : "")"
@@ -94,12 +99,12 @@
     <!-- ================= TABELA MENSALIDADES ================= -->
     @if (alunoSelecionado != null)
     {
-        <h5 style="color:#000080;"><b>Mensalidades</b></h5>
+        <h5 style="color:#3650a1;"><b>Mensalidades</b></h5>
 
         @if (receitasAluno.Any())
         {
             <table class="table table-sm table-bordered table-striped mt-3">
-                <thead style="background-color:#000080; color:white;">
+                <thead style="background-color:#3650a1; color:white;">
                     <tr>
                         <th>Mês</th>
                         <th>Vencimento</th>
@@ -169,10 +174,148 @@
         }
     }
 
+    <h4> RECEITAS </h4>
+    <hr />
+
+    <div id="receita-section" style="background-color: #f0fff4; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #28a745;">
+
+        <h5 style="color: #28a745; font-weight: bold;">
+            Selecionar Receita
+        </h5>
+
+        <div class="position-relative">
+
+            <input class="form-control @(receitaSelecionadaDetalhes != null ? "border-success" : "")"
+                   value="@buscaReceita"
+                   @oninput="OnReceitaInput"
+                   placeholder="Descrição, origem ou aluno..." />
+
+            @if (sugestoesReceitas.Any())
+            {
+                <div class="list-group position-absolute w-100" style="z-index: 1000;">
+
+                    @foreach (var r in sugestoesReceitas)
+                    {
+                        <button type="button"
+                                class="list-group-item list-group-item-action"
+                                @onclick="() => SelecionarReceitaDetalhes(r)">
+
+                            <strong>@r.Descricao</strong>
+
+                            <small class="text-muted">
+                                - @r.Aluno?.Nome
+                            </small>
+
+                            <br />
+
+                            <small class="text-muted">
+                                @r.GetTypeTexto()
+                                |
+                                R$ @r.Valor.ToString("N2")
+                            </small>
+
+                        </button>
+                    }
+
+                </div>
+            }
+
+            @if (receitaSelecionadaDetalhes != null)
+            {
+                <div class="text-success mt-1">
+                    ✔ Receita selecionada
+                </div>
+            }
+
+        </div>
+    </div>
+    @if (receitaSelecionadaDetalhes != null)
+    {
+        <div style="background-color: #f0fff4; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #28a745;">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 style="color: #28a745; font-weight: bold; margin: 0;">
+                    Detalhes da Receita
+                </h5>
+
+                <button style="width: 10%"
+                        class="btn btn-sm btn-outline-secondary"
+                        @onclick="LimparReceita">
+
+                    Limpar
+
+                </button>
+
+            </div>
+
+            <div class="row mt-3">
+
+                <div class="col-md-6">
+
+                    <p><strong>Descrição:</strong> @receitaSelecionadaDetalhes.Descricao</p>
+
+                    <p><strong>Origem:</strong> @receitaSelecionadaDetalhes.Origem</p>
+
+                    <p><strong>Tipo:</strong> @receitaSelecionadaDetalhes.GetTypeTexto()</p>
+
+                    <p><strong>Aluno:</strong> @receitaSelecionadaDetalhes.Aluno?.Nome</p>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <p>
+                        <strong>Vencimento:</strong>
+                        @receitaSelecionadaDetalhes.DataVencimento.ToString("dd/MM/yyyy")
+                    </p>
+
+                    <p>
+                        <strong>Valor:</strong>
+
+                        <span class="text-success fw-bold">
+                            R$ @receitaSelecionadaDetalhes.Valor.ToString("N2")
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+
+                        <span class="badge @GetStatusBadge(receitaSelecionadaDetalhes.Status)">
+                            @receitaSelecionadaDetalhes.GetStatusTexto()
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Responsável:</strong>
+                        @receitaSelecionadaDetalhes.Responsavel?.Nome
+                    </p>
+
+                </div>
+
+            </div>
+
+            @if (receitaSelecionadaDetalhes.Status != Receita.ReceitaStatus.Pago)
+            {
+                <button class="btn btn-success w-100 mt-3"
+                        @onclick="() => ConfirmarPagamentoReceita(receitaSelecionadaDetalhes)">
+                    CONFIRMAR RECEBIMENTO
+                </button>
+            }
+            else
+            {
+                <div class="alert alert-success mt-3 mb-0">
+                    Receita já recebida.
+                </div>
+            }
+
+        </div>
+    }
+
     <h4> DESPESAS </h4>
     <hr />
 
-    <div style="background-color: #fff5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #d9534f;">
+    <div id="despesa-section" style="background-color: #fff5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #d9534f;">
         <h5 style="color: #d9534f; font-weight: bold;">Selecionar Despesa</h5>
 
         <div class="position-relative">
@@ -272,12 +415,20 @@
 
 @code {
     [Parameter] public Guid? AlunoId { get; set; }
+    [Parameter] public Guid? ReceitaId { get; set; }
+    [Parameter] public Guid? DespesaId { get; set; }
+
+    private Receita? receitaSelecionadaDetalhes;
+    private List<Receita> todasReceitas = new();
+    private List<Receita> sugestoesReceitas = new();
+
+    private string buscaReceita = "";
 
     private List<Funcionario> funcionariosDisponiveis = new();
     private List<Aluno> alunos = new();
     private List<Aluno> sugestoesAlunos = new();
     private List<Receita> receitasAluno = new();
-    
+
     private List<Despesa> todasDespesas = new();
     private List<Despesa> sugestoesDespesas = new();
 
@@ -310,6 +461,7 @@
         funcionariosDisponiveis = FuncionarioController.GetAll().OrderBy(f => f.Nome).ToList();
         alunos = AlunoController.GetAll().OrderBy(a => a.Nome).ToList();
         todasDespesas = DespesaController.GetAll().OrderBy(d => d.DataVencimento).ToList();
+        todasReceitas = ReceitaController.GetAll().OrderBy(r => r.DataVencimento).ToList();
     }
 
     protected override void OnParametersSet()
@@ -317,19 +469,63 @@
         if (AlunoId.HasValue)
         {
             var aluno = alunos.FirstOrDefault(a => a.Id == AlunoId.Value);
+
             if (aluno != null)
             {
                 SelecionarAluno(aluno);
-            }
-            else
-            {
-                var despesa = DespesaController.Get("Id", AlunoId.Value.ToString());
-                if (despesa != null)
-                {
-                    SelecionarDespesa(despesa);
-                }
+                return;
             }
         }
+        if (DespesaId.HasValue)
+        {
+            var despesa = DespesaController.Get("Id", DespesaId.Value.ToString());
+            if (despesa != null)
+            {
+                SelecionarDespesa(despesa);
+                return;
+            }
+        }
+
+        if (ReceitaId.HasValue)
+        {
+            var receita = ReceitaController.Get("Id", ReceitaId.Value.ToString());
+
+            if (receita != null)
+            {
+                SelecionarReceitaDetalhes(receita);
+            }
+        }
+    }
+
+    private void OnReceitaInput(ChangeEventArgs e)
+    {
+        buscaReceita = e.Value?.ToString() ?? "";
+
+        sugestoesReceitas = todasReceitas
+            .Where(r =>
+                (r.Descricao?.ToLower().Contains(buscaReceita.ToLower()) ?? false)
+                || (r.Origem?.ToLower().Contains(buscaReceita.ToLower()) ?? false)
+                || (r.Aluno?.Nome?.ToLower().Contains(buscaReceita.ToLower()) ?? false))
+            .Take(5)
+            .ToList();
+    }
+
+    private void SelecionarReceitaDetalhes(Receita receita)
+    {
+        receitaSelecionadaDetalhes = receita;
+
+        buscaReceita = receita.Descricao ?? "";
+
+        sugestoesReceitas.Clear();
+    }
+
+    private void LimparReceita()
+    {
+        receitaSelecionadaDetalhes = null;
+
+        buscaReceita = "";
+
+        sugestoesReceitas.Clear();
     }
 
     private void OnFuncionarioSelected(ChangeEventArgs e)

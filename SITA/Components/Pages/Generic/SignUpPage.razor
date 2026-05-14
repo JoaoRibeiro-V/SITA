@@ -6,11 +6,11 @@
 @using SITA.Maui
 @inject NavigationManager Navigation
 
-<div style="background-color: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 40px auto; border: 2px solid #000080; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+<div style="background-color: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 40px auto; border: 2px solid #3650a1; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
     
     <EditForm Model="this" OnValidSubmit="HandleSignUp">
 
-        <h2 style="color: #000080; text-align: center; font-weight: bold; margin-bottom: 25px;">Criar Conta</h2>
+        <h2 style="color: #3650a1; text-align: center; font-weight: bold; margin-bottom: 25px;">Criar Conta</h2>
 
         <div style="display: grid; gap: 15px;">
             <input @bind="newUser.Nome" @ref="nomeInput" @onkeydown="HandleNomeKeyDown" class="form-control" placeholder="Nome Completo" />
@@ -39,11 +39,11 @@
         }
 
         <div style="margin-top: 25px; display: grid; gap: 10px;">
-            <button type="submit" style="background-color: #000080; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            <button type="submit" style="background-color: #3650a1; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">
                 Cadastrar
             </button>
             
-            <button type="button" @onclick="GoBack" style="background: transparent; border: 1px solid #000080; color: #000080; padding: 10px; border-radius: 4px; cursor: pointer;">
+            <button type="button" @onclick="GoBack" style="background: transparent; border: 1px solid #3650a1; color: #3650a1; padding: 10px; border-radius: 4px; cursor: pointer;">
                 Voltar
             </button>
         </div>

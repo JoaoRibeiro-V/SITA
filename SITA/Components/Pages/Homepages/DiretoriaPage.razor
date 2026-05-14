@@ -10,7 +10,7 @@
     <!-- Cabeçalho de Boas-Vindas -->
     <div class="row mb-4">
         <div class="col-12">
-            <h2 style="color: #000080; font-weight: bold;">Painel de Controle - Direção</h2>
+            <h2 style="color: #3650a1; font-weight: bold;">Painel de Controle - Direção</h2>
             <p class="text-muted">Resumo estratégico do SITA em tempo real.</p>
         </div>
     </div>
@@ -22,7 +22,7 @@
                 <div class="icon-box" style="background: #e3f2fd;"><i class="oi oi-graph"></i></div>
                 <div>
                     <h6 class="text-muted mb-1">Mensalidades do Mês</h6>
-                    <h4 class="fw-bold mb-0" style="color: #000080;">R$ @totalMensalidades.ToString("N2")</h4>
+                    <h4 class="fw-bold mb-0" style="color: #3650a1;">R$ @totalMensalidades.ToString("N2")</h4>
                     <small class="text-muted">@quantidadeMensalidades alunos - @quantidadeMensalidadesPagas pagas</small>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                      style="cursor:pointer;"
                      @onclick="() => visaoGeralMesAtivo = !visaoGeralMesAtivo">
 
-                    <h6 class="fw-bold m-0" style="color: #000080;">
+                    <h6 class="fw-bold m-0" style="color: #3650a1;">
                         Visão Geral do Mês
                     </h6>
 
@@ -143,7 +143,7 @@
                      style="cursor:pointer;"
                      @onclick="() => fluxoCaixaAtivo = !fluxoCaixaAtivo">
 
-                    <h6 class="fw-bold m-0" style="color: #000080;">
+                    <h6 class="fw-bold m-0" style="color: #3650a1;">
                         Fluxo de Caixa Acumulado
                     </h6>
 
@@ -219,7 +219,7 @@
                      style="cursor:pointer;"
                      @onclick="() => pendenciasAtivo = !pendenciasAtivo">
 
-                    <h6 class="fw-bold m-0" style="color: #000080;">
+                    <h6 class="fw-bold m-0" style="color: #3650a1;">
                         Pendências
                     </h6>
 
@@ -294,7 +294,7 @@
         <div class="col-md-8">
             <div class="card p-3 shadow-sm border-0" style="border-radius: 15px; height: 100%;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0" style="color: #000080;">Calendário Financeiro</h5>
+                    <h5 class="fw-bold mb-0" style="color: #3650a1;">Calendário Financeiro</h5>
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Receitas ? "btn-success" : "btn-outline-success")" @onclick="() => AlterarTipo(TipoExibicao.Receitas)">
                             Receitas
@@ -391,7 +391,7 @@
         <!-- Resumo Financeiro Lateral -->
         <div class="col-md-4">
             <div class="card p-4 shadow-sm border-0" style="border-radius: 15px; background: white; height: 100%;">
-                <h5 class="fw-bold" style="color: #000080; border-bottom: 2px solid #eee; padding-bottom: 10px;">Taxa de Recebimento</h5>
+                <h5 class="fw-bold" style="color: #3650a1; border-bottom: 2px solid #eee; padding-bottom: 10px;">Taxa de Recebimento</h5>
 
                 <div class="mt-4">
                     <div class="d-flex justify-content-between mb-2">
@@ -448,7 +448,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0" style="border-radius: 10px; padding: 20px;">
-                <h6 class="fw-bold mb-3" style="color: #000080;">Fluxo de Caixa do Mês Atual</h6>
+                <h6 class="fw-bold mb-3" style="color: #3650a1;">Fluxo de Caixa do Mês Atual</h6>
 
                 <div class="row">
                     <div class="col-md-3">
