@@ -6,7 +6,7 @@
 @inject NavigationManager Navigation
 
 <div class="container-fluid p-4" style="background-color: #f8f9fa; min-height: 100vh;">
-    
+
     <!-- Cabeçalho de Boas-Vindas -->
     <div class="row mb-4">
         <div class="col-12">
@@ -289,7 +289,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mb-4">
         <!-- Calendário Financeiro -->
         <div class="col-md-8">
             <div class="card p-3 shadow-sm border-0" style="border-radius: 15px; height: 100%;">
@@ -335,7 +335,7 @@
                                 var isHoje = dia.Data.Date == DateTime.Now.Date;
                                 var isSelecionado = dia.Data.Date == dataSelecionada.Date;
                                 var cssClass = $"calendar-day {(dia.ForaDoMes ? "fora-mes" : "")} {(isHoje ? "hoje" : "")} {(isSelecionado ? "selecionado" : "")}";
-                        
+
                                 <div class="@cssClass" @onclick="() => SelecionarDia(dia.Data)">
                                     <div class="day-number">@dia.Data.Day</div>
                                     @if (!dia.ForaDoMes && dia.Total != 0)
@@ -385,14 +385,14 @@
                         </div>
                     }
                 </div>
-            
+
             </div>
         </div>
         <!-- Resumo Financeiro Lateral -->
         <div class="col-md-4">
             <div class="card p-4 shadow-sm border-0" style="border-radius: 15px; background: white; height: 100%;">
                 <h5 class="fw-bold" style="color: #000080; border-bottom: 2px solid #eee; padding-bottom: 10px;">Taxa de Recebimento</h5>
-                
+
                 <div class="mt-4">
                     <div class="d-flex justify-content-between mb-2">
                         <span>Recebido</span>
@@ -437,6 +437,64 @@
                     <span class="@analise.classe">
                         @analise.mensagem
                     </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- Gráfico de Barras: Fluxo Mensal -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0" style="border-radius: 10px; padding: 20px;">
+                <h6 class="fw-bold mb-3" style="color: #000080;">Fluxo de Caixa do Mês Atual</h6>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center p-3" style="background: #e8f5e9; border-radius: 8px;">
+                            <div class="small text-muted mb-1">Receitas Previstas</div>
+                            <div class="fw-bold fs-5 text-primary">R$ @totalMensalidades.ToString("N0")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center p-3" style="background: #e8f5e9; border-radius: 8px;">
+                            <div class="small text-muted mb-1">Já Recebido</div>
+                            <div class="fw-bold fs-5 text-success">R$ @totalRecebidoMes.ToString("N0")</div>
+                            <div class="small text-muted">@((totalMensalidades > 0 ? (totalRecebidoMes / totalMensalidades * 100) : 0).ToString("F0"))% do previsto</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center p-3" style="background: #ffebee; border-radius: 8px;">
+                            <div class="small text-muted mb-1">Despesas Pagas</div>
+                            <div class="fw-bold fs-5 text-danger">R$ @totalDespesasPagasMes.ToString("N0")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center p-3" style="background: @(saldoDoMes >= 0 ? "#e0f7fa" : "#ffebee"); border-radius: 8px;">
+                            <div class="small text-muted mb-1">Saldo do Mês</div>
+                            <div class="fw-bold fs-5" style="color: @(saldoDoMes >= 0 ? "#00838f" : "#c62828");">
+                                R$ @saldoDoMes.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4" style="height: 40px; background: #e0e0e0; border-radius: 8px; overflow: hidden; position: relative;">
+                    @{
+                        var percRecebidoMes = totalMensalidades > 0 ? (totalRecebidoMes / totalMensalidades * 100) : 0;
+                        var percDespesasMes = totalMensalidades > 0 ? (totalDespesasPagasMes / totalMensalidades * 100) : 0;
+                    }
+
+                    <div style="position: absolute; left: 0; top: 0; width: @percRecebidoMes.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%; height: 100%; background: linear-gradient(90deg, #2e7d32, #4caf50); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem;">
+                        Recebido @percRecebidoMes.ToString("F0")%
+                    </div>
+                    <div style="position: absolute; left: @percRecebidoMes.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%; top: 0; width: @percDespesasMes.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%; height: 100%; background: linear-gradient(90deg, #c62828, #f44336); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem;">
+                        @if (percDespesasMes > 10)
+                        {
+                            <span>Despesas @percDespesasMes.ToString("F0")%</span>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
@@ -503,7 +561,6 @@
         var mesAtualInt = DateTime.Now.Month;
         var anoAtualInt = DateTime.Now.Year;
 
-        // Receitas do mês atual
         var receitasMesAtual = todasReceitas
             .Where(r => r.DataVencimento.Month == mesAtualInt && r.DataVencimento.Year == anoAtualInt)
             .ToList();
@@ -515,54 +572,45 @@
         totalMensalidades = mensalidadesMesAtual.Sum(r => (double)r.Valor);
         quantidadeMensalidadesPagas = mensalidadesMesAtual.Where(r => r.Status == Receita.ReceitaStatus.Pago).Count();
 
-        // Receitas recebidas do mês
         totalRecebidoMes = receitasMesAtual
             .Where(r => r.Status == Receita.ReceitaStatus.Pago)
             .Sum(r => (double)r.Valor);
 
-        // Total geral recebido
         var receitasRecebidas = todasReceitas.Where(r => r.Status == Receita.ReceitaStatus.Pago).ToList();
         quantidadeRecebidas = receitasRecebidas.Count;
         totalRecebido = receitasRecebidas.Sum(r => (double)r.Valor);
 
-        // Receitas pendentes
         var receitasPendentes = todasReceitas
             .Where(r => r.Status == Receita.ReceitaStatus.EmAndamento)
             .ToList();
         quantidadePendentes = receitasPendentes.Count;
         totalPendente = receitasPendentes.Sum(r => (double)r.Valor);
 
-        // Receitas atrasadas
         var receitasAtrasadas = todasReceitas
             .Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
             .ToList();
         quantidadeAtrasadas = receitasAtrasadas.Count;
         totalAtrasado = receitasAtrasadas.Sum(r => (double)r.Valor);
 
-        // Despesas pendentes
         var despesasPendentes = todasDespesas
             .Where(d => !d.IsPago)
             .ToList();
         quantidadeDespesasPendentes = despesasPendentes.Count;
         totalDespesas = despesasPendentes.Sum(d => (double)d.Valor);
 
-        // Despesas pagas (total geral)
         var despesasPagas = todasDespesas.Where(d => d.IsPago).ToList();
         quantidadeDespesasPagas = despesasPagas.Count;
         totalDespesasPagas = despesasPagas.Sum(d => (double)d.Valor);
-
-        // Despesas pagas do mês
+        
         totalDespesasPagasMes = todasDespesas
             .Where(d => d.IsPago &&
                        d.DataPagamento.Month == mesAtualInt &&
                        d.DataPagamento.Year == anoAtualInt)
             .Sum(d => (double)d.Valor);
 
-        // Saldos
         saldoLiquido = totalRecebido - totalDespesasPagas;
         saldoDoMes = totalRecebidoMes - totalDespesasPagasMes;
 
-        // Percentuais
         double totalGeralReceitas = todasReceitas.Sum(r => (double)r.Valor);
         if (totalGeralReceitas > 0)
         {
@@ -576,7 +624,6 @@
     {
         double score = 0;
 
-        // RECEBIMENTO
         if (percentualRecebido >= 90)
             score += 35;
         else if (percentualRecebido >= 75)
@@ -586,7 +633,6 @@
         else
             score += 5;
 
-        // SALDO DO MÊS
         if (saldoDoMes > 0)
             score += 25;
         else if (saldoDoMes >= -(totalMensalidades * 0.1))
@@ -594,7 +640,6 @@
         else
             score -= 15;
 
-        // PAGAMENTOS ATRASADOS
         if (quantidadeAtrasadas == 0)
             score += 20;
         else if (quantidadeAtrasadas <= 3)
@@ -604,7 +649,6 @@
         else
             score -= 15;
 
-        // DESPESAS
         double percentualDespesas = totalRecebido > 0
             ? (totalDespesasPagas / totalRecebido) * 100
             : 100;
@@ -618,13 +662,10 @@
         else
             score -= 15;
 
-        // LIMITA SCORE NO MÁXIMO 100
         score = Math.Clamp(score, 0, 100);
 
         string mensagem;
         string classe;
-
-        // Mensagem de acordo com score, mudar depois para algo mais elaborado/técnico
 
         if (score >= 80)
         {
@@ -676,7 +717,7 @@
         var dias = new List<DiaCalendario>();
         var primeiroDia = new DateTime(mesAtual.Year, mesAtual.Month, 1);
         var ultimoDia = primeiroDia.AddMonths(1).AddDays(-1);
-        
+
         var diaSemanaInicio = (int)primeiroDia.DayOfWeek;
         var dataInicio = primeiroDia.AddDays(-diaSemanaInicio);
 
@@ -685,7 +726,7 @@
             var data = dataInicio.AddDays(i);
             var foraDoMes = data.Month != mesAtual.Month;
             var total = CalcularTotalDoDia(data);
-            
+
             dias.Add(new DiaCalendario
             {
                 Data = data,
