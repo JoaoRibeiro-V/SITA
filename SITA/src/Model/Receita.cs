@@ -18,7 +18,8 @@ namespace SITA.src.Model
         {
             EmAndamento = 0,
             Pago = 1,
-            EmAtraso = 2
+            Pendente = 2,
+            EmAtraso = 3
         }
         public string Origem { get; set; }
         public Aluno? Aluno { get; set; } = null;
@@ -32,6 +33,8 @@ namespace SITA.src.Model
 
                 if (DataVencimento < DateTime.Now)
                     return ReceitaStatus.EmAtraso;
+                if (DataVencimento.Month == DateTime.Now.Month)
+                    return ReceitaStatus.Pendente;
 
                 return ReceitaStatus.EmAndamento;
             }

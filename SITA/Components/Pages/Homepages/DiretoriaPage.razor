@@ -22,8 +22,8 @@
 				<div class="icon-box" style="background: #e3f2fd;"><i class="oi oi-graph"></i></div>
 				<div>
 					<h6 class="text-muted mb-1">Mensalidades do Mês</h6>
-					<h4 class="fw-bold mb-0" style="color: #3650a1;">R$ @Movimentacoes["Mensalidades"].ToString("N2")</h4>
-					<small class="text-muted">@QMovimentacoes["Mensalidades"] alunos - @QMovimentacoes["MensalidadesPagas"] pagas</small>
+					<h4 class="fw-bold mb-0" style="color: #3650a1;">R$ @Movimentacoes[Key].Receita.Mensalidades.ToString("N2")</h4>
+					<small class="text-muted">@Movimentacoes[Key].Receita.qtMensalidades alunos - @Movimentacoes[Key].Receita.qtMensalidadesPagas pagas</small>
 				</div>
 			</div>
 		</div>
@@ -32,8 +32,8 @@
 				<div class="icon-box" style="background: #e8f5e9;"><i class="oi oi-dollar"></i></div>
 				<div>
 					<h6 class="text-muted mb-1">Receitas Recebidas</h6>
-					<h4 class="fw-bold mb-0" style="color: #2e7d32;">R$ @Movimentacoes["Recebido"].ToString("N2")</h4>
-					<small class="text-muted">@QMovimentacoes["Recebidas"] pagas</small>
+					<h4 class="fw-bold mb-0" style="color: #2e7d32;">R$ @Movimentacoes[Key].Receita.Recebido.ToString("N2")<small style="font-size: x-small"> / @Movimentacoes[Key].Receita.Total.ToString("N2")</small></h4>
+					<small class="text-muted">@Movimentacoes[Key].Receita.qtRecebido pagas</small>
 				</div>
 			</div>
 		</div>
@@ -42,18 +42,18 @@
 				<div class="icon-box" style="background: #ffebee;"><i class="oi oi-cart"></i></div>
 				<div>
 					<h6 class="text-muted mb-1">Despesas Pagas</h6>
-					<h4 class="fw-bold mb-0" style="color: #c62828;">R$ @Movimentacoes["DespesasPagas"].ToString("N2")</h4>
-					<small class="text-muted">@QMovimentacoes["DespesasPagas"] lançamentos - @QMovimentacoes["DespesasPendentes"] pendentes</small>
+					<h4 class="fw-bold mb-0" style="color: #c62828;">R$ @Movimentacoes[Key].Despesa.Pagas.ToString("N2")<small style="font-size: x-small"> / @Movimentacoes[Key].Despesa.Total.ToString("N2")</small></h4>
+					<small class="text-muted">@Movimentacoes[Key].Despesa.qtPagas lançamentos - @Movimentacoes[Key].Despesa.qtPendentes pendentes</small>
 				</div>
 			</div>
 		</div>
 		<div class="col-md-3">
 			<div class="card-kpi shadow-sm border-start border-info border-4">
-				<div class="icon-box" style="background: @(Movimentacoes["Saldo"] >= 0 ? "#e0f7fa" : "#ffebee");"><i class="oi oi-badge"></i></div>
+				<div class="icon-box" style="background: @(SaldoLiquidoTotal >= 0 ? "#e0f7fa" : "#ffebee");"><i class="oi oi-badge"></i></div>
 				<div>
 					<h6 class="text-muted mb-1">Caixa</h6>
-					<h4 class="fw-bold mb-0" style="color: @(Movimentacoes["Saldo"] >= 0 ? "#00838f" : "#c62828");">
-						R$ @Movimentacoes["Saldo"].ToString("N2")
+					<h4 class="fw-bold mb-0" style="color: @(SaldoLiquidoTotal >= 0 ? "#00838f" : "#c62828");">
+						R$ @SaldoLiquidoTotal.ToString("N2")
 					</h4>
 					<small class="text-muted">Receitas - Despesas</small>
 				</div>
@@ -91,7 +91,7 @@
 						<div class="d-flex justify-content-between">
 							<span class="text-muted">Total Recebido (Geral):</span>
 							<span class="fw-bold text-success">
-								R$ @Movimentacoes["Recebido"].ToString("N2")
+								R$ @Movimentacoes[Key].Receita.Recebido.ToString("N2")
 							</span>
 						</div>
 					</div>
@@ -100,7 +100,7 @@
 						<div class="d-flex justify-content-between">
 							<span class="text-muted">Total Despesas (Geral):</span>
 							<span class="fw-bold text-danger">
-								R$ @Movimentacoes["DespesasPagas"].ToString("N2")
+								R$ @Movimentacoes[Key].Despesa.Pagas.ToString("N2")
 							</span>
 						</div>
 					</div>
@@ -113,8 +113,8 @@
 						<span class="fw-bold">Saldo Acumulado:</span>
 
 						<span class="fw-bold fs-5"
-							  style="color: @(Movimentacoes["Saldo"] >= 0 ? "#2e7d32" : "#c62828");">
-							R$ @Movimentacoes["Saldo"].ToString("N2")
+							  style="color: @(Movimentacoes[Key].Saldo >= 0 ? "#2e7d32" : "#c62828");">
+							R$ @Movimentacoes[Key].Saldo.ToString("N2")
 						</span>
 					</div>
 				</div>
@@ -123,17 +123,22 @@
 					@{
 						double percent = 0;
 
-						if (Movimentacoes["Recebido"] > 0)
+						if (Movimentacoes[Key].Receita.Recebido != 0)
 						{
-							percent = (Movimentacoes["Saldo"] / Movimentacoes["Recebido"]) * 100;
+							percent = (Math.Abs(Movimentacoes[Key].Saldo) / Math.Abs(Movimentacoes[Key].Receita.Recebido)) * 100;
 						}
 
+						bool isPositivo = Movimentacoes[Key].Saldo >= 0;
+						
 						percent = Math.Clamp(percent, 0, 100);
 					}
 
-					<div class="progress-bar @(Movimentacoes["Saldo"] >= 0 ? "bg-success" : "bg-danger")"
-						 style="width: @percent.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%">
-						@percent.ToString("F1")%
+					<div class="progress-bar @(isPositivo ? "bg-success" : "bg-danger")"
+						 style="width: @(percent.ToString("F1", System.Globalization.CultureInfo.InvariantCulture) + "%"
+							  )">
+						<span style="color: @(Movimentacoes[Key].Saldo <= 0 ? "#000000" : "#FFFFFFF")">
+							@percent.ToString("F1")%
+						</span>
 					</div>
 				</div>
 			</div>
@@ -167,12 +172,12 @@
 						<div class="d-flex justify-content-between align-items-center">
 							<span class="text-warning">Mensalidades Pendentes:</span>
 							<span class="badge bg-warning text-dark">
-								@QMovimentacoes["Pendentes"]
+                                @Movimentacoes[Key].Receita.qtMensalidadesPendentes
 							</span>
 						</div>
 
 						<small class="text-muted">
-							R$ @Movimentacoes["Pendentes"].ToString("N2")
+							R$ @Movimentacoes[Key].Receita.Pendentes.ToString("N2")
 						</small>
 					</div>
 
@@ -180,12 +185,12 @@
 						<div class="d-flex justify-content-between align-items-center">
 							<span class="text-danger">Mensalidades Atrasadas:</span>
 							<span class="badge bg-danger">
-								@QMovimentacoes["Atrasadas"]
+								@Movimentacoes[Key].Receita.qtMensalidadesAtrasadas
 							</span>
 						</div>
 
 						<small class="text-muted">
-							R$ @Movimentacoes["Atrasado"].ToString("N2")
+							R$ @Movimentacoes[Key].Receita.Atrasadas.ToString("N2")
 						</small>
 					</div>
 
@@ -193,12 +198,12 @@
 						<div class="d-flex justify-content-between align-items-center">
 							<span class="text-warning">Despesas a Pagar:</span>
 							<span class="badge bg-warning text-dark">
-								@QMovimentacoes["DespesasPendentes"]
+								@Movimentacoes[Key].Despesa.qtPendentes
 							</span>
 						</div>
 
 						<small class="text-muted">
-							R$ @Movimentacoes["Despesas"].ToString("N2")
+							R$ @Movimentacoes[Key].Despesa.Pendentes.ToString("N2")
 						</small>
 					</div>
 
@@ -209,17 +214,106 @@
 
 					<i class="oi oi-warning"></i>
 
-					<strong>@QMovimentacoes["Atrasadas"]</strong>
+					<strong>@(Movimentacoes[Key].Receita.qtAtrasadas)</strong>
 					cobrança(s) vencida(s)
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4 d-flex">
+			<div class="card shadow-sm border-0 flex-fill dashboard-card"
+				 style="border-radius: 10px; padding: 20px; cursor:pointer;"
+				 @onclick="() => taxaAtivo = !taxaAtivo">
+
+				<div class="d-flex justify-content-between align-items-center">
+
+					<h6 class="fw-bold m-0" style="color: #3650a1;">
+						Taxa de Recebimento
+					</h6>
+
+					<h6 class="fw-bold m-0"
+						style="
+						transition: transform 0.25s ease;
+						transform: @(taxaAtivo ? "rotate(180deg)" : "rotate(0deg)");
+						">
+						▾
+					</h6>
+				</div>
+
+				<hr />
+
+				<div class="dropdown-content @(taxaAtivo ? "open" : "")">
+
+					<div class="mt-2">
+
+						<div class="d-flex justify-content-between mb-2">
+							<span>Recebido</span>
+							<span class="fw-bold text-success">
+								@percentualRecebido%
+							</span>
+						</div>
+
+						<div class="progress mb-4" style="height: 10px;">
+							<div class="progress-bar bg-success"
+								 style="width: @($"{percentualRecebido}%")">
+							</div>
+						</div>
+
+						<div class="d-flex justify-content-between mb-2">
+							<span>Pendente</span>
+							<span class="fw-bold text-warning">
+								@percentualPendente%
+							</span>
+						</div>
+
+						<div class="progress mb-4" style="height: 10px;">
+							<div class="progress-bar bg-warning"
+								 style="width: @($"{percentualPendente}%")">
+							</div>
+						</div>
+
+						<div class="d-flex justify-content-between mb-2">
+							<span>Atrasado</span>
+							<span class="fw-bold text-danger">
+								@percentualAtrasado%
+							</span>
+						</div>
+
+						<div class="progress mb-3" style="height: 10px;">
+							<div class="progress-bar bg-danger"
+								 style="width: @($"{percentualAtrasado}%")">
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				@{
+					var analise = GerarAnaliseFinanceira();
+				}
+
+				<div class="alert alert-info mb-0"
+					 style="font-size: 0.85rem; padding: 10px;">
+
+					<div class="fw-bold mb-2 d-flex justify-content-between">
+						<span>Análise Rápida</span>
+
+						<span class="@analise.classe">
+							Score: @Math.Round(analise.score)/100
+						</span>
+					</div>
+
+					<span class="@analise.classe">
+						@analise.mensagem
+					</span>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="row mb-4">
+	<div class="row mb-6">
 		<!-- Calendário Financeiro -->
-		<div class="col-md-8">
-			<div class="card p-3 shadow-sm border-0" style="border-radius: 15px; height: 100%;">
+		<div class="col-md-12">
+			<div class="card p-4 shadow-sm border-0" style="border-radius: 15px; height: 100%;">
 				<div class="d-flex justify-content-between align-items-center mb-3">
 					<h5 class="fw-bold mb-0" style="color: #3650a1;">Calendário Financeiro</h5>
 					<div class="btn-group" role="group">
@@ -235,7 +329,7 @@
 					</div>
 				</div>
 
-				<div class="calendar-container p-2" style="height: 400px; overflow-y: auto;">
+				<div class="calendar-container p-2" style="height: 600px; overflow-y: auto;">
 					<div class="d-flex justify-content-between align-items-center mb-3">
 						<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-1" style="font-size: 0.75rem; width:10%;" @onclick="MesAnterior">
 							◄
@@ -315,82 +409,47 @@
 
 			</div>
 		</div>
-		<!-- Resumo Financeiro Lateral -->
-		<div class="col-md-4">
-			<div class="card p-4 shadow-sm border-0" style="border-radius: 15px; background: white; height: 100%;">
-				<h5 class="fw-bold" style="color: #3650a1; border-bottom: 2px solid #eee; padding-bottom: 10px;">Taxa de Recebimento</h5>
-
-				<div class="mt-4">
-					<div class="d-flex justify-content-between mb-2">
-						<span>Recebido</span>
-						<span class="fw-bold text-success">@percentualRecebido%</span>
-					</div>
-					<div class="progress mb-4" style="height: 10px;">
-						<div class="progress-bar bg-success" style="width: @percentualRecebido%"></div>
-					</div>
-
-					<div class="d-flex justify-content-between mb-2">
-						<span>Pendente</span>
-						<span class="fw-bold text-warning">@percentualPendente%</span>
-					</div>
-					<div class="progress mb-4" style="height: 10px;">
-						<div class="progress-bar bg-warning" style="width: @percentualPendente%"></div>
-					</div>
-
-					<div class="d-flex justify-content-between mb-2">
-						<span>Atrasado</span>
-						<span class="fw-bold text-danger">@percentualAtrasado%</span>
-					</div>
-					<div class="progress mb-4" style="height: 10px;">
-						<div class="progress-bar bg-danger" style="width: @percentualAtrasado%"></div>
-					</div>
-				</div>
-
-				@{
-					var analise = GerarAnaliseFinanceira();
-				}
-
-				<div class="alert alert-info mt-auto"
-					 style="border-radius: 10px; font-size: 0.9rem;">
-
-					<div class="fw-bold mb-2 d-flex justify-content-between">
-						<span>Análise Rápida</span>
-
-						<span class="@analise.classe">
-							Score: @Math.Round(analise.score)/100
-						</span>
-					</div>
-
-					<span class="@analise.classe">
-						@analise.mensagem
-					</span>
-				</div>
-			</div>
-		</div>
 	</div>
 </div>
 
 @code {
+	private (int, int) Key => (mesAtual.Month, mesAtual.Year);
+
+	private FinanceData DadosAtual => Movimentacoes.ContainsKey(Key) ? Movimentacoes[Key] : new FinanceData();
+
 	private class FinanceData
 	{
 		public ReceitaData Receita = new ReceitaData();
 		public DespesaData Despesa = new DespesaData();
-
 		public double Saldo = 0;
 
-		public  class ReceitaData
+		public class ReceitaData
 		{
 			public double Total = 0;
 			public double Recebido = 0;
 			public double Mensalidades = 0;
+			public double MensalidadesPagas = 0;
+			public double MensalidadesPendentes = 0;
+			public double MensalidadesAtrasadas = 0;
 			public double Pendentes = 0;
 			public double Atrasadas = 0;
+
+			public int qtMensalidades = 0;
+			public int qtMensalidadesPagas = 0;
+			public int qtMensalidadesPendentes = 0;
+			public int qtMensalidadesAtrasadas = 0;
+			public int qtRecebido = 0;
+			public int qtPendentes = 0;
+			public int qtAtrasadas = 0;
 		}
+
 		public class DespesaData
 		{
 			public double Total = 0;
 			public double Pagas = 0;
 			public double Pendentes = 0;
+			public int qtPagas = 0;
+			public int qtPendentes = 0;
 		}
 
 		public void CalcularSaldo()
@@ -398,25 +457,10 @@
 			Saldo = Receita.Recebido - Despesa.Pagas;
 		}
 	}
-	private class IFinanceData
-	{
-		public class ReceitaData
-		{
-			public int Mensalidades = 0;
-			public int MensalidadesPagas = 0;
-			public int Recebido = 0;
-			public int Pendentes = 0;
-			public int Atrasadas = 0;
-		}
-		public class DespesaData
-		{
-			public int Pagas = 0;
-			public int Pendentes = 0;
-		}
-	}
-	private Dictionary<(int month, int year), FinanceData> Movimentacoes = new Dictionary<(int month, int year), FinanceData>();
-	private Dictionary<string, IFinanceData> QMovimentacoes = new Dictionary<string, IFinanceData>();
 
+	private Dictionary<(int month, int year), FinanceData> Movimentacoes = new();
+
+	private double SaldoLiquidoTotal = 0;
 
 	private int percentualRecebido = 0;
 	private int percentualPendente = 0;
@@ -425,6 +469,7 @@
 	private bool visaoGeralMesAtivo = false;
 	private bool fluxoCaixaAtivo = false;
 	private bool pendenciasAtivo = false;
+	private bool taxaAtivo = false;
 
 	private enum TipoExibicao { Receitas, Despesas, Ambos }
 	private TipoExibicao tipoExibicao = TipoExibicao.Ambos;
@@ -451,132 +496,155 @@
 	{
 		todasReceitas = ReceitaController.GetAll();
 		todasDespesas = DespesaController.GetAll();
-	}
 
-	private List<Receita> GetReceitaListFromMonth(List<Receita> OriginalList, DateTime Date)
-	{
-		var ListFromMonth = new List<Receita>();
-		ListFromMonth = OriginalList
-			.Where(r => r.DataVencimento.Month == Date.Month && r.DataVencimento.Year == Date.Year)
-			.ToList();
-
-		return ListFromMonth;
-	}
-
-	private List<Despesa> GetDespesaListFromMonth(List<Despesa> OriginalList, DateTime Date)
-	{
-		var ListFromMonth = new List<Despesa>();
-		ListFromMonth = OriginalList
-			.Where(r => r.DataPagamento.Month == Date.Month && r.DataPagamento.Year == Date.Year)
-			.ToList();
-
-		return ListFromMonth;
+		SaldoLiquidoTotal = todasReceitas.Where(r => r.DataVencimento.Year == mesAtual.Year && r.GetStatusTexto() == "Pago").Sum(r => r.Valor) - todasDespesas.Where(d => d.DataVencimento.Year == mesAtual.Year && d.IsPago).Sum(d => d.Valor);
 	}
 
 	private void CalcularDados()
 	{
-		var mesAtualInt = mesAtual.Month;
-		var anoAtualInt = mesAtual.Year;
-		(int, int) Key = (mesAtualInt, anoAtualInt);
-		var receitasMesAtual = GetReceitaListFromMonth(todasReceitas, mesAtual);
-
-		var despesasMesAtual = GetDespesaListFromMonth(todasDespesas, mesAtual);
-
-		Movimentacoes[Key].Receita.Total = receitasMesAtual.Sum(r => (double)r.Valor);
-		Movimentacoes[Key].Receita.Mensalidades = receitasMesAtual.Where(r => r.GetTypeTexto() == "Mensalidade").Sum(r => (double)r.Valor);
-		Movimentacoes[Key].Receita.Recebido = receitasMesAtual
-			.Where(r => r.Status == Receita.ReceitaStatus.Pago)
-			.Sum(r => (double)r.Valor);
-		Movimentacoes[Key].Receita.Pendentes = receitasMesAtual
-			.Where(r => r.Status == Receita.ReceitaStatus.EmAndamento)
-			.Sum(r=> (double) r.Valor);
-		Movimentacoes[Key].Receita.Atrasadas = receitasMesAtual
-			.Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
-			.Sum(r => (double)r.Valor);
-
-		Movimentacoes[Key].Despesa.Total = despesasMesAtual.Sum(r => (double)r.Valor);
-		Movimentacoes[Key].Despesa.Pendentes = despesasMesAtual.Where(d => !d.IsPago).Sum(r => (double)r.Valor);
-		Movimentacoes[Key].Despesa.Pagas = despesasMesAtual.Where(d => d.IsPago).Sum(r=> (double)r.Valor);
-
-		Movimentacoes[Key].CalcularSaldo();
-
-		/*
-		QMovimentacoes["Mensalidades"] = mensalidadesMesAtual.Count;
-		QMovimentacoes["MensalidadesPagas"] = mensalidadesMesAtual.Where(r => r.Status == Receita.ReceitaStatus.Pago).Count();
-		QMovimentacoes["Recebidas"] = receitasRecebidas.Count;
-		QMovimentacoes["Pendentes"] = receitasPendentes.Count;
-		
-
-		var receitasAtrasadas = receitasMesAtual
-			.Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
-			.ToList();
-		QMovimentacoes["Atrasadas"] = receitasAtrasadas.Count;
-
-		var despesasPendentes = todasDespesas
-			.Where(d => !d.IsPago)
-			.ToList();
-		QMovimentacoes["DespesasPendentes"] = despesasPendentes.Count;
-
-		var despesasPagas = despesasMesAtual.Where(d => d.IsPago).ToList();
-		QMovimentacoes["DespesasPagas"] = despesasPagas.Count;
-
-		*/
-
-		double totalGeralReceitas = Movimentacoes[Key].Receita.Total;
-		if (totalGeralReceitas > 0)
+		// Se já calculou, apenas atualiza UI
+		if (Movimentacoes.ContainsKey(Key))
 		{
-			percentualRecebido = (int)((Movimentacoes[Key].Receita.Recebido / totalGeralReceitas) * 100);
-			percentualPendente = (int)((Movimentacoes[Key].Receita.Pendentes / totalGeralReceitas) * 100);
-			percentualAtrasado = (int)((Movimentacoes[Key].Receita.Atrasadas / totalGeralReceitas) * 100);
+			AtualizarPercentuais();
+			return;
+		}
+
+		var receitasMesAtual = todasReceitas
+			.Where(r => r.DataVencimento.Month == mesAtual.Month && r.DataVencimento.Year == mesAtual.Year)
+			.ToList();
+
+		var despesasMesAtual = todasDespesas
+					.Where(d => d.DataVencimento.Month == mesAtual.Month && d.DataVencimento.Year == mesAtual.Year)
+					.ToList();
+
+		var financeData = new FinanceData();
+
+		foreach (var receita in receitasMesAtual)
+		{
+			double valor = (double)receita.Valor;
+			bool isMensalidade = receita.GetTypeTexto() == "Mensalidade";
+
+			financeData.Receita.Total += valor;
+
+			switch (receita.Status)
+			{
+				case Receita.ReceitaStatus.Pago:
+					financeData.Receita.Recebido += valor;
+					financeData.Receita.qtRecebido++;
+					if (isMensalidade)
+					{
+						financeData.Receita.MensalidadesPagas += valor;
+						financeData.Receita.qtMensalidadesPagas++;
+					}
+					break;
+
+				case Receita.ReceitaStatus.Pendente:
+					financeData.Receita.Pendentes += valor;
+					financeData.Receita.qtPendentes++;
+					if (isMensalidade)
+					{
+						financeData.Receita.MensalidadesPendentes += valor;
+						financeData.Receita.qtMensalidadesPendentes++;
+					}
+					break;
+
+				case Receita.ReceitaStatus.EmAndamento:
+					financeData.Receita.Pendentes += valor;
+					financeData.Receita.qtPendentes++;
+					if (isMensalidade)
+					{
+						financeData.Receita.MensalidadesPendentes += valor;
+						financeData.Receita.qtMensalidadesPendentes++;
+					}
+					break;
+
+				case Receita.ReceitaStatus.EmAtraso:
+					financeData.Receita.Atrasadas += valor;
+					financeData.Receita.qtAtrasadas++;
+					if (isMensalidade)
+					{
+						financeData.Receita.MensalidadesAtrasadas += valor;
+						financeData.Receita.qtMensalidadesAtrasadas++;
+					}
+					break;
+			}
+
+			if (isMensalidade)
+			{
+				financeData.Receita.Mensalidades += valor;
+				financeData.Receita.qtMensalidades++;
+			}
+		}
+
+		foreach (var despesa in despesasMesAtual)
+		{
+			double valor = (double)despesa.Valor;
+			financeData.Despesa.Total += valor;
+
+			if (despesa.IsPago)
+			{
+				financeData.Despesa.Pagas += valor;
+				financeData.Despesa.qtPagas++;
+			}
+			else
+			{
+				financeData.Despesa.Pendentes += valor;
+				financeData.Despesa.qtPendentes++;
+			}
+		}
+
+		financeData.CalcularSaldo();
+		Movimentacoes[Key] = financeData;
+		AtualizarPercentuais();
+	}
+
+	private void AtualizarPercentuais()
+	{
+		var dados = DadosAtual;
+
+		if (dados.Receita.Total > 0)
+		{
+			percentualRecebido = (int)((dados.Receita.Recebido / dados.Receita.Total) * 100);
+			percentualPendente = (int)((dados.Receita.Pendentes / dados.Receita.Total) * 100);
+			percentualAtrasado = (int)((dados.Receita.Atrasadas / dados.Receita.Total) * 100);
+		}
+		else
+		{
+			percentualRecebido = percentualPendente = percentualAtrasado = 0;
 		}
 	}
 
 	private (string mensagem, string classe, double score) GerarAnaliseFinanceira()
 	{
+		var dados = DadosAtual;
 		double score = 0;
 
-		if (percentualRecebido >= 90)
-			score += 35;
-		else if (percentualRecebido >= 75)
-			score += 25;
-		else if (percentualRecebido >= 60)
-			score += 15;
-		else
-			score += 5;
+		if (percentualRecebido >= 90) score += 35;
+		else if (percentualRecebido >= 75) score += 25;
+		else if (percentualRecebido >= 60) score += 15;
+		else score += 5;
 
-		if (Movimentacoes["SaldoMes"] > 0)
-			score += 25;
-		else if (Movimentacoes["SaldoMes"] >= -(Movimentacoes["Mensalidades"] * 0.1))
-			score += 10;
-		else
-			score -= 15;
+		if (dados.Receita.Total > 0) score += 25;
+		else if (dados.Receita.Total >= -(dados.Receita.Mensalidades * 0.1)) score += 10;
+		else score -= 15;
 
-		if (QMovimentacoes["Atrasadas"] == 0)
-			score += 20;
-		else if (QMovimentacoes["Atrasadas"] <= 3)
-			score += 10;
-		else if (QMovimentacoes["Atrasadas"] <= 6)
-			score += 0;
-		else
-			score -= 15;
+		if (dados.Receita.qtAtrasadas == 0) score += 20;
+		else if (dados.Receita.qtAtrasadas <= 3) score += 10;
+		else if (dados.Receita.qtAtrasadas <= 6) score += 0;
+		else score -= 15;
 
-		double percentualDespesas = Movimentacoes["Recebido"] > 0
-			? (Movimentacoes["DespesasPagas"] / Movimentacoes["Recebido"]) * 100
+		double percentualDespesas = dados.Receita.Recebido > 0
+			? (dados.Despesa.Pagas / dados.Receita.Recebido) * 100
 			: 100;
 
-		if (percentualDespesas <= 50)
-			score += 20;
-		else if (percentualDespesas <= 75)
-			score += 10;
-		else if (percentualDespesas <= 90)
-			score += 0;
-		else
-			score -= 15;
+		if (percentualDespesas <= 50) score += 20;
+		else if (percentualDespesas <= 75) score += 10;
+		else if (percentualDespesas <= 90) score += 0;
+		else score -= 15;
 
 		score = Math.Clamp(score, 0, 100);
 
-		string mensagem;
-		string classe;
+		string mensagem, classe;
 
 		if (score >= 80)
 		{
@@ -605,7 +673,6 @@
 	private void AlterarTipo(TipoExibicao tipo)
 	{
 		tipoExibicao = tipo;
-		StateHasChanged();
 	}
 
 	private void MesAnterior()

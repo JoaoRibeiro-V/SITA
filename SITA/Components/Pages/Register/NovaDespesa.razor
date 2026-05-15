@@ -141,7 +141,7 @@
     private string valorDigitadoTexto = string.Empty;
     private string cnpjFormatado = "";
 
-    
+
     protected override void OnInitialized()
     {
         novaDespesa.DataVencimento = DateTime.Today;
@@ -156,7 +156,7 @@
 
         if (apenasNumeros.Length > 14) apenasNumeros = apenasNumeros.Substring(0, 14);
 
-     
+
         cnpjFormatado = apenasNumeros;
         if (apenasNumeros.Length > 2) cnpjFormatado = cnpjFormatado.Insert(2, ".");
         if (apenasNumeros.Length > 5) cnpjFormatado = cnpjFormatado.Insert(6, ".");
@@ -199,6 +199,7 @@
         try
         {
             novaDespesa.Valor = valorDigitado;
+            novaDespesa.DataPagamento = novaDespesa.DataVencimento;
             DespesaController.Register(novaDespesa);
             Navigation.NavigateTo("/despesas");
         }
