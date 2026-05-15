@@ -139,6 +139,13 @@
         </div>
     </div>
 
+    <div class="data-flex gap-3 mt-4">
+        <div class="col-md-3">
+            <label class="fw-bold">Valor Matrícula (R$):</label>
+            <input type="number" class="form-control border-success fw-bold" @bind="valorMatriculaDigitada" step="0.01" />
+        </div>
+    </div>
+
     <!-- Botões -->
     <div class="d-flex gap-3 mt-4">
         <button class="btn btn-outline-secondary w-25 p-3 fw-bold" @onclick='() => Navigation.NavigateTo("/alunos")'>CANCELAR</button>
@@ -163,6 +170,8 @@
     private List<Responsavel> sugestoesResponsaveis = new();
 
     private Responsavel? responsavelSelecionado = null;
+
+    private decimal valorMatriculaDigitada = 0;
 
     private string idadeExtenso = "0 anos e 0 meses";
     private string turmaId = "";
@@ -226,7 +235,7 @@
     {
         var cpfSemMascara = Mask.RemoveMask(responsavelCpf);
 
-        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(cpfSemMascara))
+        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(cpfSemMascara) || valorMatriculaDigitada <= 0)
         {
             msgErro = "Nome e CPF do responsável são obrigatórios.";
             return;
@@ -246,7 +255,7 @@
             AlunoController.Register(novoAluno);
 
             ResponsavelController.AddParentesco(resp, novoAluno, tipoParentesco);
-            ReceitaController.GerarCarneAluno(novoAluno, resp,850.0m, DateTime.Today.AddYears(1));
+            ReceitaController.GerarCarneAluno(novoAluno, resp, valorMatriculaDigitada, DateTime.Today.AddYears(1));
             System.Diagnostics.Debug.WriteLine(turmaId);
 
             if (!string.IsNullOrEmpty(turmaId))

@@ -136,7 +136,11 @@
             </div>
         </div>
     </div>
-
+    <div class="d-flex gap-6 mt-4">
+        <button class="btn w-10 p-1 fw-bold" style="background-color: #3650a1; color: white;" @onclick="IrParaFinanceiro">
+            FINANCEIRO
+        </button>
+    </div>
     <!-- Botões -->
     <div class="d-flex gap-3 mt-4">
         <button class="btn btn-outline-secondary w-25 p-3 fw-bold" @onclick="CancelarEdicao")'>CANCELAR</button>
@@ -144,11 +148,7 @@
             SALVAR
         </button>
     </div>
-    <div class="d-flex gap-6 mt-4">
-        <button class="btn w-10 p-1 fw-bold" style="background-color: #3650a1; color: white;" @onclick="IrParaFinanceiro">
-            FINANCEIRO
-        </button>
-    </div>
+    
 
     @if (!string.IsNullOrEmpty(msgErro))
     {

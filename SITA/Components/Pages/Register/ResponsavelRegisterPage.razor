@@ -26,6 +26,7 @@
                @ref="telefoneInput"
                @oninput="OnTelefoneInput"
                @onkeydown="HandleTelefoneKeyDown"
+               onkeypress="onlyNumbers(event)"
                placeholder="Telefone"
                maxlength="15" />
 

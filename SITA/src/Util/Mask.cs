@@ -34,6 +34,29 @@ namespace SITA.src.Util
         User? user = userStorage.GetDataByField("CPF", Mask.RemoveMask(userName));
         ==========================================================================
          */
+        // Source - https://stackoverflow.com/a/1374644
+        // Posted by Cogwheel, modified by community. See post 'Timeline' for change history
+        // Retrieved 2026-05-15, License - CC BY-SA 4.0
+
+        public static bool IsValidEmail(string email)
+        {
+            var trimmedEmail = email.Trim();
+
+            if (trimmedEmail.EndsWith("."))
+            {
+                return false;
+            }
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == trimmedEmail;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static string FormatCpf(string digits)
         {
             if (digits.Length <= 3)

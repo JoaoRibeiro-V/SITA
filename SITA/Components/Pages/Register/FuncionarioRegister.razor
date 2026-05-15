@@ -26,6 +26,7 @@
                     <input type="text" class="form-control"
                            value="@novoFuncionario.CPF"
                            @oninput="OnCpfInput"
+                           onkeypress="onlyNumbers(event)"
                            placeholder="000.000.000-00" maxlength="14" />
                 </div>
 
@@ -71,6 +72,7 @@
                     <input type="text" class="form-control"
                            value="@telefone"
                            @oninput="OnTelefoneInput"
+                           onkeypress="onlyNumbers(event)"
                            placeholder="(12) 99999-9999" maxlength="15" />
                 </div>
                 <div class="col-md-4">
@@ -120,7 +122,7 @@
     private void SalvarFuncionario()
     {
         // Validações de Robustez
-        if (string.IsNullOrWhiteSpace(novoFuncionario.Nome) || salarioDigitado <= 0) return;
+        if (string.IsNullOrWhiteSpace(novoFuncionario.Nome) || salarioDigitado <= 0 || !Mask.IsValidEmail(novoFuncionario.Email)) return;
 
         try
         {
