@@ -7,817 +7,730 @@
 
 <div class="container-fluid p-4" style="background-color: #f8f9fa; min-height: 100vh;">
 
-    <!-- Cabeçalho de Boas-Vindas -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 style="color: #3650a1; font-weight: bold;">Painel de Controle - Direção</h2>
-            <p class="text-muted">Resumo estratégico do SITA em tempo real.</p>
-        </div>
-    </div>
+	<!-- Cabeçalho de Boas-Vindas -->
+	<div class="row mb-4">
+		<div class="col-12">
+			<h2 style="color: #3650a1; font-weight: bold;">Painel de Controle - Direção</h2>
+			<p class="text-muted">Resumo estratégico do SITA em tempo real.</p>
+		</div>
+	</div>
 
-    <!-- Seção de KPIs Principais -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card-kpi shadow-sm border-start border-primary border-4">
-                <div class="icon-box" style="background: #e3f2fd;"><i class="oi oi-graph"></i></div>
-                <div>
-                    <h6 class="text-muted mb-1">Mensalidades do Mês</h6>
-                    <h4 class="fw-bold mb-0" style="color: #3650a1;">R$ @totalMensalidades.ToString("N2")</h4>
-                    <small class="text-muted">@quantidadeMensalidades alunos - @quantidadeMensalidadesPagas pagas</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card-kpi shadow-sm border-start border-success border-4">
-                <div class="icon-box" style="background: #e8f5e9;"><i class="oi oi-dollar"></i></div>
-                <div>
-                    <h6 class="text-muted mb-1">Receitas Recebidas</h6>
-                    <h4 class="fw-bold mb-0" style="color: #2e7d32;">R$ @totalRecebido.ToString("N2")</h4>
-                    <small class="text-muted">@quantidadeRecebidas pagas</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card-kpi shadow-sm border-start border-danger border-4">
-                <div class="icon-box" style="background: #ffebee;"><i class="oi oi-cart"></i></div>
-                <div>
-                    <h6 class="text-muted mb-1">Despesas Pagas</h6>
-                    <h4 class="fw-bold mb-0" style="color: #c62828;">R$ @totalDespesasPagas.ToString("N2")</h4>
-                    <small class="text-muted">@quantidadeDespesasPagas lançamentos - @quantidadeDespesasPendentes pendentes</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card-kpi shadow-sm border-start border-info border-4">
-                <div class="icon-box" style="background: @(saldoLiquido >= 0 ? "#e0f7fa" : "#ffebee");"><i class="oi oi-badge"></i></div>
-                <div>
-                    <h6 class="text-muted mb-1">Saldo Líquido</h6>
-                    <h4 class="fw-bold mb-0" style="color: @(saldoLiquido >= 0 ? "#00838f" : "#c62828");">
-                        R$ @saldoLiquido.ToString("N2")
-                    </h4>
-                    <small class="text-muted">Receitas - Despesas</small>
-                </div>
-            </div>
-        </div>
-    </div>
+	<!-- Seção de KPIs Principais -->
+	<div class="row mb-4">
+		<div class="col-md-3">
+			<div class="card-kpi shadow-sm border-start border-primary border-4">
+				<div class="icon-box" style="background: #e3f2fd;"><i class="oi oi-graph"></i></div>
+				<div>
+					<h6 class="text-muted mb-1">Mensalidades do Mês</h6>
+					<h4 class="fw-bold mb-0" style="color: #3650a1;">R$ @Movimentacoes["Mensalidades"].ToString("N2")</h4>
+					<small class="text-muted">@QMovimentacoes["Mensalidades"] alunos - @QMovimentacoes["MensalidadesPagas"] pagas</small>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card-kpi shadow-sm border-start border-success border-4">
+				<div class="icon-box" style="background: #e8f5e9;"><i class="oi oi-dollar"></i></div>
+				<div>
+					<h6 class="text-muted mb-1">Receitas Recebidas</h6>
+					<h4 class="fw-bold mb-0" style="color: #2e7d32;">R$ @Movimentacoes["Recebido"].ToString("N2")</h4>
+					<small class="text-muted">@QMovimentacoes["Recebidas"] pagas</small>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card-kpi shadow-sm border-start border-danger border-4">
+				<div class="icon-box" style="background: #ffebee;"><i class="oi oi-cart"></i></div>
+				<div>
+					<h6 class="text-muted mb-1">Despesas Pagas</h6>
+					<h4 class="fw-bold mb-0" style="color: #c62828;">R$ @Movimentacoes["DespesasPagas"].ToString("N2")</h4>
+					<small class="text-muted">@QMovimentacoes["DespesasPagas"] lançamentos - @QMovimentacoes["DespesasPendentes"] pendentes</small>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card-kpi shadow-sm border-start border-info border-4">
+				<div class="icon-box" style="background: @(Movimentacoes["Saldo"] >= 0 ? "#e0f7fa" : "#ffebee");"><i class="oi oi-badge"></i></div>
+				<div>
+					<h6 class="text-muted mb-1">Caixa</h6>
+					<h4 class="fw-bold mb-0" style="color: @(Movimentacoes["Saldo"] >= 0 ? "#00838f" : "#c62828");">
+						R$ @Movimentacoes["Saldo"].ToString("N2")
+					</h4>
+					<small class="text-muted">Receitas - Despesas</small>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <!-- Linha de Cards Secundários -->
-    <div class="row mb-4 align-items-stretch">
-        <div class="col-md-4 d-flex">
-            <div class="card shadow-sm border-0 flex-fill dashboard-card" style="border-radius: 10px; padding: 20px;">
-                <div class="d-flex justify-content-between align-items-center"
-                     style="cursor:pointer;"
-                     @onclick="() => visaoGeralMesAtivo = !visaoGeralMesAtivo">
+	<!-- Linha de Cards Secundários -->
+	<div class="row mb-4 align-items-stretch">
+		<div class="col-md-4 d-flex">
+			<div class="card shadow-sm border-0 flex-fill dashboard-card" style="border-radius: 10px; padding: 20px;">
 
-                    <h6 class="fw-bold m-0" style="color: #3650a1;">
-                        Visão Geral do Mês
-                    </h6>
+				<div class="d-flex justify-content-between align-items-center"
+					 style="cursor:pointer;"
+					 @onclick="() => fluxoCaixaAtivo = !fluxoCaixaAtivo">
 
-                    <h6 class="fw-bold m-0"
-                        style="
-                        transition: transform 0.25s ease;
-                        transform: @(visaoGeralMesAtivo ? "rotate(180deg)" : "rotate(0deg)");
-                        ">
-                        ▾
-                    </h6>
-                </div>
+					<h6 class="fw-bold m-0" style="color: #3650a1;">
+						Fluxo de Caixa Acumulado
+					</h6>
 
-                <hr />
-
-                <div class="dropdown-content @(visaoGeralMesAtivo ? "open" : "")">
-
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Receitas Previstas:</span>
-                            <span class="fw-bold text-primary">
-                                R$ @totalMensalidades.ToString("N2")
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between">
-                            <span class="text-success">Já Recebido:</span>
-                            <span class="fw-bold text-success">
-                                R$ @totalRecebidoMes.ToString("N2")
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between">
-                            <span class="text-warning">A Receber:</span>
-                            <span class="fw-bold text-warning">
-                                R$ @((totalMensalidades - totalRecebidoMes).ToString("N2"))
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span class="text-danger">Despesas Pagas:</span>
-                            <span class="fw-bold text-danger">
-                                R$ @totalDespesasPagasMes.ToString("N2")
-                            </span>
-                        </div>
-                    </div>
-
-                    <hr />
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <span class="fw-bold">Saldo do Mês:</span>
-
-                    <span class="fw-bold"
-                          style="color: @(saldoDoMes >= 0 ? "#2e7d32" : "#c62828");">
-                        R$ @saldoDoMes.ToString("N2")
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 d-flex">
-            <div class="card shadow-sm border-0 flex-fill dashboard-card" style="border-radius: 10px; padding: 20px;">
-
-                <div class="d-flex justify-content-between align-items-center"
-                     style="cursor:pointer;"
-                     @onclick="() => fluxoCaixaAtivo = !fluxoCaixaAtivo">
-
-                    <h6 class="fw-bold m-0" style="color: #3650a1;">
-                        Fluxo de Caixa Acumulado
-                    </h6>
-
-                    <h6 class="fw-bold m-0"
-                        style="
+					<h6 class="fw-bold m-0"
+						style="
                         transition: transform 0.25s ease;
                         transform: @(fluxoCaixaAtivo ? "rotate(180deg)" : "rotate(0deg)");
                         ">
-                        ▾
-                    </h6>
-                </div>
+						▾
+					</h6>
+				</div>
 
-                <hr />
+				<hr />
 
-                <div class="dropdown-content @(fluxoCaixaAtivo ? "open" : "")">
+				<div class="dropdown-content @(fluxoCaixaAtivo ? "open" : "")">
 
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Total Recebido (Geral):</span>
-                            <span class="fw-bold text-success">
-                                R$ @totalRecebido.ToString("N2")
-                            </span>
-                        </div>
-                    </div>
+					<div class="mb-2">
+						<div class="d-flex justify-content-between">
+							<span class="text-muted">Total Recebido (Geral):</span>
+							<span class="fw-bold text-success">
+								R$ @Movimentacoes["Recebido"].ToString("N2")
+							</span>
+						</div>
+					</div>
 
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Total Despesas (Geral):</span>
-                            <span class="fw-bold text-danger">
-                                R$ @totalDespesasPagas.ToString("N2")
-                            </span>
-                        </div>
-                    </div>
+					<div class="mb-3">
+						<div class="d-flex justify-content-between">
+							<span class="text-muted">Total Despesas (Geral):</span>
+							<span class="fw-bold text-danger">
+								R$ @Movimentacoes["DespesasPagas"].ToString("N2")
+							</span>
+						</div>
+					</div>
 
-                    <hr />
-                </div>
+					<hr />
+				</div>
 
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold">Saldo Acumulado:</span>
+				<div class="mb-3">
+					<div class="d-flex justify-content-between">
+						<span class="fw-bold">Saldo Acumulado:</span>
 
-                        <span class="fw-bold fs-5"
-                              style="color: @(saldoLiquido >= 0 ? "#2e7d32" : "#c62828");">
-                            R$ @saldoLiquido.ToString("N2")
-                        </span>
-                    </div>
-                </div>
+						<span class="fw-bold fs-5"
+							  style="color: @(Movimentacoes["Saldo"] >= 0 ? "#2e7d32" : "#c62828");">
+							R$ @Movimentacoes["Saldo"].ToString("N2")
+						</span>
+					</div>
+				</div>
 
-                <div class="progress" style="height: 25px;">
-                    @{
-                        double percent = 0;
+				<div class="progress" style="height: 25px;">
+					@{
+						double percent = 0;
 
-                        if (totalRecebido > 0)
-                        {
-                            percent = (saldoLiquido / totalRecebido) * 100;
-                        }
+						if (Movimentacoes["Recebido"] > 0)
+						{
+							percent = (Movimentacoes["Saldo"] / Movimentacoes["Recebido"]) * 100;
+						}
 
-                        percent = Math.Clamp(percent, 0, 100);
-                    }
+						percent = Math.Clamp(percent, 0, 100);
+					}
 
-                    <div class="progress-bar @(saldoLiquido >= 0 ? "bg-success" : "bg-danger")"
-                         style="width: @percent.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%">
-                        @percent.ToString("F1")%
-                    </div>
-                </div>
-            </div>
-        </div>
+					<div class="progress-bar @(Movimentacoes["Saldo"] >= 0 ? "bg-success" : "bg-danger")"
+						 style="width: @percent.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%">
+						@percent.ToString("F1")%
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <div class="col-md-4 d-flex">
-            <div class="card shadow-sm border-0 flex-fill dashboard-card" style="border-radius: 10px; padding: 20px;">
+		<div class="col-md-4 d-flex">
+			<div class="card shadow-sm border-0 flex-fill dashboard-card" style="border-radius: 10px; padding: 20px;">
 
-                <div class="d-flex justify-content-between align-items-center"
-                     style="cursor:pointer;"
-                     @onclick="() => pendenciasAtivo = !pendenciasAtivo">
+				<div class="d-flex justify-content-between align-items-center"
+					 style="cursor:pointer;"
+					 @onclick="() => pendenciasAtivo = !pendenciasAtivo">
 
-                    <h6 class="fw-bold m-0" style="color: #3650a1;">
-                        Pendências
-                    </h6>
+					<h6 class="fw-bold m-0" style="color: #3650a1;">
+						Pendências
+					</h6>
 
-                    <h6 class="fw-bold m-0"
-                        style="
+					<h6 class="fw-bold m-0"
+						style="
                         transition: transform 0.25s ease;
                         transform: @(pendenciasAtivo ? "rotate(180deg)" : "rotate(0deg)");
                         ">
-                        ▾
-                    </h6>
-                </div>
+						▾
+					</h6>
+				</div>
 
-                <hr />
+				<hr />
 
-                <div class="dropdown-content @(pendenciasAtivo ? "open" : "")">
+				<div class="dropdown-content @(pendenciasAtivo ? "open" : "")">
 
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-warning">Mensalidades Pendentes:</span>
-                            <span class="badge bg-warning text-dark">
-                                @quantidadePendentes
-                            </span>
-                        </div>
+					<div class="mb-2">
+						<div class="d-flex justify-content-between align-items-center">
+							<span class="text-warning">Mensalidades Pendentes:</span>
+							<span class="badge bg-warning text-dark">
+								@QMovimentacoes["Pendentes"]
+							</span>
+						</div>
 
-                        <small class="text-muted">
-                            R$ @totalPendente.ToString("N2")
-                        </small>
-                    </div>
+						<small class="text-muted">
+							R$ @Movimentacoes["Pendentes"].ToString("N2")
+						</small>
+					</div>
 
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-danger">Mensalidades Atrasadas:</span>
-                            <span class="badge bg-danger">
-                                @quantidadeAtrasadas
-                            </span>
-                        </div>
+					<div class="mb-2">
+						<div class="d-flex justify-content-between align-items-center">
+							<span class="text-danger">Mensalidades Atrasadas:</span>
+							<span class="badge bg-danger">
+								@QMovimentacoes["Atrasadas"]
+							</span>
+						</div>
 
-                        <small class="text-muted">
-                            R$ @totalAtrasado.ToString("N2")
-                        </small>
-                    </div>
+						<small class="text-muted">
+							R$ @Movimentacoes["Atrasado"].ToString("N2")
+						</small>
+					</div>
 
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-warning">Despesas a Pagar:</span>
-                            <span class="badge bg-warning text-dark">
-                                @quantidadeDespesasPendentes
-                            </span>
-                        </div>
+					<div class="mb-3">
+						<div class="d-flex justify-content-between align-items-center">
+							<span class="text-warning">Despesas a Pagar:</span>
+							<span class="badge bg-warning text-dark">
+								@QMovimentacoes["DespesasPendentes"]
+							</span>
+						</div>
 
-                        <small class="text-muted">
-                            R$ @totalDespesas.ToString("N2")
-                        </small>
-                    </div>
+						<small class="text-muted">
+							R$ @Movimentacoes["Despesas"].ToString("N2")
+						</small>
+					</div>
 
-                    
-                </div>
-                <div class="alert alert-warning mb-0"
-                     style="font-size: 0.85rem; padding: 10px;">
 
-                    <i class="oi oi-warning"></i>
+				</div>
+				<div class="alert alert-warning mb-0"
+					 style="font-size: 0.85rem; padding: 10px;">
 
-                    <strong>@quantidadeAtrasadas</strong>
-                    cobrança(s) vencida(s)
-                </div>
-            </div>
-        </div>
-    </div>
+					<i class="oi oi-warning"></i>
 
-    <div class="row mb-4">
-        <!-- Calendário Financeiro -->
-        <div class="col-md-8">
-            <div class="card p-3 shadow-sm border-0" style="border-radius: 15px; height: 100%;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0" style="color: #3650a1;">Calendário Financeiro</h5>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Receitas ? "btn-success" : "btn-outline-success")" @onclick="() => AlterarTipo(TipoExibicao.Receitas)">
-                            Receitas
-                        </button>
-                        <button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Despesas ? "btn-danger" : "btn-outline-danger")" @onclick="() => AlterarTipo(TipoExibicao.Despesas)">
-                            Despesas
-                        </button>
-                        <button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Ambos ? "btn-primary" : "btn-outline-primary")" @onclick="() => AlterarTipo(TipoExibicao.Ambos)">
-                            Ambos
-                        </button>
-                    </div>
-                </div>
+					<strong>@QMovimentacoes["Atrasadas"]</strong>
+					cobrança(s) vencida(s)
+				</div>
+			</div>
+		</div>
+	</div>
 
-                <div class="calendar-container p-2" style="height: 400px; overflow-y: auto;">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-1" style="font-size: 0.75rem; width:10%;" @onclick="MesAnterior">
-                            ◄
-                        </button>
-                        <h6 class="mb-0 fw-bold">@mesAtual.ToString("MMMM yyyy")</h6>
-                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-1" style="font-size: 0.75rem; width:10%;" @onclick="ProximoMes">
-                            ►
-                        </button>
-                    </div>
+	<div class="row mb-4">
+		<!-- Calendário Financeiro -->
+		<div class="col-md-8">
+			<div class="card p-3 shadow-sm border-0" style="border-radius: 15px; height: 100%;">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h5 class="fw-bold mb-0" style="color: #3650a1;">Calendário Financeiro</h5>
+					<div class="btn-group" role="group">
+						<button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Receitas ? "btn-success" : "btn-outline-success")" @onclick="() => AlterarTipo(TipoExibicao.Receitas)">
+							Receitas
+						</button>
+						<button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Despesas ? "btn-danger" : "btn-outline-danger")" @onclick="() => AlterarTipo(TipoExibicao.Despesas)">
+							Despesas
+						</button>
+						<button type="button" class="btn btn-sm @(tipoExibicao == TipoExibicao.Ambos ? "btn-primary" : "btn-outline-primary")" @onclick="() => AlterarTipo(TipoExibicao.Ambos)">
+							Ambos
+						</button>
+					</div>
+				</div>
 
-                    <div class="calendar-grid" style="max-width: 100%;">
-                        <div class="calendar-header">
-                            <div class="calendar-day-name">Dom</div>
-                            <div class="calendar-day-name">Seg</div>
-                            <div class="calendar-day-name">Ter</div>
-                            <div class="calendar-day-name">Qua</div>
-                            <div class="calendar-day-name">Qui</div>
-                            <div class="calendar-day-name">Sex</div>
-                            <div class="calendar-day-name">Sáb</div>
-                        </div>
-                        <div class="calendar-days">
-                            @foreach (var dia in ObterDiasDoMes())
-                            {
-                                var isHoje = dia.Data.Date == DateTime.Now.Date;
-                                var isSelecionado = dia.Data.Date == dataSelecionada.Date;
-                                var cssClass = $"calendar-day {(dia.ForaDoMes ? "fora-mes" : "")} {(isHoje ? "hoje" : "")} {(isSelecionado ? "selecionado" : "")}";
+				<div class="calendar-container p-2" style="height: 400px; overflow-y: auto;">
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-1" style="font-size: 0.75rem; width:10%;" @onclick="MesAnterior">
+							◄
+						</button>
+						<h6 class="mb-0 fw-bold">@mesAtual.ToString("MMMM yyyy")</h6>
+						<button type="button" class="btn btn-sm btn-outline-secondary py-1 px-1" style="font-size: 0.75rem; width:10%;" @onclick="ProximoMes">
+							►
+						</button>
+					</div>
 
-                                <div class="@cssClass" @onclick="() => SelecionarDia(dia.Data)">
-                                    <div class="day-number">@dia.Data.Day</div>
-                                    @if (!dia.ForaDoMes && dia.Total != 0)
-                                    {
-                                        <div class="day-value @(dia.Total > 0 ? "positivo" : "negativo")">
-                                            @(dia.Total > 0 ? "+" : "")@dia.Total.ToString("N0")
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
+					<div class="calendar-grid" style="max-width: 100%;">
+						<div class="calendar-header">
+							<div class="calendar-day-name">Dom</div>
+							<div class="calendar-day-name">Seg</div>
+							<div class="calendar-day-name">Ter</div>
+							<div class="calendar-day-name">Qua</div>
+							<div class="calendar-day-name">Qui</div>
+							<div class="calendar-day-name">Sex</div>
+							<div class="calendar-day-name">Sáb</div>
+						</div>
+						<div class="calendar-days">
+							@foreach (var dia in ObterDiasDoMes())
+							{
+								var isHoje = dia.Data.Date == DateTime.Now.Date;
+								var isSelecionado = dia.Data.Date == dataSelecionada.Date;
+								var cssClass = $"calendar-day {(dia.ForaDoMes ? "fora-mes" : "")} {(isHoje ? "hoje" : "")} {(isSelecionado ? "selecionado" : "")}";
 
-                    @if (dataSelecionada != DateTime.MinValue)
-                    {
-                        <div class="mt-3 p-3" style="background: #f8f9fa; border-radius: 10px;">
-                            <h6 class="fw-bold mb-2">@dataSelecionada.ToString("dd/MM/yyyy")</h6>
-                            @if (ObterTransacoesDoDia().Any())
-                            {
-                                <div class="list-group list-group-flush">
-                                    @foreach (var item in ObterTransacoesDoDia())
-                                    {
-                                        <div class="list-group-item px-0 py-2 bg-transparent border-0">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div class="flex-grow-1">
-                                                    <small class="text-muted">@item.Tipo</small>
-                                                    <div class="fw-bold" style="font-size: 0.9rem;">@item.Descricao</div>
-                                                    @if (!string.IsNullOrEmpty(item.Status))
-                                                    {
-                                                        <span class="badge @GetStatusBadgeClass(item.Status) mt-1" style="font-size: 0.7rem;">
-                                                            @item.Status
-                                                        </span>
-                                                    }
-                                                </div>
-                                                <span class="badge @(item.Valor > 0 ? "bg-success" : "bg-danger") ms-2">
-                                                    @(item.Valor > 0 ? "+" : "")R$ @Math.Abs(item.Valor).ToString("N2")
-                                                </span>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            }
-                            else
-                            {
-                                <p class="text-muted small mb-0">Nenhuma transação neste dia.</p>
-                            }
-                        </div>
-                    }
-                </div>
+								<div class="@cssClass" @onclick="() => SelecionarDia(dia.Data)">
+									<div class="day-number">@dia.Data.Day</div>
+									@if (!dia.ForaDoMes && dia.Total != 0)
+									{
+										<div class="day-value @(dia.Total > 0 ? "positivo" : "negativo")">
+											@(dia.Total > 0 ? "+" : "")@dia.Total.ToString("N0")
+										</div>
+									}
+								</div>
+							}
+						</div>
+					</div>
 
-            </div>
-        </div>
-        <!-- Resumo Financeiro Lateral -->
-        <div class="col-md-4">
-            <div class="card p-4 shadow-sm border-0" style="border-radius: 15px; background: white; height: 100%;">
-                <h5 class="fw-bold" style="color: #3650a1; border-bottom: 2px solid #eee; padding-bottom: 10px;">Taxa de Recebimento</h5>
+					@if (dataSelecionada != DateTime.MinValue)
+					{
+						<div class="mt-3 p-3" style="background: #f8f9fa; border-radius: 10px;">
+							<h6 class="fw-bold mb-2">@dataSelecionada.ToString("dd/MM/yyyy")</h6>
+							@if (ObterTransacoesDoDia().Any())
+							{
+								<div class="list-group list-group-flush">
+									@foreach (var item in ObterTransacoesDoDia())
+									{
+										<div class="list-group-item px-0 py-2 bg-transparent border-0">
+											<div class="d-flex justify-content-between align-items-start">
+												<div class="flex-grow-1">
+													<small class="text-muted">@item.Tipo</small>
+													<div class="fw-bold" style="font-size: 0.9rem;">@item.Descricao</div>
+													@if (!string.IsNullOrEmpty(item.Status))
+													{
+														<span class="badge @GetStatusBadgeClass(item.Status) mt-1" style="font-size: 0.7rem;">
+															@item.Status
+														</span>
+													}
+												</div>
+												<span class="badge @(item.Valor > 0 ? "bg-success" : "bg-danger") ms-2">
+													@(item.Valor > 0 ? "+" : "")R$ @Math.Abs(item.Valor).ToString("N2")
+												</span>
+											</div>
+										</div>
+									}
+								</div>
+							}
+							else
+							{
+								<p class="text-muted small mb-0">Nenhuma transação neste dia.</p>
+							}
+						</div>
+					}
+				</div>
 
-                <div class="mt-4">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Recebido</span>
-                        <span class="fw-bold text-success">@percentualRecebido%</span>
-                    </div>
-                    <div class="progress mb-4" style="height: 10px;">
-                        <div class="progress-bar bg-success" style="width: @percentualRecebido%"></div>
-                    </div>
+			</div>
+		</div>
+		<!-- Resumo Financeiro Lateral -->
+		<div class="col-md-4">
+			<div class="card p-4 shadow-sm border-0" style="border-radius: 15px; background: white; height: 100%;">
+				<h5 class="fw-bold" style="color: #3650a1; border-bottom: 2px solid #eee; padding-bottom: 10px;">Taxa de Recebimento</h5>
 
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Pendente</span>
-                        <span class="fw-bold text-warning">@percentualPendente%</span>
-                    </div>
-                    <div class="progress mb-4" style="height: 10px;">
-                        <div class="progress-bar bg-warning" style="width: @percentualPendente%"></div>
-                    </div>
+				<div class="mt-4">
+					<div class="d-flex justify-content-between mb-2">
+						<span>Recebido</span>
+						<span class="fw-bold text-success">@percentualRecebido%</span>
+					</div>
+					<div class="progress mb-4" style="height: 10px;">
+						<div class="progress-bar bg-success" style="width: @percentualRecebido%"></div>
+					</div>
 
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Atrasado</span>
-                        <span class="fw-bold text-danger">@percentualAtrasado%</span>
-                    </div>
-                    <div class="progress mb-4" style="height: 10px;">
-                        <div class="progress-bar bg-danger" style="width: @percentualAtrasado%"></div>
-                    </div>
-                </div>
+					<div class="d-flex justify-content-between mb-2">
+						<span>Pendente</span>
+						<span class="fw-bold text-warning">@percentualPendente%</span>
+					</div>
+					<div class="progress mb-4" style="height: 10px;">
+						<div class="progress-bar bg-warning" style="width: @percentualPendente%"></div>
+					</div>
 
-                @{
-                    var analise = GerarAnaliseFinanceira();
-                }
+					<div class="d-flex justify-content-between mb-2">
+						<span>Atrasado</span>
+						<span class="fw-bold text-danger">@percentualAtrasado%</span>
+					</div>
+					<div class="progress mb-4" style="height: 10px;">
+						<div class="progress-bar bg-danger" style="width: @percentualAtrasado%"></div>
+					</div>
+				</div>
 
-                <div class="alert alert-info mt-auto"
-                     style="border-radius: 10px; font-size: 0.9rem;">
+				@{
+					var analise = GerarAnaliseFinanceira();
+				}
 
-                    <div class="fw-bold mb-2 d-flex justify-content-between">
-                        <span>Análise Rápida</span>
+				<div class="alert alert-info mt-auto"
+					 style="border-radius: 10px; font-size: 0.9rem;">
 
-                        <span class="@analise.classe">
-                            Score: @Math.Round(analise.score)/100
-                        </span>
-                    </div>
+					<div class="fw-bold mb-2 d-flex justify-content-between">
+						<span>Análise Rápida</span>
 
-                    <span class="@analise.classe">
-                        @analise.mensagem
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
+						<span class="@analise.classe">
+							Score: @Math.Round(analise.score)/100
+						</span>
+					</div>
 
-    <hr />
-
-    <!-- Gráfico de Barras: Fluxo Mensal -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0" style="border-radius: 10px; padding: 20px;">
-                <h6 class="fw-bold mb-3" style="color: #3650a1;">Fluxo de Caixa do Mês Atual</h6>
-
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="text-center p-3" style="background: #e8f5e9; border-radius: 8px;">
-                            <div class="small text-muted mb-1">Receitas Previstas</div>
-                            <div class="fw-bold fs-5 text-primary">R$ @totalMensalidades.ToString("N0")</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center p-3" style="background: #e8f5e9; border-radius: 8px;">
-                            <div class="small text-muted mb-1">Já Recebido</div>
-                            <div class="fw-bold fs-5 text-success">R$ @totalRecebidoMes.ToString("N0")</div>
-                            <div class="small text-muted">@((totalMensalidades > 0 ? (totalRecebidoMes / totalMensalidades * 100) : 0).ToString("F0"))% do previsto</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center p-3" style="background: #ffebee; border-radius: 8px;">
-                            <div class="small text-muted mb-1">Despesas Pagas</div>
-                            <div class="fw-bold fs-5 text-danger">R$ @totalDespesasPagasMes.ToString("N0")</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center p-3" style="background: @(saldoDoMes >= 0 ? "#e0f7fa" : "#ffebee"); border-radius: 8px;">
-                            <div class="small text-muted mb-1">Saldo do Mês</div>
-                            <div class="fw-bold fs-5" style="color: @(saldoDoMes >= 0 ? "#00838f" : "#c62828");">
-                                R$ @saldoDoMes.ToString("N0")
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4" style="height: 40px; background: #e0e0e0; border-radius: 8px; overflow: hidden; position: relative;">
-                    @{
-                        var percRecebidoMes = totalMensalidades > 0 ? (totalRecebidoMes / totalMensalidades * 100) : 0;
-                        var percDespesasMes = totalMensalidades > 0 ? (totalDespesasPagasMes / totalMensalidades * 100) : 0;
-                    }
-
-                    <div style="position: absolute; left: 0; top: 0; width: @percRecebidoMes.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%; height: 100%; background: linear-gradient(90deg, #2e7d32, #4caf50); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem;">
-                        Recebido @percRecebidoMes.ToString("F0")%
-                    </div>
-                    <div style="position: absolute; left: @percRecebidoMes.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%; top: 0; width: @percDespesasMes.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%; height: 100%; background: linear-gradient(90deg, #c62828, #f44336); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem;">
-                        @if (percDespesasMes > 10)
-                        {
-                            <span>Despesas @percDespesasMes.ToString("F0")%</span>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+					<span class="@analise.classe">
+						@analise.mensagem
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 @code {
-    private double totalMensalidades = 0;
-    private double totalRecebido = 0;
-    private double totalRecebidoMes = 0;
-    private double totalDespesas = 0;
-    private double totalDespesasPagas = 0;
-    private double totalDespesasPagasMes = 0;
-    private double totalPendente = 0;
-    private double totalAtrasado = 0;
-    private double saldoLiquido = 0;
-    private double saldoDoMes = 0;
+	private class FinanceData
+	{
+		public ReceitaData Receita = new ReceitaData();
+		public DespesaData Despesa = new DespesaData();
 
-    private int quantidadeMensalidades = 0;
-    private int quantidadeMensalidadesPagas = 0;
-    private int quantidadeRecebidas = 0;
-    private int quantidadePendentes = 0;
-    private int quantidadeAtrasadas = 0;
-    private int quantidadeDespesasPagas = 0;
-    private int quantidadeDespesasPendentes = 0;
+		public double Saldo = 0;
 
-    private int percentualRecebido = 0;
-    private int percentualPendente = 0;
-    private int percentualAtrasado = 0;
+		public  class ReceitaData
+		{
+			public double Total = 0;
+			public double Recebido = 0;
+			public double Mensalidades = 0;
+			public double Pendentes = 0;
+			public double Atrasadas = 0;
+		}
+		public class DespesaData
+		{
+			public double Total = 0;
+			public double Pagas = 0;
+			public double Pendentes = 0;
+		}
 
-    private bool visaoGeralMesAtivo = false;
-    private bool fluxoCaixaAtivo = false;
-    private bool pendenciasAtivo = false;
+		public void CalcularSaldo()
+		{
+			Saldo = Receita.Recebido - Despesa.Pagas;
+		}
+	}
+	private class IFinanceData
+	{
+		public class ReceitaData
+		{
+			public int Mensalidades = 0;
+			public int MensalidadesPagas = 0;
+			public int Recebido = 0;
+			public int Pendentes = 0;
+			public int Atrasadas = 0;
+		}
+		public class DespesaData
+		{
+			public int Pagas = 0;
+			public int Pendentes = 0;
+		}
+	}
+	private Dictionary<(int month, int year), FinanceData> Movimentacoes = new Dictionary<(int month, int year), FinanceData>();
+	private Dictionary<string, IFinanceData> QMovimentacoes = new Dictionary<string, IFinanceData>();
 
 
-    private enum TipoExibicao { Receitas, Despesas, Ambos }
-    private TipoExibicao tipoExibicao = TipoExibicao.Ambos;
-    private DateTime mesAtual = DateTime.Now;
-    private DateTime dataSelecionada = DateTime.Now;
+	private int percentualRecebido = 0;
+	private int percentualPendente = 0;
+	private int percentualAtrasado = 0;
 
-    private List<Receita> todasReceitas = new();
-    private List<Despesa> todasDespesas = new();
+	private bool visaoGeralMesAtivo = false;
+	private bool fluxoCaixaAtivo = false;
+	private bool pendenciasAtivo = false;
 
-    protected override void OnInitialized()
-    {
-        if (Session.GetInstanceAccess().Level <= -1)
-        {
-            Navigation.NavigateTo("/signin");
-            return;
-        }
+	private enum TipoExibicao { Receitas, Despesas, Ambos }
+	private TipoExibicao tipoExibicao = TipoExibicao.Ambos;
 
-        CarregarDados();
-        CalcularDados();
-    }
+	private DateTime mesAtual = DateTime.Now;
+	private DateTime dataSelecionada = DateTime.Now;
 
-    private void CarregarDados()
-    {
-        todasReceitas = ReceitaController.GetAll();
-        todasDespesas = DespesaController.GetAll();
-    }
+	private List<Receita> todasReceitas = new();
+	private List<Despesa> todasDespesas = new();
 
-    private void CalcularDados()
-    {
-        var mesAtualInt = DateTime.Now.Month;
-        var anoAtualInt = DateTime.Now.Year;
+	protected override void OnInitialized()
+	{
+		if (Session.GetInstanceAccess().Level <= -1)
+		{
+			Navigation.NavigateTo("/signin");
+			return;
+		}
 
-        var receitasMesAtual = todasReceitas
-            .Where(r => r.DataVencimento.Month == mesAtualInt && r.DataVencimento.Year == anoAtualInt)
-            .ToList();
+		CarregarDados();
+		CalcularDados();
+	}
 
-        var mensalidadesMesAtual = todasReceitas.Where(r => r.DataVencimento.Month == mesAtualInt && r.DataVencimento.Year == anoAtualInt && r.GetTypeTexto() == "Mensalidade")
-        .ToList();
+	private void CarregarDados()
+	{
+		todasReceitas = ReceitaController.GetAll();
+		todasDespesas = DespesaController.GetAll();
+	}
 
-        quantidadeMensalidades = mensalidadesMesAtual.Count;
-        totalMensalidades = mensalidadesMesAtual.Sum(r => (double)r.Valor);
-        quantidadeMensalidadesPagas = mensalidadesMesAtual.Where(r => r.Status == Receita.ReceitaStatus.Pago).Count();
+	private List<Receita> GetReceitaListFromMonth(List<Receita> OriginalList, DateTime Date)
+	{
+		var ListFromMonth = new List<Receita>();
+		ListFromMonth = OriginalList
+			.Where(r => r.DataVencimento.Month == Date.Month && r.DataVencimento.Year == Date.Year)
+			.ToList();
 
-        totalRecebidoMes = receitasMesAtual
-            .Where(r => r.Status == Receita.ReceitaStatus.Pago)
-            .Sum(r => (double)r.Valor);
+		return ListFromMonth;
+	}
 
-        var receitasRecebidas = todasReceitas.Where(r => r.Status == Receita.ReceitaStatus.Pago).ToList();
-        quantidadeRecebidas = receitasRecebidas.Count;
-        totalRecebido = receitasRecebidas.Sum(r => (double)r.Valor);
+	private List<Despesa> GetDespesaListFromMonth(List<Despesa> OriginalList, DateTime Date)
+	{
+		var ListFromMonth = new List<Despesa>();
+		ListFromMonth = OriginalList
+			.Where(r => r.DataPagamento.Month == Date.Month && r.DataPagamento.Year == Date.Year)
+			.ToList();
 
-        var receitasPendentes = todasReceitas
-            .Where(r => r.Status == Receita.ReceitaStatus.EmAndamento)
-            .ToList();
-        quantidadePendentes = receitasPendentes.Count;
-        totalPendente = receitasPendentes.Sum(r => (double)r.Valor);
+		return ListFromMonth;
+	}
 
-        var receitasAtrasadas = todasReceitas
-            .Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
-            .ToList();
-        quantidadeAtrasadas = receitasAtrasadas.Count;
-        totalAtrasado = receitasAtrasadas.Sum(r => (double)r.Valor);
+	private void CalcularDados()
+	{
+		var mesAtualInt = mesAtual.Month;
+		var anoAtualInt = mesAtual.Year;
+		(int, int) Key = (mesAtualInt, anoAtualInt);
+		var receitasMesAtual = GetReceitaListFromMonth(todasReceitas, mesAtual);
 
-        var despesasPendentes = todasDespesas
-            .Where(d => !d.IsPago)
-            .ToList();
-        quantidadeDespesasPendentes = despesasPendentes.Count;
-        totalDespesas = despesasPendentes.Sum(d => (double)d.Valor);
+		var despesasMesAtual = GetDespesaListFromMonth(todasDespesas, mesAtual);
 
-        var despesasPagas = todasDespesas.Where(d => d.IsPago).ToList();
-        quantidadeDespesasPagas = despesasPagas.Count;
-        totalDespesasPagas = despesasPagas.Sum(d => (double)d.Valor);
-        
-        totalDespesasPagasMes = todasDespesas
-            .Where(d => d.IsPago &&
-                       d.DataPagamento.Month == mesAtualInt &&
-                       d.DataPagamento.Year == anoAtualInt)
-            .Sum(d => (double)d.Valor);
+		Movimentacoes[Key].Receita.Total = receitasMesAtual.Sum(r => (double)r.Valor);
+		Movimentacoes[Key].Receita.Mensalidades = receitasMesAtual.Where(r => r.GetTypeTexto() == "Mensalidade").Sum(r => (double)r.Valor);
+		Movimentacoes[Key].Receita.Recebido = receitasMesAtual
+			.Where(r => r.Status == Receita.ReceitaStatus.Pago)
+			.Sum(r => (double)r.Valor);
+		Movimentacoes[Key].Receita.Pendentes = receitasMesAtual
+			.Where(r => r.Status == Receita.ReceitaStatus.EmAndamento)
+			.Sum(r=> (double) r.Valor);
+		Movimentacoes[Key].Receita.Atrasadas = receitasMesAtual
+			.Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
+			.Sum(r => (double)r.Valor);
 
-        saldoLiquido = totalRecebido - totalDespesasPagas;
-        saldoDoMes = totalRecebidoMes - totalDespesasPagasMes;
+		Movimentacoes[Key].Despesa.Total = despesasMesAtual.Sum(r => (double)r.Valor);
+		Movimentacoes[Key].Despesa.Pendentes = despesasMesAtual.Where(d => !d.IsPago).Sum(r => (double)r.Valor);
+		Movimentacoes[Key].Despesa.Pagas = despesasMesAtual.Where(d => d.IsPago).Sum(r=> (double)r.Valor);
 
-        double totalGeralReceitas = todasReceitas.Sum(r => (double)r.Valor);
-        if (totalGeralReceitas > 0)
-        {
-            percentualRecebido = (int)((totalRecebido / totalGeralReceitas) * 100);
-            percentualPendente = (int)((totalPendente / totalGeralReceitas) * 100);
-            percentualAtrasado = (int)((totalAtrasado / totalGeralReceitas) * 100);
-        }
-    }
+		Movimentacoes[Key].CalcularSaldo();
 
-    private (string mensagem, string classe, double score) GerarAnaliseFinanceira()
-    {
-        double score = 0;
+		/*
+		QMovimentacoes["Mensalidades"] = mensalidadesMesAtual.Count;
+		QMovimentacoes["MensalidadesPagas"] = mensalidadesMesAtual.Where(r => r.Status == Receita.ReceitaStatus.Pago).Count();
+		QMovimentacoes["Recebidas"] = receitasRecebidas.Count;
+		QMovimentacoes["Pendentes"] = receitasPendentes.Count;
+		
 
-        if (percentualRecebido >= 90)
-            score += 35;
-        else if (percentualRecebido >= 75)
-            score += 25;
-        else if (percentualRecebido >= 60)
-            score += 15;
-        else
-            score += 5;
+		var receitasAtrasadas = receitasMesAtual
+			.Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
+			.ToList();
+		QMovimentacoes["Atrasadas"] = receitasAtrasadas.Count;
 
-        if (saldoDoMes > 0)
-            score += 25;
-        else if (saldoDoMes >= -(totalMensalidades * 0.1))
-            score += 10;
-        else
-            score -= 15;
+		var despesasPendentes = todasDespesas
+			.Where(d => !d.IsPago)
+			.ToList();
+		QMovimentacoes["DespesasPendentes"] = despesasPendentes.Count;
 
-        if (quantidadeAtrasadas == 0)
-            score += 20;
-        else if (quantidadeAtrasadas <= 3)
-            score += 10;
-        else if (quantidadeAtrasadas <= 6)
-            score += 0;
-        else
-            score -= 15;
+		var despesasPagas = despesasMesAtual.Where(d => d.IsPago).ToList();
+		QMovimentacoes["DespesasPagas"] = despesasPagas.Count;
 
-        double percentualDespesas = totalRecebido > 0
-            ? (totalDespesasPagas / totalRecebido) * 100
-            : 100;
+		*/
 
-        if (percentualDespesas <= 50)
-            score += 20;
-        else if (percentualDespesas <= 75)
-            score += 10;
-        else if (percentualDespesas <= 90)
-            score += 0;
-        else
-            score -= 15;
+		double totalGeralReceitas = Movimentacoes[Key].Receita.Total;
+		if (totalGeralReceitas > 0)
+		{
+			percentualRecebido = (int)((Movimentacoes[Key].Receita.Recebido / totalGeralReceitas) * 100);
+			percentualPendente = (int)((Movimentacoes[Key].Receita.Pendentes / totalGeralReceitas) * 100);
+			percentualAtrasado = (int)((Movimentacoes[Key].Receita.Atrasadas / totalGeralReceitas) * 100);
+		}
+	}
 
-        score = Math.Clamp(score, 0, 100);
+	private (string mensagem, string classe, double score) GerarAnaliseFinanceira()
+	{
+		double score = 0;
 
-        string mensagem;
-        string classe;
+		if (percentualRecebido >= 90)
+			score += 35;
+		else if (percentualRecebido >= 75)
+			score += 25;
+		else if (percentualRecebido >= 60)
+			score += 15;
+		else
+			score += 5;
 
-        if (score >= 80)
-        {
-            mensagem = "Situação financeira excelente. Fluxo de caixa saudável e baixa inadimplência.";
-            classe = "text-success";
-        }
-        else if (score >= 60)
-        {
-            mensagem = "Situação financeira estável, mas existem pontos de atenção.";
-            classe = "text-primary";
-        }
-        else if (score >= 40)
-        {
-            mensagem = "Atenção ao fluxo financeiro. Existem atrasos e margem reduzida.";
-            classe = "text-warning";
-        }
-        else
-        {
-            mensagem = "Situação financeira crítica. Necessário revisar recebimentos e despesas.";
-            classe = "text-danger";
-        }
+		if (Movimentacoes["SaldoMes"] > 0)
+			score += 25;
+		else if (Movimentacoes["SaldoMes"] >= -(Movimentacoes["Mensalidades"] * 0.1))
+			score += 10;
+		else
+			score -= 15;
 
-        return (mensagem, classe, score);
-    }
+		if (QMovimentacoes["Atrasadas"] == 0)
+			score += 20;
+		else if (QMovimentacoes["Atrasadas"] <= 3)
+			score += 10;
+		else if (QMovimentacoes["Atrasadas"] <= 6)
+			score += 0;
+		else
+			score -= 15;
 
-    private void AlterarTipo(TipoExibicao tipo)
-    {
-        tipoExibicao = tipo;
-        StateHasChanged();
-    }
+		double percentualDespesas = Movimentacoes["Recebido"] > 0
+			? (Movimentacoes["DespesasPagas"] / Movimentacoes["Recebido"]) * 100
+			: 100;
 
-    private void MesAnterior()
-    {
-        mesAtual = mesAtual.AddMonths(-1);
-    }
+		if (percentualDespesas <= 50)
+			score += 20;
+		else if (percentualDespesas <= 75)
+			score += 10;
+		else if (percentualDespesas <= 90)
+			score += 0;
+		else
+			score -= 15;
 
-    private void ProximoMes()
-    {
-        mesAtual = mesAtual.AddMonths(1);
-    }
+		score = Math.Clamp(score, 0, 100);
 
-    private void SelecionarDia(DateTime data)
-    {
-        dataSelecionada = data;
-    }
+		string mensagem;
+		string classe;
 
-    private List<DiaCalendario> ObterDiasDoMes()
-    {
-        var dias = new List<DiaCalendario>();
-        var primeiroDia = new DateTime(mesAtual.Year, mesAtual.Month, 1);
-        var ultimoDia = primeiroDia.AddMonths(1).AddDays(-1);
+		if (score >= 80)
+		{
+			mensagem = "Situação financeira excelente. Fluxo de caixa saudável e baixa inadimplência.";
+			classe = "text-success";
+		}
+		else if (score >= 60)
+		{
+			mensagem = "Situação financeira estável, mas existem pontos de atenção.";
+			classe = "text-primary";
+		}
+		else if (score >= 40)
+		{
+			mensagem = "Atenção ao fluxo financeiro. Existem atrasos e margem reduzida.";
+			classe = "text-warning";
+		}
+		else
+		{
+			mensagem = "Situação financeira crítica. Necessário revisar recebimentos e despesas.";
+			classe = "text-danger";
+		}
 
-        var diaSemanaInicio = (int)primeiroDia.DayOfWeek;
-        var dataInicio = primeiroDia.AddDays(-diaSemanaInicio);
+		return (mensagem, classe, score);
+	}
 
-        for (int i = 0; i < 42; i++)
-        {
-            var data = dataInicio.AddDays(i);
-            var foraDoMes = data.Month != mesAtual.Month;
-            var total = CalcularTotalDoDia(data);
+	private void AlterarTipo(TipoExibicao tipo)
+	{
+		tipoExibicao = tipo;
+		StateHasChanged();
+	}
 
-            dias.Add(new DiaCalendario
-            {
-                Data = data,
-                ForaDoMes = foraDoMes,
-                Total = total
-            });
-        }
+	private void MesAnterior()
+	{
+		mesAtual = mesAtual.AddMonths(-1);
+		CalcularDados();
+	}
 
-        return dias;
-    }
+	private void ProximoMes()
+	{
+		mesAtual = mesAtual.AddMonths(1);
+		CalcularDados();
+	}
 
-    private float CalcularTotalDoDia(DateTime data)
-    {
-        float total = 0;
+	private void SelecionarDia(DateTime data)
+	{
+		dataSelecionada = data;
+	}
 
-        if (tipoExibicao == TipoExibicao.Receitas || tipoExibicao == TipoExibicao.Ambos)
-        {
-            total += todasReceitas
-                .Where(r => r.DataVencimento.Date == data.Date)
-                .Sum(r => r.Valor);
-        }
+	private List<DiaCalendario> ObterDiasDoMes()
+	{
+		var dias = new List<DiaCalendario>();
+		var primeiroDia = new DateTime(mesAtual.Year, mesAtual.Month, 1);
+		var ultimoDia = primeiroDia.AddMonths(1).AddDays(-1);
 
-        if (tipoExibicao == TipoExibicao.Despesas || tipoExibicao == TipoExibicao.Ambos)
-        {
-            total -= todasDespesas
-                .Where(d => d.DataVencimento.Date == data.Date)
-                .Sum(d => d.Valor);
-        }
+		var diaSemanaInicio = (int)primeiroDia.DayOfWeek;
+		var dataInicio = primeiroDia.AddDays(-diaSemanaInicio);
 
-        return total;
-    }
+		for (int i = 0; i < 42; i++)
+		{
+			var data = dataInicio.AddDays(i);
+			var foraDoMes = data.Month != mesAtual.Month;
+			var total = CalcularTotalDoDia(data);
 
-    private List<TransacaoDia> ObterTransacoesDoDia()
-    {
-        var transacoes = new List<TransacaoDia>();
+			dias.Add(new DiaCalendario
+			{
+				Data = data,
+				ForaDoMes = foraDoMes,
+				Total = total
+			});
+		}
 
-        if (tipoExibicao == TipoExibicao.Receitas || tipoExibicao == TipoExibicao.Ambos)
-        {
-            var receitas = todasReceitas
-                .Where(r => r.DataVencimento.Date == dataSelecionada.Date)
-                .Select(r => new TransacaoDia
-                {
-                    Descricao = r.Descricao ?? "Sem descrição",
-                    Valor = r.Valor,
-                    Tipo = r.GetTypeTexto(),
-                    Status = r.GetStatusTexto()
-                });
-            transacoes.AddRange(receitas);
-        }
+		return dias;
+	}
 
-        if (tipoExibicao == TipoExibicao.Despesas || tipoExibicao == TipoExibicao.Ambos)
-        {
-            var despesas = todasDespesas
-                .Where(d => d.DataVencimento.Date == dataSelecionada.Date)
-                .Select(d => new TransacaoDia
-                {
-                    Descricao = d.Descricao ?? "Sem descrição",
-                    Valor = -d.Valor,
-                    Tipo = d.Categoria ?? "Despesa",
-                    Status = d.IsPago ? "Pago" : "Pendente"
-                });
-            transacoes.AddRange(despesas);
-        }
+	private float CalcularTotalDoDia(DateTime data)
+	{
+		float total = 0;
 
-        return transacoes.OrderByDescending(t => Math.Abs(t.Valor)).ToList();
-    }
+		if (tipoExibicao == TipoExibicao.Receitas || tipoExibicao == TipoExibicao.Ambos)
+		{
+			total += todasReceitas
+				.Where(r => r.DataVencimento.Date == data.Date)
+				.Sum(r => r.Valor);
+		}
 
-    private string GetStatusBadgeClass(string status)
-    {
-        return status switch
-        {
-            "Pago" => "bg-success",
-            "Em andamento" => "bg-warning text-dark",
-            "Em atraso" => "bg-danger",
-            "Pendente" => "bg-warning text-dark",
-            _ => "bg-secondary"
-        };
-    }
+		if (tipoExibicao == TipoExibicao.Despesas || tipoExibicao == TipoExibicao.Ambos)
+		{
+			total -= todasDespesas
+				.Where(d => d.DataVencimento.Date == data.Date)
+				.Sum(d => d.Valor);
+		}
 
-    private class DiaCalendario
-    {
-        public DateTime Data { get; set; }
-        public bool ForaDoMes { get; set; }
-        public float Total { get; set; }
-    }
+		return total;
+	}
 
-    private class TransacaoDia
-    {
-        public string Descricao { get; set; }
-        public float Valor { get; set; }
-        public string Tipo { get; set; }
-        public string Status { get; set; }
-    }
+	private List<TransacaoDia> ObterTransacoesDoDia()
+	{
+		var transacoes = new List<TransacaoDia>();
+
+		if (tipoExibicao == TipoExibicao.Receitas || tipoExibicao == TipoExibicao.Ambos)
+		{
+			var receitas = todasReceitas
+				.Where(r => r.DataVencimento.Date == dataSelecionada.Date)
+				.Select(r => new TransacaoDia
+				{
+					Descricao = r.Descricao ?? "Sem descrição",
+					Valor = r.Valor,
+					Tipo = r.GetTypeTexto(),
+					Status = r.GetStatusTexto()
+				});
+			transacoes.AddRange(receitas);
+		}
+
+		if (tipoExibicao == TipoExibicao.Despesas || tipoExibicao == TipoExibicao.Ambos)
+		{
+			var despesas = todasDespesas
+				.Where(d => d.DataVencimento.Date == dataSelecionada.Date)
+				.Select(d => new TransacaoDia
+				{
+					Descricao = d.Descricao ?? "Sem descrição",
+					Valor = -d.Valor,
+					Tipo = d.Categoria ?? "Despesa",
+					Status = d.IsPago ? "Pago" : "Pendente"
+				});
+			transacoes.AddRange(despesas);
+		}
+
+		return transacoes.OrderByDescending(t => Math.Abs(t.Valor)).ToList();
+	}
+
+	private string GetStatusBadgeClass(string status)
+	{
+		return status switch
+		{
+			"Pago" => "bg-success",
+			"Em andamento" => "bg-warning text-dark",
+			"Em atraso" => "bg-danger",
+			"Pendente" => "bg-warning text-dark",
+			_ => "bg-secondary"
+		};
+	}
+
+	private class DiaCalendario
+	{
+		public DateTime Data { get; set; }
+		public bool ForaDoMes { get; set; }
+		public float Total { get; set; }
+	}
+
+	private class TransacaoDia
+	{
+		public string Descricao { get; set; }
+		public float Valor { get; set; }
+		public string Tipo { get; set; }
+		public string Status { get; set; }
+	}
 }
