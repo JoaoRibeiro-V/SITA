@@ -612,7 +612,7 @@
         saldoDoMes = totalRecebidoMes - totalDespesasPagasMes;
 
         double totalGeralReceitas = todasReceitas.Sum(r => (double)r.Valor);
-        if (totalGeralReceitas > 0)S
+        if (totalGeralReceitas > 0)
         {
             percentualRecebido = (int)((totalRecebido / totalGeralReceitas) * 100);
             percentualPendente = (int)((totalPendente / totalGeralReceitas) * 100);

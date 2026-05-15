@@ -32,7 +32,7 @@ namespace SITA.src.Util
         public const string CadastroFuncionario = "/cadastro-funcionario";
         public const string CadastroFinanceiro = "/cadastro-financeiro";
         public const string Perfil = "/profile";
-
+        public const string ListaFuncionarios = "/lista-funcionarios";
         public class RouteItem
         {
             public string Name { get; set; } = "";
@@ -59,12 +59,14 @@ namespace SITA.src.Util
             new RouteItem { Name = "Gestão", Path = Relatorio, MinAccessLevel = 3 },
             new RouteItem { Name = "Receitas", Path = Financeiro, MinAccessLevel = 3 },
             new RouteItem { Name = "Despesas", Path = Despesas, MinAccessLevel = 1 },
+            
         };
 
         public static List<RouteItem> CadastroNav = new()
         {
             new RouteItem { Name = "Cadastro Responsável", Path = CadastroResponsavel, MinAccessLevel = 3 },
             new RouteItem { Name = "Cadastro Colaborador", Path = CadastroFuncionario, MinAccessLevel = 3 },
+            new RouteItem { Name = "Quadro Colaboradores", Path = ListaFuncionarios, MinAccessLevel = 3 },
         };
     }
 }
