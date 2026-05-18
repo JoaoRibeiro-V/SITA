@@ -8,11 +8,11 @@
 <div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
     <h1 style="color: #3650a1; font-weight: bold;">Gestão de Turmas</h1>
     <div style="display: flex; gap: 10px;">
-        <input @bind="search" @bind:event="oninput" placeholder="Buscar turma..." style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
         <button class="btn-cadastrar" @onclick="AbrirModal"
                 style="background-color: #3650a1; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
             + Nova Turma
         </button>
+        <input @bind="search" @bind:event="oninput" placeholder="Buscar turma..." style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
     </div>
 </div>
 
