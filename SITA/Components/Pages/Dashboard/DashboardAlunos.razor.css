@@ -113,8 +113,37 @@
 .campo {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 5px;
 }
+
+    .campo label {
+        font-weight: bold;
+        color: #3650a1;
+        font-size: 0.9rem;
+    }
+
+    .campo input,
+    .campo select,
+    .campo textarea {
+        padding: 10px 15px;
+        border: 1px solid #3650a1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
+
+        .campo input:disabled,
+        .campo select:disabled,
+        .campo textarea:disabled {
+            background: #f8f9fa;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+    .campo textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+ 
 
 .campo-grande {
     flex: 2;
@@ -239,3 +268,4 @@
         color: #3650a1;
         margin-top: 0;
     }
+

@@ -1,6 +1,7 @@
-﻿@page "/alunos"
+﻿@page "/alunos/{AlunoId:guid?}"
 @using SITA.src.Model
 @using SITA.src.Controller
+@using SITA.src.Util
 @inject NavigationManager Navigation
 
 <div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
@@ -24,7 +25,6 @@
 
     <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
 
-        <!-- Cabeçalho -->
         <thead>
             <tr style="color: white;">
                 <th style="padding: 15px 12px; text-align: left; background: #3650a1; border-top-left-radius: 8px;">Nome</th>
@@ -36,7 +36,6 @@
             </tr>
         </thead>
 
-        <!-- Dados -->
         <tbody>
             @foreach (var aluno in alunosFiltrados)
             {
@@ -75,8 +74,7 @@
 
 </section>
 
-<!--modal-->
-@if (mostrarModalAluno && alunoSelecionado != null)
+@if ((mostrarModalAluno && alunoSelecionado != null))
 {
     <div class="overlay-modal">
         <div class="modal-aluno">
@@ -114,18 +112,18 @@
                         <div class="linha">
                             <div class="campo campo-grande">
                                 <label>Nome Completo do Aluno:</label>
-                                <input value="@alunoSelecionado.Nome" readonly />
+                                <input @bind="Nome" @bind:event="oninput" disabled="@(!modoEdicao)" />
                             </div>
 
                             <div class="campo campo-medio">
                                 <label>Data de Nascimento:</label>
-                                <input value="@alunoSelecionado.DataNascimento?.ToString("dd/MM/yyyy")" readonly />
+                                <input type="date" @bind="dataNascimento" @bind:after="CalcularIdade" disabled="@(!modoEdicao)" />
                             </div>
 
                             <div class="campo campo-medio">
                                 <label class="label-cinza">Idade Calculada:</label>
                                 <div class="caixa-idade">
-                                    @alunoSelecionado.Idade anos
+                                    @idadeExtenso
                                 </div>
                             </div>
                         </div>
@@ -133,17 +131,30 @@
                         <div class="linha">
                             <div class="campo campo-terco">
                                 <label>RA:</label>
-                                <input value="@alunoSelecionado.RA" readonly />
+                                <input value="@RA" readonly />
                             </div>
 
                             <div class="campo campo-terco">
                                 <label>Religião:</label>
-                                <input value="@alunoSelecionado.Religiao" readonly />
+                                <input @bind="Religiao" @bind:event="oninput" disabled="@(!modoEdicao)" />
                             </div>
 
                             <div class="campo campo-terco">
                                 <label>Turma:</label>
-                                <input value="@(alunoSelecionado.Turma?.Nome ?? "Sem Turma")" readonly />
+                                @if (modoEdicao)
+                                {
+                                    <select @bind="turmaId">
+                                        <option value="">Selecione...</option>
+                                        @foreach (var t in listaTurmas)
+                                        {
+                                            <option value="@t.Id">@t.Nome</option>
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    <input value="@(alunoSelecionado.Turma?.Nome ?? "Sem Turma")" readonly />
+                                }
                             </div>
                         </div>
 
@@ -151,14 +162,53 @@
                             <h3>Dados do Responsável</h3>
 
                             <div class="linha">
-                                <div class="campo metade">
-                                    <label>Responsável:</label>
-                                    <input value="@GetResponsavelNome(alunoSelecionado)" readonly />
+                                <div class="campo metade position-relative">
+                                    <label>CPF do Responsável:</label>
+                                    @if (modoEdicao)
+                                    {
+                                        <input value="@responsavelCpf"
+                                               @oninput="OnCpfInput"
+                                               placeholder="000.000.000-00"
+                                               maxlength="14" />
+
+                                        @if (sugestoesResponsaveis.Any())
+                                        {
+                                            <div class="list-group position-absolute w-100" style="z-index: 1000; background: white; border: 1px solid #ccc;">
+                                                @foreach (var r in sugestoesResponsaveis)
+                                                {
+                                                    <button type="button"
+                                                            class="list-group-item list-group-item-action"
+                                                            @onclick="() => SelecionarResponsavel(r)">
+                                                        <strong>@r.Nome</strong><br />
+                                                        <small>@Mask.FormatCpf(r.CPF)</small>
+                                                    </button>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <input value="@responsavelCpf" readonly />
+                                        
+                                    }
+                                    <small>@responsavelNome</small>
                                 </div>
 
                                 <div class="campo metade">
-                                    <label>Status:</label>
-                                    <input value="@(alunoSelecionado.Turma != null ? "Ativo" : "Pendências")" readonly />
+                                    <label>Grau de Parentesco:</label>
+                                    @if (modoEdicao)
+                                    {
+                                        <select @bind="tipoParentesco">
+                                            <option value="1">Pai / Mãe</option>
+                                            <option value="2">Avô / Avó</option>
+                                            <option value="4">Tio / Tia</option>
+                                            <option value="6">Outro Responsável</option>
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <input value="@(GetResponsavelGrau(alunoSelecionado))" readonly />
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -169,23 +219,28 @@
                             <div class="linha">
                                 <div class="campo metade">
                                     <label>Pediatra do Aluno:</label>
-                                    <input value="@alunoSelecionado.NomePediatra" readonly />
+                                    <input @bind="Pediatra" @bind:event="oninput" disabled="@(!modoEdicao)" />
                                 </div>
 
                                 <div class="campo metade">
                                     <label>Orientações de Emergência:</label>
-                                    <textarea readonly>@alunoSelecionado.OrientacoesEmergencia</textarea>
+                                    <textarea @bind="Orientacoes" @bind:event="oninput" disabled="@(!modoEdicao)">@Orientacoes</textarea>
                                 </div>
                             </div>
 
                             <div class="linha">
                                 <div class="campo metade">
-                                    <label>Alergias:</label>
+                                    <label>Alergias @(modoEdicao ? "(Enter para adicionar)" : ""):</label>
+
+                                    @if (modoEdicao)
+                                    {
+                                        <input @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" placeholder="Digite e pressione Enter" />
+                                    }
 
                                     <div class="lista-tags">
-                                        @if (alunoSelecionado.Alergias != null && alunoSelecionado.Alergias.Any())
+                                        @if (Alergias != null && Alergias.Any())
                                         {
-                                            @foreach (var alergia in alunoSelecionado.Alergias)
+                                            @foreach (var alergia in Alergias)
                                             {
                                                 <span class="tag alergia">@alergia</span>
                                             }
@@ -198,12 +253,17 @@
                                 </div>
 
                                 <div class="campo metade">
-                                    <label>Condições Especiais:</label>
+                                    <label>Condições Especiais @(modoEdicao ? "(Enter para adicionar)" : ""):</label>
+
+                                    @if (modoEdicao)
+                                    {
+                                        <input @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" placeholder="Digite e pressione Enter" />
+                                    }
 
                                     <div class="lista-tags">
-                                        @if (alunoSelecionado.CondicoesEspeciais != null && alunoSelecionado.CondicoesEspeciais.Any())
+                                        @if (CondicoesEspeciais != null && CondicoesEspeciais.Any())
                                         {
-                                            @foreach (var condicao in alunoSelecionado.CondicoesEspeciais)
+                                            @foreach (var condicao in CondicoesEspeciais)
                                             {
                                                 <span class="tag condicao">@condicao</span>
                                             }
@@ -215,6 +275,27 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(msgErro))
+                        {
+                            <div class="alert alert-danger mt-3">@msgErro</div>
+                        }
+
+                        <div class="d-flex gap-3 mt-4">
+                            @if (modoEdicao)
+                            {
+                                <button class="btn btn-outline-secondary w-25 p-3 fw-bold" @onclick="CancelarEdicao">CANCELAR</button>
+                                <button class="btn w-75 p-3 fw-bold" style="background-color: #3650a1; color: white;" @onclick="SalvarAluno">
+                                    SALVAR
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn w-100 p-3 fw-bold" style="background-color: #3650a1; color: white;" @onclick="HabilitarEdicao">
+                                    EDITAR
+                                </button>
+                            }
                         </div>
 
                     </div>
@@ -233,9 +314,14 @@
         </div>
     </div>
 }
+
 @code {
+    [Parameter] public Guid? AlunoId { get; set; }
+
     List<Aluno> alunos = new();
     List<Responsavel> responsaveis = new();
+    List<Turma> listaTurmas = new();
+    List<Responsavel> sugestoesResponsaveis = new();
     string search = "";
 
     IEnumerable<Aluno> alunosFiltrados =>
@@ -248,6 +334,22 @@
     {
         alunos = AlunoController.GetAll();
         responsaveis = ResponsavelController.GetAll();
+        listaTurmas = TurmaController.GetAll();
+
+        if(AlunoId != null)
+        {
+            alunoSelecionado = AlunoController.Get(AlunoId.ToString(), null);
+            mostrarModalAluno = true;
+            CarregarDadosAluno();
+        }
+        
+    }
+
+    string GetResponsavelCPF(Aluno aluno)
+    {
+        var resp = responsaveis.FirstOrDefault(r =>
+            r.GetParentescos()?.Any(p => p.Aluno.Id == aluno.Id) == true);
+        return resp?.CPF ?? "-";
     }
 
     string GetResponsavelNome(Aluno aluno)
@@ -257,21 +359,214 @@
         return resp?.Nome ?? "-";
     }
 
+    string GetResponsavelGrau(Aluno aluno)
+    {
+        var resp = responsaveis.FirstOrDefault(r =>
+            r.GetParentescos()?.Any(p => p.Aluno.Id == aluno.Id) == true);
+        return resp?.GetAlunoParentesco(aluno).GetParentesco() ?? "-";
+    }
+
     void GoAluno(Guid id) => Navigation.NavigateTo($"/aluno-details/{id}");
+
     private bool mostrarModalAluno = false;
     private string abaAtiva = "ficha";
     private Aluno? alunoSelecionado;
+    private bool modoEdicao = false;
+
+    private string Nome = "";
+    private DateTime? dataNascimento;
+    private string RA = "";
+    private string Religiao = "";
+    private string turmaId = "";
+    private string responsavelCpf = "";
+    private string responsavelNome = "";
+    private int tipoParentesco = 6;
+    private string Pediatra = "";
+    private string Orientacoes = "";
+    private List<string> Alergias = new();
+    private List<string> CondicoesEspeciais = new();
+    private string idadeExtenso = "";
+    private string addAlergia = "";
+    private string addCondicao = "";
+    private string msgErro = "";
+
+    private Responsavel? responsavelSelecionado;
+    private Responsavel? responsavelAluno;
 
     private void AbrirModalAluno(Aluno aluno)
     {
         alunoSelecionado = aluno;
         abaAtiva = "ficha";
+        modoEdicao = false;
+        CarregarDadosAluno();
         mostrarModalAluno = true;
+    }
+
+    private void CarregarDadosAluno()
+    {
+        if (alunoSelecionado == null) return;
+
+        Nome = alunoSelecionado.Nome ?? "";
+        dataNascimento = alunoSelecionado.DataNascimento;
+        RA = alunoSelecionado.RA ?? "";
+        Religiao = alunoSelecionado.Religiao ?? "";
+        turmaId = alunoSelecionado.Turma?.Id.ToString() ?? "";
+        Pediatra = alunoSelecionado.NomePediatra ?? "";
+        Orientacoes = alunoSelecionado.OrientacoesEmergencia ?? "";
+        Alergias = new List<string>(alunoSelecionado.Alergias ?? new List<string>());
+        CondicoesEspeciais = new List<string>(alunoSelecionado.CondicoesEspeciais ?? new List<string>());
+
+        responsavelAluno = responsaveis.FirstOrDefault(r =>
+            r.GetParentescos()?.Any(p => p.Aluno.Id == alunoSelecionado.Id) == true);
+
+        if (responsavelAluno != null)
+        {
+            responsavelCpf = Mask.FormatCpf(responsavelAluno.CPF ?? "");
+            responsavelNome = responsavelAluno.Nome;
+            var parentesco = responsavelAluno.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == alunoSelecionado.Id);
+            tipoParentesco = parentesco?.Tipo ?? 6;
+        }
+
+        CalcularIdade();
+    }
+
+    private void HabilitarEdicao()
+    {
+        modoEdicao = true;
+    }
+
+    private void CancelarEdicao()
+    {
+        modoEdicao = false;
+        CarregarDadosAluno();
+        msgErro = "";
     }
 
     private void FecharModal()
     {
         mostrarModalAluno = false;
         alunoSelecionado = null;
+        modoEdicao = false;
+        msgErro = "";
+    }
+
+    private void CalcularIdade()
+    {
+        DateTime data = dataNascimento ?? DateTime.Today;
+        DateTime hoje = DateTime.Today;
+        int anos = hoje.Year - data.Year;
+        if (hoje < data.AddYears(anos)) anos--;
+
+        int meses = hoje.Month - data.Month;
+        if (hoje.Day < data.Day) meses--;
+        if (meses < 0) meses += 12;
+
+        idadeExtenso = $"{anos} anos e {meses} meses";
+    }
+
+    void OnCpfInput(ChangeEventArgs e)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+
+        responsavelCpf = Mask.FormatCpf(digits);
+
+        sugestoesResponsaveis = responsaveis
+            .Where(r => !string.IsNullOrEmpty(r.CPF) && r.CPF.Contains(digits))
+            .Take(5)
+            .ToList();
+
+        responsavelSelecionado = null;
+    }
+
+    void SelecionarResponsavel(Responsavel r)
+    {
+        responsavelSelecionado = r;
+        responsavelCpf = Mask.FormatCpf(r.CPF);
+        responsavelNome = r.Nome;
+        sugestoesResponsaveis.Clear();
+    }
+
+    private void HandleAlergiaKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia))
+        {
+            Alergias.Add(addAlergia);
+            addAlergia = "";
+        }
+    }
+
+    private void HandleCondicoesKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao))
+        {
+            CondicoesEspeciais.Add(addCondicao);
+            addCondicao = "";
+        }
+    }
+
+    private async Task SalvarAluno()
+    {
+        if (alunoSelecionado == null) return;
+
+        var cpfSemMascara = Mask.RemoveMask(responsavelCpf);
+
+        if (string.IsNullOrWhiteSpace(Nome) || string.IsNullOrWhiteSpace(cpfSemMascara))
+        {
+            msgErro = "Nome e CPF do responsável são obrigatórios.";
+            return;
+        }
+
+        try
+        {
+            var resp = responsavelSelecionado ?? ResponsavelController.Get("CPF", cpfSemMascara);
+
+            if (resp == null)
+            {
+                msgErro = "Responsável não encontrado no sistema.";
+                return;
+            }
+
+            alunoSelecionado.Nome = Nome;
+            alunoSelecionado.DataNascimento = dataNascimento;
+            alunoSelecionado.Religiao = Religiao;
+            
+            if (!string.IsNullOrEmpty(turmaId))
+            {
+                Turma newTurma = TurmaController.Get(turmaId, null);
+                if (newTurma != null)
+                {
+                    // Assuming there's a method to move students between classes
+                    if (alunoSelecionado.Turma != null && alunoSelecionado.Turma.Id != newTurma.Id)
+                    {
+                        alunoSelecionado.Turma.Alunos.Remove(alunoSelecionado);
+                        newTurma.Alunos.Add(alunoSelecionado);
+                    }
+                    alunoSelecionado.Turma = newTurma;
+                }
+            }
+            
+            alunoSelecionado.NomePediatra = Pediatra;
+            alunoSelecionado.OrientacoesEmergencia = Orientacoes;
+            alunoSelecionado.Alergias = Alergias;
+            alunoSelecionado.CondicoesEspeciais = CondicoesEspeciais;
+
+            if (responsavelAluno != null)
+            {
+                var parentesco = responsavelAluno.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == alunoSelecionado.Id);
+                if (parentesco != null)
+                {
+                    parentesco.Tipo = tipoParentesco;
+                }
+            }
+
+            modoEdicao = false;
+            LoadData();
+            msgErro = "";
+        }
+        catch (Exception ex)
+        {
+            msgErro = "Erro: " + ex.Message;
+        }
     }
 }
