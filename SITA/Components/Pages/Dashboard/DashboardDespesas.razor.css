@@ -1,4 +1,147 @@
-﻿tbody tr:hover {
+﻿.overlay-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+}
+
+.overlay-aberto {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.overlay-fechado {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-receita {
+    width: 90%;
+    max-width: 1050px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    opacity: 0;
+    transform: scale(0.96) translateY(15px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+}
+
+    .modal-receita.modal-aberta {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+.modal-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .modal-topo h2 {
+        margin: 0;
+        color: #3650a1;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+.modal-comprovante {
+    width: 95%;
+    max-width: 1100px;
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    animation: modalShow 0.18s ease;
+}
+
+.btn-fechar-comprovante {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #dc3545;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.btn-ver-comprovante {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #0d6efd;
+    background: white;
+    color: #0d6efd;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: 0.15s ease;
+    flex-shrink: 0;
+}
+
+    .btn-ver-comprovante:hover {
+        background: #0d6efd;
+        color: white;
+    }
+
+.btn-fechar {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #3650a1;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .btn-fechar:hover {
+        background: #2d4388;
+    }
+
+.abas-modal {
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 12px;
+}
+
+    .abas-modal button {
+        border: none;
+        background: #e9edf7;
+        color: #3650a1;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .abas-modal .aba-ativa {
+        background: #3650a1;
+        color: white;
+    }
+
+.conteudo-modal {
+    width: 100%;
+}
+
+tbody tr:hover {
     background: #eef3ff;
     cursor: pointer;
     box-shadow: inset 3px 0 0 #3650a1;

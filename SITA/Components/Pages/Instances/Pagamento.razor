@@ -189,12 +189,26 @@
         financeiro.Status =
             Financeiro.FinanceStatus.Pago;
 
-        Navigation.NavigateTo("/dashboard-financeiro");
+        if (financeiro is Receita)
+        {
+            Navigation.NavigateTo($"/dashboard-financeiro/{financeiro.Id}");
+        }
+        else
+        {
+            Navigation.NavigateTo($"/despesas/{financeiro.Id}");
+        }
     }
 
     private void Voltar()
     {
-        Navigation.NavigateTo("/dashboard-financeiro");
+        if (financeiro is Receita)
+        {
+            Navigation.NavigateTo($"/dashboard-financeiro/{financeiro?.Id}");
+        }
+        else
+        {
+            Navigation.NavigateTo($"/despesas/{financeiro?.Id}");
+        }
     }
 
 }

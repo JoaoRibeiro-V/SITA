@@ -1,121 +1,541 @@
-﻿@page "/despesas"
+﻿@page "/despesas/{DespesaId:guid?}"
+
 @using SITA.src.Model
 @using SITA.src.Controller
 @using SITA.src.Storage
+@using SITA.src.Services
+@using Microsoft.AspNetCore.Components.Forms
+
 @inject NavigationManager Navigation
-
-
+@inject FileService FileService
 
 <div class="header-despesas">
+
     <h1>Gestão de Despesas</h1>
 
     <button @onclick="AbrirModalNovaDespesa">
         + Cadastrar Nova Despesa
     </button>
+
 </div>
 
-   <div class="conteiner">
+<div class="conteiner">
+
     <div class="area-financeira">
 
-        <!-- FILTROS LATERAIS -->
+        <!-- FILTROS -->
         <aside class="filtros">
+
             <div class="filtro">
+
                 <label>Pesquisar</label>
 
-                <input placeholder="Nome, fornecedor ou item..." @bind="pesquisa" @bind:event="oninput" />
+                <input placeholder="Nome, fornecedor ou item..."
+                       @bind="pesquisa"
+                       @bind:event="oninput" />
+
             </div>
 
             <div class="filtro">
+
                 <label>Categoria</label>
 
                 <select @bind="categoriaFiltro">
-                    <option value="">Todas</option>
+
+                    <option value="">
+                        Todas
+                    </option>
 
                     @foreach (var categoria in categoriasDisponiveis)
                     {
-                        <option value="@categoria">@categoria</option>
+                        <option value="@categoria">
+                            @categoria
+                        </option>
                     }
+
                 </select>
+
             </div>
 
             <div class="filtro">
+
                 <label>Status</label>
 
                 <select @bind="statusFiltro">
-                    <option value="">Todos</option>
-                    <option value="Pago">Pago</option>
-                    <option value="Pendente">Pendente</option>
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option value="Pago">
+                        Pago
+                    </option>
+
+                    <option value="Pendente">
+                        Pendente
+                    </option>
+
                 </select>
+
             </div>
 
             <div class="filtro">
+
                 <label>Data Inicial</label>
 
-                <input type="date" @bind="dataInicial" />
+                <input type="date"
+                       @bind="dataInicial" />
+
             </div>
 
             <div class="filtro">
+
                 <label>Data Final</label>
 
-                <input type="date" @bind="dataFinal" />
+                <input type="date"
+                       @bind="dataFinal" />
+
             </div>
 
             <div class="filtro">
+
                 <label>Ordenar Valor</label>
 
                 <select @bind="ordemValor">
-                    <option value="">Padrão</option>
-                    <option value="asc">Menor → Maior</option>
-                    <option value="desc">Maior → Menor</option>
+
+                    <option value="">
+                        Padrão
+                    </option>
+
+                    <option value="asc">
+                        Menor → Maior
+                    </option>
+
+                    <option value="desc">
+                        Maior → Menor
+                    </option>
+
                 </select>
+
             </div>
+
         </aside>
 
-        <!-- CONTEÚDO DO LADO DIREITO -->
+        <!-- TABELA -->
         <div class="conteudo-financeiro">
+
             <div class="tabela-container">
+
                 <table class="tabla">
+
                     <thead class="Theader">
+
                         <tr>
+
                             <th>Data</th>
                             <th>Tipo</th>
-                            <th>Discrição</th>
+                            <th>Descrição</th>
                             <th>Valor</th>
                             <th>Status</th>
+
                         </tr>
+
                     </thead>
 
                     <tbody>
+
                         @if (listaDespesas == null || !listaDespesas.Any())
                         {
                             <tr>
-                                <td colspan="5" class="sem-registro">
+
+                                <td colspan="5"
+                                    class="sem-registro">
+
                                     Nenhuma despesa registrada.
+
                                 </td>
+
                             </tr>
                         }
                         else
                         {
                             @foreach (var despesa in DespesasFiltradas)
                             {
-                                <tr>
-                                    <td>@despesa.DataVencimento.ToString("dd/MM/yyyy")</td>
-                                    <td>@despesa.Categoria</td>
-                                    <td class="descricao">@despesa.Descricao</td>
-                                    <td class="valor-despesa">R$ @despesa.GetValorTotal().ToString("N2")</td>
-                                    <td>@(despesa.IsPago() ? "Pago" : "Pendente")</td>
+                                <tr class="linha-clicavel"
+                                    @onclick="() => AbrirModal(despesa)">
+
+                                    <td>
+                                        @despesa.DataVencimento.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @despesa.Categoria
+                                    </td>
+
+                                    <td class="descricao">
+                                        @despesa.Descricao
+                                    </td>
+
+                                    <td class="valor-despesa">
+                                        R$ @despesa.GetValorTotal().ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        @(despesa.IsPago() ? "Pago" : "Pendente")
+                                    </td>
+
                                 </tr>
                             }
                         }
+
                     </tbody>
+
                 </table>
+
             </div>
 
         </div>
 
     </div>
+
 </div>
-  
+
+<!-- MODAL -->
+<div class="overlay-modal @(mostrarModalDespesa ? "overlay-aberto" : "overlay-fechado")">
+
+    <div class="modal-receita @(animarModal ? "modal-aberta" : "")">
+
+        @if (despesaSelecionada != null)
+        {
+            <div class="modal-topo">
+
+                <h2>@despesaSelecionada.Categoria</h2>
+
+                <button class="btn-fechar"
+                        @onclick="FecharModal">
+                    ×
+                </button>
+
+            </div>
+
+            <br />
+
+            <div class="abas-modal">
+
+                <button class="@(abaAtiva == "detalhes" ? "aba-ativa" : "")"
+                        @onclick='() => abaAtiva = "detalhes"'>
+
+                    Detalhes
+
+                </button>
+
+                <button class="@(abaAtiva == "gestao" ? "aba-ativa" : "")"
+                        @onclick='() => abaAtiva = "gestao"'>
+
+                    Gestão
+
+                </button>
+
+            </div>
+
+            <div class="conteudo-modal">
+
+                @if (abaAtiva == "detalhes")
+                {
+                    <div style="
+                        background-color:#f0f0f0;
+                        padding:20px;
+                        border-radius:8px;
+                        margin-bottom:25px;
+                        border-left:5px solid #dc2626;
+                        ">
+
+                        <div class="row mt-3">
+
+                            <div class="col-md-6">
+
+                                <p>
+                                    <strong>Descrição:</strong>
+                                    @despesaSelecionada.Descricao
+                                </p>
+
+                                <p>
+                                    <strong>Fornecedor:</strong>
+                                    @despesaSelecionada.Fornecedor
+                                </p>
+
+                                <p>
+                                    <strong>Categoria:</strong>
+                                    @despesaSelecionada.Categoria
+                                </p>
+
+                                <p>
+                                    <strong>Quem Pagou:</strong>
+                                    @despesaSelecionada.QuemPagou
+                                </p>
+
+                                <p>
+                                    <strong>CNPJ Escola:</strong>
+                                    @despesaSelecionada.CnpjEscola
+                                </p>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <p>
+                                    <strong>Vencimento:</strong>
+                                    @despesaSelecionada.DataVencimento.ToString("dd/MM/yyyy")
+                                </p>
+
+                                <p>
+                                    <strong>CNPJ Fornecedor:</strong>
+                                    @despesaSelecionada.CnpjFornecedor
+                                </p>
+
+                                <p>
+                                    <strong>Nº Nota Fiscal:</strong>
+                                    @despesaSelecionada.NumeroNotaFiscal
+                                </p>
+
+                                <p>
+                                    <strong>Chave NF:</strong>
+                                    @despesaSelecionada.ChaveAcessoNF
+                                </p>
+
+                                <p>
+                                    <strong>Valor:</strong>
+
+                                    <span class="text-danger fw-bold">
+                                        R$ @despesaSelecionada.GetValorTotal().ToString("N2")
+                                    </span>
+
+                                </p>
+
+                                <p>
+                                    <strong>Status:</strong>
+
+                                    <span class="badge @(despesaSelecionada.IsPago() ? "bg-success" : "bg-warning text-dark")">
+
+                                        @(despesaSelecionada.IsPago() ? "Pago" : "Pendente")
+
+                                    </span>
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <h5 class="fw-bold mb-3">
+                        Comprovante
+                    </h5>
+
+                    @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
+                    {
+                        <button class="btn btn-sm btn-outline-primary"
+                                @onclick="() => mostrarComprovante = true">
+
+                            Ver Comprovante
+
+                        </button>
+                    }
+                    else
+                    {
+                        <small class="text-muted">
+                            Nenhum comprovante enviado.
+                        </small>
+                    }
+                }
+                else if (abaAtiva == "gestao")
+                {
+                    @if (despesaSelecionada.Status != Receita.FinanceStatus.Pago)
+                    {
+                        <button class="btn btn-success w-100 p-3 fw-bold"
+                                @onclick="() => IrParaFinanceiro(despesaSelecionada)">
+                            CONFIRMAR PAGAMENTO
+                        </button>
+                    }
+                    else
+                    {
+
+                        @if (despesaSelecionada.Status == Receita.FinanceStatus.Pago)
+                        {
+                            <div class="card border-0 shadow-sm p-3 mt-4"
+                                 style="border-radius: 12px;">
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                    <div>
+                                        <h6 class="fw-bold m-0">
+                                            Comprovante
+                                        </h6>
+
+                                        @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
+                                        {
+                                            <small class="text-success">
+                                                Comprovante enviado
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-warning">
+                                                Nenhum comprovante enviado
+                                            </small>
+                                        }
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
+                                    {
+                                        <button class="btn-ver-comprovante"
+                                                @onclick="() => mostrarComprovante = true">
+
+                                            👁
+
+                                        </button>
+                                    }
+
+                                </div>
+
+                                <!-- NOVO ARQUIVO -->
+                                <InputFile OnChange="SelecionarComprovanteGestao"
+                                           class="form-control form-control-sm mb-3" />
+
+                                @if (comprovanteGestao != null)
+                                {
+                                    <small class="text-success d-block mb-3">
+                                        Novo arquivo:
+                                        @comprovanteGestao.Name
+                                    </small>
+                                }
+
+                                <div class="d-flex gap-2">
+
+                                    <!-- SALVAR -->
+                                    <button class="btn btn-success btn-sm fw-bold"
+                                            disabled="@(comprovanteGestao == null)"
+                                            @onclick="SalvarComprovanteGestao">
+
+                                        @(string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho)
+                                            ? "SALVAR COMPROVANTE"
+                                            : "ALTERAR COMPROVANTE")
+
+                                    </button>
+
+                                    <!-- REMOVER -->
+                                    @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
+                                    {
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                @onclick="RemoverComprovante">
+
+                                            Remover
+
+                                        </button>
+                                    }
+
+                                </div>
+
+                            </div>
+                        }
+                    }
+
+                }
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<style>
+
+    .linha-clicavel {
+        cursor: pointer;
+    }
+
+        .linha-clicavel:hover {
+            background: #f6f8ff;
+        }
+
+    .overlay-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: 0.2s;
+    }
+
+    .overlay-fechado {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .overlay-aberto {
+        opacity: 1;
+    }
+
+    .modal-receita {
+        width: 95%;
+        max-width: 850px;
+        max-height: 92vh;
+        overflow-y: auto;
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        transform: scale(0.96);
+        transition: 0.2s;
+    }
+
+    .modal-aberta {
+        transform: scale(1);
+    }
+
+    .modal-topo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-fechar {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 8px;
+        background: #ef4444;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .abas-modal {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+        .abas-modal button {
+            border: none;
+            background: #e5e7eb;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+    .aba-ativa {
+        background: #3650a1 !important;
+        color: white;
+    }
+
+</style>
+
 <style>
     .header-despesas {
         width: 100%;
@@ -125,28 +545,28 @@
         padding: 20px 18px 40px 18px;
     }
 
-    .header-despesas h1 {
-        margin: 0;
-        color: #3650a1;
-        font-size: 40px;
-        font-weight: bold;
-    }
+        .header-despesas h1 {
+            margin: 0;
+            color: #3650a1;
+            font-size: 40px;
+            font-weight: bold;
+        }
 
-    .header-despesas button {
-        width: 250px;
-        height: 44px;
-        border: none;
-        border-radius: 5px;
-        background-color: #3650a1;
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+        .header-despesas button {
+            width: 250px;
+            height: 44px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3650a1;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-    .header-despesas button:hover {
-        background-color: #2d4388;
-    }
+            .header-despesas button:hover {
+                background-color: #2d4388;
+            }
 
     .conteiner {
         width: 95%;
@@ -182,27 +602,27 @@
         gap: 6px;
     }
 
-    .filtro label {
-        font-weight: bold;
-        color: #333;
-    }
+        .filtro label {
+            font-weight: bold;
+            color: #333;
+        }
 
-    .filtro input,
-    .filtro select {
-        width: 100%;
-        height: 42px;
-        padding: 0 12px;
-        font-size: 15px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        outline: none;
-        background-color: white;
-    }
+        .filtro input,
+        .filtro select {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            background-color: white;
+        }
 
-    .filtro input:focus,
-    .filtro select:focus {
-        border-color: #3650a1;
-    }
+            .filtro input:focus,
+            .filtro select:focus {
+                border-color: #3650a1;
+            }
 
     .conteudo-financeiro {
         flex: 1;
@@ -223,13 +643,13 @@
         background-color: #3650a1;
     }
 
-    .Theader th {
-        height: 48px;
-        padding: 0 10px;
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
-    }
+        .Theader th {
+            height: 48px;
+            padding: 0 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
 
     .tabla td {
         height: 48px;
@@ -250,7 +670,6 @@
 
     .tabla td:nth-child(4) {
         font-weight: bold;
-  
     }
 
     .header {
@@ -297,11 +716,72 @@
         font-weight: bold;
     }
 
-
 </style>
-  
+@if (mostrarComprovante &&
+    !string.IsNullOrWhiteSpace(despesaSelecionada?.AnexoCaminho))
+{
+    var extensao =
+        Path.GetExtension(despesaSelecionada.AnexoCaminho)
+            .ToLower();
 
+    <div class="overlay-modal"
+         @onclick="() => mostrarComprovante = false">
+
+        <div class="modal-comprovante"
+             @onclick:stopPropagation="true">
+
+            <!-- TOPO -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold m-0">
+                    Comprovante
+                </h5>
+
+                <button class="btn-fechar-comprovante"
+                        @onclick="() => mostrarComprovante = false">
+                    ×
+                </button>
+
+            </div>
+
+            <!-- PDF -->
+            @if (extensao == ".pdf")
+            {
+                <iframe src="@despesaSelecionada.AnexoCaminho"
+                        width="100%"
+                        height="700px"
+                        style="
+                    border:none;
+                    border-radius:12px;
+                    background:white;
+                    ">
+                </iframe>
+            }
+            else
+            {
+                <!-- IMAGEM -->
+                <div class="text-center">
+
+                    <img src="@despesaSelecionada.AnexoCaminho"
+                         style="
+                    max-width:100%;
+                    max-height:75vh;
+                    border-radius:12px;
+                    object-fit:contain;
+                    " />
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+}
 @code {
+
+    [Parameter]
+    public Guid? DespesaId { get; set; }
+
     private List<Despesa> listaDespesas = new();
 
     private string pesquisa = "";
@@ -312,11 +792,24 @@
     private DateTime? dataInicial;
     private DateTime? dataFinal;
 
-    private List<string> categoriasDisponiveis => listaDespesas.Select(d => d.Categoria)
-        .Where(c => !string.IsNullOrWhiteSpace(c))
-        .Distinct()
-        .OrderBy(c => c)
-        .ToList();
+    private bool mostrarModalDespesa = false;
+    private bool animarModal = false;
+
+    private string abaAtiva = "detalhes";
+
+    private bool mostrarComprovante = false;
+
+    private Despesa? despesaSelecionada;
+
+    private IBrowserFile? comprovanteGestao;
+
+    private List<string> categoriasDisponiveis =>
+        listaDespesas
+            .Select(d => d.Categoria)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
 
     private IEnumerable<Despesa> DespesasFiltradas
     {
@@ -324,7 +817,6 @@
         {
             var query = listaDespesas.AsEnumerable();
 
-            // PESQUISA
             if (!string.IsNullOrWhiteSpace(pesquisa))
             {
                 query = query.Where(d =>
@@ -334,37 +826,35 @@
                 );
             }
 
-            // CATEGORIA
             if (!string.IsNullOrWhiteSpace(categoriaFiltro))
             {
-                query = query.Where(d => d.Categoria == categoriaFiltro);
+                query = query.Where(d =>
+                    d.Categoria == categoriaFiltro);
             }
 
-            // STATUS
             if (statusFiltro == "Pago")
             {
-                query = query.Where(d => d.IsPago());
+                query = query.Where(d =>
+                    d.IsPago());
             }
             else if (statusFiltro == "Pendente")
             {
-                query = query.Where(d => !d.IsPago());
+                query = query.Where(d =>
+                    !d.IsPago());
             }
 
-            // DATA INICIAL
             if (dataInicial.HasValue)
             {
                 query = query.Where(d =>
                     d.DataVencimento.Date >= dataInicial.Value.Date);
             }
 
-            // DATA FINAL
             if (dataFinal.HasValue)
             {
                 query = query.Where(d =>
                     d.DataVencimento.Date <= dataFinal.Value.Date);
             }
 
-            // ORDENAÇÃO VALOR
             query = ordemValor switch
             {
                 "asc" => query.OrderBy(d => d.GetValorTotal()),
@@ -375,28 +865,114 @@
             return query;
         }
     }
-        
 
-    protected override void OnInitialized() => CarregarDespesas();
+    protected override void OnInitialized()
+    {
+        CarregarDespesas();
+    }
 
     private void CarregarDespesas()
     {
-        try
-        {
-            listaDespesas = DespesaController.GetAll()
-                 .OrderBy(d => d.DataVencimento)
-                 .ToList();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Erro SITA: {ex.Message}");
-        }
+        listaDespesas =
+            DespesaController.GetAll()
+                .OrderBy(d => d.DataVencimento)
+                .ToList();
     }
 
-    private void AbrirModalNovaDespesa() => Navigation.NavigateTo("/nova-despesa");
+    private async Task AbrirModal(Despesa despesa)
+    {
+        despesaSelecionada = despesa;
+
+        abaAtiva = "detalhes";
+
+        mostrarModalDespesa = true;
+
+        animarModal = false;
+
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(50);
+
+        animarModal = true;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task FecharModal()
+    {
+        animarModal = false;
+
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(200);
+
+        mostrarModalDespesa = false;
+
+        despesaSelecionada = null;
+    }
+
+    private void AdicionarDesconto()
+    {
+        despesaSelecionada?.Descontos.Add(new Financeiro.Desconto());
+    }
+
+    private void RemoverDesconto(Financeiro.Desconto desconto)
+    {
+        despesaSelecionada?.Descontos.Remove(desconto);
+    }
+
+    private void AdicionarExtra()
+    {
+        despesaSelecionada?.Bonus.Add(new Financeiro.Extras());
+    }
+
+    private void RemoverExtra(Financeiro.Extras extra)
+    {
+        despesaSelecionada?.Bonus.Remove(extra);
+    }
+
+    private void SelecionarComprovanteGestao(
+        InputFileChangeEventArgs e)
+    {
+        comprovanteGestao = e.File;
+    }
+
+    private async Task SalvarComprovanteGestao()
+    {
+        if (despesaSelecionada == null ||
+            comprovanteGestao == null)
+            return;
+
+        var caminho =
+            await FileService
+                .SalvarComprovante(comprovanteGestao);
+
+        despesaSelecionada.AnexoCaminho = caminho;
+
+        comprovanteGestao = null;
+
+        StateHasChanged();
+    }
+
+    private void AbrirModalNovaDespesa()
+    {
+        Navigation.NavigateTo("/nova-despesa");
+    }
 
     private void IrParaFinanceiro(Despesa despesa)
     {
-        Navigation.NavigateTo($"/folha-pagamento/despesas/{despesa.Id}#despesa-section");
+        Navigation.NavigateTo($"/financeiro/pagamento/{despesa.Id}");
+    }
+    private void RemoverComprovante()
+    {
+        if (despesaSelecionada == null)
+            return;
+
+        FileService.RemoverArquivo(
+            despesaSelecionada.AnexoCaminho);
+
+        despesaSelecionada.AnexoCaminho = null;
+
+        StateHasChanged();
     }
 }
