@@ -2,6 +2,7 @@
 using SITA.src.Controller;
 using SITA.src.Model;
 using SITA.src.Storage;
+using SITA.src.Services;
 using SITA.src.Util;
 using System.Text.Json;
 
@@ -24,6 +25,7 @@ namespace SITA
                 });
 
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddScoped<FileService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

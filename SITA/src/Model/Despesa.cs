@@ -15,7 +15,7 @@ namespace SITA.src.Model
         public string? CnpjFornecedor { get; set; }
         public string? NumeroNotaFiscal { get; set; }
         public string? ChaveAcessoNF { get; set; }
-        public string? AnexoCaminho { get; set; } // Caminho do PDF/Imagem
+        
 
         public Despesa() : base()
         {

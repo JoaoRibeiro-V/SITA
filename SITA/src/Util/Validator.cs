@@ -1,8 +1,8 @@
 ﻿using SITA.src.Model;
 using System;
 using System.Linq;
-using SITA.src.Storage;
 using System.Net.Mail;
+using SITA.src.Storage;
 
 namespace SITA.src.Util
 {

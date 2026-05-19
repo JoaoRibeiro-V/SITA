@@ -3,14 +3,17 @@
 @using SITA.src.Util
 @using SITA.src.Storage
 @using SITA.src.Controller
+@using SITA.src.Services
 @inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Forms
+@inject FileService FileService
 
 <div class="pagina-financeiro">
-<div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-    <h1 style="color: #3650a1; font-weight: bold;">Gestão de Turmas</h1>
-    <div style="display: flex; gap: 10px;">
-      </div>
-</div>
+    <div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+        <h1 style="color: #3650a1; font-weight: bold;">Gestão de Turmas</h1>
+        <div style="display: flex; gap: 10px;">
+        </div>
+    </div>
 
     @if (Session.GetInstanceAccess().Level >= 4)
     {
@@ -118,7 +121,7 @@
                     {
                         @foreach (var item in ReceitasPaginadas)
                         {
-                           <tr class="linha-clicavel"
+                            <tr class="linha-clicavel"
                                 @onclick="() => AbrirModal(item)">
                                 <td>
                                     @item.DataVencimento.ToString("dd/MM/yyyy")
@@ -203,7 +206,7 @@
 </div>
 
 <div class="overlay-modal @(mostrarModalReceita ? "overlay-aberto" : "overlay-fechado")">
-        <div class="modal-receita @(animarModal ? "modal-aberta" : "")">
+    <div class="modal-receita @(animarModal ? "modal-aberta" : "")">
         @if (receitaSelecionada != null)
         {
             <div class="modal-topo">
@@ -297,75 +300,510 @@
 
                     </div>
 
-                    <hr />
+                    <div class="mt-2">
+                        <small><strong>Descontos</strong></small><br />
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-
-                        <h5 style="font-weight: bold; margin: 0;">
-                            Descontos
-                        </h5>
-
-                    </div>
-
-                    <div class="row mt-3">
                         @if (receitaSelecionada.Descontos.Count == 0)
                         {
-                            <small>Nenhum desconto encontrado</small>
+                            <small class="text-muted">
+                                Nenhum desconto encontrado
+                            </small>
                         }
-                        @foreach (Financeiro.Desconto descontos in receitaSelecionada.Descontos)
+
+                        @foreach (Financeiro.Desconto desconto in DescontosPaginados)
                         {
-                            <div class="col-md-6">
-                                <p><strong>Descrição:</strong> @descontos.Descricao</p>
-                                <p><strong>Valor:</strong> @descontos.Valor.ToString("F2")</p>
+                            <div class="d-flex justify-content-between align-items-center py-1 px-2 border-bottom"
+                                 style="font-size: 0.85rem;">
+
+                                <span class="text-truncate"
+                                      style="max-width: 75%;">
+                                    @desconto.Descricao
+                                </span>
+
+                                <span class="text-danger fw-bold">
+                                    - @(desconto.Tipo == Financeiro.Desconto.TipoValor.Percentual
+                                                                                            ? $"{desconto.Valor:N0}%"
+                                                                                            : $"R$ {desconto.Valor:N2}")
+                                </span>
+
                             </div>
                         }
-                    </div>
 
+                    </div>
+                    @if (receitaSelecionada.Descontos.Count > itensPorPaginaDetalhes)
+                    {
+                        <div class="d-flex justify-content-end gap-1 mt-2">
+
+                            <button class="btn btn-sm btn-light px-2 py-0"
+                                    disabled="@(paginaDescontos == 1)"
+                                    @onclick="() => paginaDescontos--">
+                                ‹
+                            </button>
+
+                            <small class="align-self-center">
+                                @paginaDescontos
+                            </small>
+
+                            <button class="btn btn-sm btn-light px-2 py-0"
+                                    disabled="@(paginaDescontos >= Math.Ceiling((double)receitaSelecionada.Descontos.Count / itensPorPaginaDetalhes))"
+                                    @onclick="() => paginaDescontos++">
+                                ›
+                            </button>
+
+                        </div>
+                    }
+
+                    <div class="mt-2">
+                        <small><strong>Extras</strong></small><br />
+                        @if (receitaSelecionada.Bonus.Count == 0)
+                        {
+                            <small class="text-muted">
+                                Nenhum extra encontrado
+                            </small>
+                        }
+
+                        @foreach (Financeiro.Extras extra in ExtrasPaginados)
+                        {
+                            <div class="d-flex justify-content-between align-items-center py-1 px-2 border-bottom"
+                                 style="font-size: 0.85rem;">
+
+                                <span class="text-truncate"
+                                      style="max-width: 75%;">
+                                    @extra.Descricao
+                                </span>
+
+                                <span class="text-success fw-bold">
+                                    + @(extra.Tipo == Financeiro.Extras.TipoValor.Percentual
+                                                                                            ? $"{extra.Valor:N0}%"
+                                                                                            : $"R$ {extra.Valor:N2}")
+                                </span>
+
+                            </div>
+                        }
+
+                    </div>
+                    @if (receitaSelecionada.Bonus.Count > itensPorPaginaDetalhes)
+                    {
+                        <div class="d-flex justify-content-end gap-1 mt-2">
+
+                            <button class="btn btn-sm btn-light px-2 py-0"
+                                    disabled="@(paginaExtras == 1)"
+                                    @onclick="() => paginaExtras--">
+                                ‹
+                            </button>
+
+                            <small class="align-self-center">
+                                @paginaExtras
+                            </small>
+
+                            <button class="btn btn-sm btn-light px-2 py-0"
+                                    disabled="@(paginaExtras >= Math.Ceiling((double)receitaSelecionada.Bonus.Count / itensPorPaginaDetalhes))"
+                                    @onclick="() => paginaExtras++">
+                                ›
+                            </button>
+
+                        </div>
+                    }
                     <hr />
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
 
                         <h5 style="font-weight: bold; margin: 0;">
-                            Extras
+                            Comprovante
                         </h5>
 
                     </div>
-                    <div class="row mt-3">
-                        @if (receitaSelecionada.Bonus.Count == 0)
-                        {
-                            <small>Nenhum extra encontrado</small>
-                        }
-                        @foreach (Financeiro.Extras extras in receitaSelecionada.Bonus)
-                        {
-                            <div class="col-md-6">
-                                <p><strong>Descrição:</strong> @extras.Descricao</p>
-                                <p><strong>Valor:</strong> @extras.Valor.ToString("F2")</p>
-                            </div>
-                        }
-                    </div>
-                    <hr />
-                    @if (receitaSelecionada.Status != Receita.FinanceStatus.Pago)
+
+                    @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
                     {
-                        <button class="btn btn-success w-100 mt-3"
-                                @onclick="() => ConfirmarPagamentoReceita(receitaSelecionada)">
-                            CONFIRMAR RECEBIMENTO
+                        <button class="btn btn-sm btn-outline-primary"
+                                @onclick="() => mostrarComprovante = true">
+
+                            Ver Comprovante
+
                         </button>
                     }
                     else
                     {
-                        <div class="alert alert-success mt-3 mb-0">
-                            Receita já recebida.
-                        </div>
+                        <small class="text-muted">
+                            Nenhum comprovante enviado.
+                        </small>
                     }
+
+                }
+                else if (abaAtiva == "gestao")
+                {
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 style="font-weight: bold; margin: 0;">
+                            Gestão da Receita
+                        </h5>
+                    </div>
+
+                    <!-- DESCONTOS -->
+                    <div class="card border-0 shadow-sm p-3 mb-4"
+                         style="border-radius: 12px;">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold m-0">
+                                Descontos
+                            </h6>
+
+                            <button class="btn btn-success btn-sm"
+                                    style="
+                                width: 28px;
+                                height: 28px;
+                                padding: 0;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                                line-height: 1;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                "
+                                    @onclick="AdicionarDesconto">
+                                +
+                            </button>
+                        </div>
+
+                        @if (receitaSelecionada.Descontos.Count == 0)
+                        {
+                            <small class="text-muted">
+                                Nenhum desconto cadastrado.
+                            </small>
+                        }
+
+                        @foreach (var desconto in receitaSelecionada.Descontos)
+                        {
+                            <div class="d-flex gap-2 align-items-center mb-2">
+
+                                <input class="form-control form-control-sm"
+                                       placeholder="Descrição"
+                                       style="font-size: 0.82rem;"
+                                       @bind="desconto.Descricao" />
+
+                                <select class="form-select form-select-sm"
+                                        style="width: 70px;"
+                                        @bind="desconto.Tipo">
+
+                                    <option value="@Financeiro.Desconto.TipoValor.Fixo">
+                                        R$
+                                    </option>
+
+                                    <option value="@Financeiro.Desconto.TipoValor.Percentual">
+                                        %
+                                    </option>
+
+                                </select>
+
+                                <input class="form-control form-control-sm"
+                                       type="number"
+                                       step="0.01"
+                                       style="width: 90px;"
+                                       @bind="desconto.Valor" />
+
+                                <button class="btn btn-danger btn-sm"
+                                        style="
+                                    width: 28px;
+                                    height: 28px;
+                                    padding: 0;
+                                    border-radius: 8px;
+                                    font-size: 0.9rem;
+                                    line-height: 1;
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    flex-shrink: 0;
+                                    "
+                                        @onclick="() => RemoverDesconto(desconto)">
+                                    ×
+                                </button>
+
+                            </div>
+                        }
+                    </div>
+
+                    <!-- EXTRAS -->
+                    <div class="card border-0 shadow-sm p-3 mb-4"
+                         style="border-radius: 12px;">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold m-0">
+                                Extras
+                            </h6>
+
+                            <button class="btn btn-success btn-sm"
+                                    style="
+                                width: 28px;
+                                height: 28px;
+                                padding: 0;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                                line-height: 1;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                "
+                                    @onclick="AdicionarExtra">
+                                +
+                            </button>
+                        </div>
+
+                        @if (receitaSelecionada.Bonus.Count == 0)
+                        {
+                            <small class="text-muted">
+                                Nenhum extra cadastrado.
+                            </small>
+                        }
+
+                        @foreach (var extra in receitaSelecionada.Bonus)
+                        {
+                            <div class="d-flex gap-2 align-items-center mb-2">
+
+                                <input class="form-control form-control-sm"
+                                       placeholder="Descrição"
+                                       style="font-size: 0.82rem;"
+                                       @bind="extra.Descricao" />
+
+                                <select class="form-select form-select-sm"
+                                        style="width: 70px;"
+                                        @bind="extra.Tipo">
+
+                                    <option value="@Financeiro.Extras.TipoValor.Fixo">
+                                        R$
+                                    </option>
+
+                                    <option value="@Financeiro.Extras.TipoValor.Percentual">
+                                        %
+                                    </option>
+
+                                </select>
+
+                                <input class="form-control form-control-sm"
+                                       type="number"
+                                       step="0.01"
+                                       style="width: 90px;"
+                                       @bind="extra.Valor" />
+
+                                <button class="btn btn-danger btn-sm"
+                                        style="
+                                    width: 28px;
+                                    height: 28px;
+                                    padding: 0;
+                                    border-radius: 8px;
+                                    font-size: 0.9rem;
+                                    line-height: 1;
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    flex-shrink: 0;
+                                    "
+                                        @onclick="() => RemoverExtra(extra)">
+                                    ×
+                                </button>
+
+                            </div>
+                        }
+                    </div>
+
+                    <!-- RESUMO -->
+                    <div class="card border-0 shadow-sm p-4 mb-4"
+                         style="border-radius: 12px; background: #f8f9fa;">
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Valor Base:</span>
+                            <strong>
+                                R$ @receitaSelecionada.Valor.ToString("N2")
+                            </strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2 text-danger">
+                            <span>Total Descontos:</span>
+                            <strong>
+                                - R$ @receitaSelecionada.Descontos.Sum(d => d.GetValorFinal(@receitaSelecionada.Valor)).ToString("N2")
+                            </strong>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Total Extras:</span>
+                            <strong>
+                                + R$ @receitaSelecionada.Bonus.Sum(b => b.GetValorFinal(@receitaSelecionada.Valor)).ToString("N2")
+                            </strong>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold">Valor Final:</span>
+
+                            <strong class="text-primary">
+                                R$ @receitaSelecionada.GetValorTotal().ToString("N2")
+                            </strong>
+                        </div>
+                    </div>
+
+                    <!-- BOTÃO PAGAMENTO -->
+                    @if (receitaSelecionada.Status != Receita.FinanceStatus.Pago)
+                    {
+                        <button class="btn btn-success w-100 p-3 fw-bold"
+                                @onclick="() => GoFinanceiro(receitaSelecionada.Id)">
+                            CONFIRMAR PAGAMENTO
+                        </button>
+                    }
+                    else
+                    {
+
+                        @if (receitaSelecionada.Status == Receita.FinanceStatus.Pago)
+                        {
+                            <div class="card border-0 shadow-sm p-3 mt-4"
+                                 style="border-radius: 12px;">
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                    <div>
+                                        <h6 class="fw-bold m-0">
+                                            Comprovante
+                                        </h6>
+
+                                        @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
+                                        {
+                                            <small class="text-success">
+                                                Comprovante enviado
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-warning">
+                                                Nenhum comprovante enviado
+                                            </small>
+                                        }
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
+                                    {
+                                        <button class="btn-ver-comprovante"
+                                                @onclick="() => mostrarComprovante = true">
+
+                                            👁
+
+                                        </button>
+                                    }
+
+                                </div>
+
+                                <!-- NOVO ARQUIVO -->
+                                <InputFile OnChange="SelecionarComprovanteGestao"
+                                           class="form-control form-control-sm mb-3" />
+
+                                @if (comprovanteGestao != null)
+                                {
+                                    <small class="text-success d-block mb-3">
+                                        Novo arquivo:
+                                        @comprovanteGestao.Name
+                                    </small>
+                                }
+
+                                <div class="d-flex gap-2">
+
+                                    <!-- SALVAR -->
+                                    <button class="btn btn-success btn-sm fw-bold"
+                                            disabled="@(comprovanteGestao == null)"
+                                            @onclick="SalvarComprovanteGestao">
+
+                                        @(string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho)
+                                            ? "SALVAR COMPROVANTE"
+                                            : "ALTERAR COMPROVANTE")
+
+                                    </button>
+
+                                    <!-- REMOVER -->
+                                    @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
+                                    {
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                @onclick="RemoverComprovante">
+
+                                            Remover
+
+                                        </button>
+                                    }
+
+                                </div>
+
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <p>Conteúdo da aba de gestão ainda não implementado.</p>
                 }
 
             </div>
 
         }
 
-        </div>
+        
     </div>
+</div>
+@if (mostrarComprovante &&
+    !string.IsNullOrWhiteSpace(receitaSelecionada?.AnexoCaminho))
+{
+    var extensao =
+        Path.GetExtension(receitaSelecionada.AnexoCaminho)
+            .ToLower();
 
+    <div class="overlay-modal"
+         @onclick="() => mostrarComprovante = false">
+
+        <div class="modal-comprovante"
+             @onclick:stopPropagation="true">
+
+            <!-- TOPO -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h5 class="fw-bold m-0">
+                    Comprovante
+                </h5>
+
+                <button class="btn-fechar-comprovante"
+                        @onclick="() => mostrarComprovante = false">
+                    ×
+                </button>
+
+            </div>
+
+            <!-- PDF -->
+            @if (extensao == ".pdf")
+            {
+                <iframe src="@receitaSelecionada.AnexoCaminho"
+                        width="100%"
+                        height="700px"
+                        style="
+                    border:none;
+                    border-radius:12px;
+                    background:white;
+                    ">
+                </iframe>
+            }
+            else
+            {
+                <!-- IMAGEM -->
+                <div class="text-center">
+
+                    <img src="@receitaSelecionada.AnexoCaminho"
+                         style="
+                    max-width:100%;
+                    max-height:75vh;
+                    border-radius:12px;
+                    object-fit:contain;
+                    " />
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+}
 
 <style>
     .linha-clicavel {
@@ -691,9 +1129,68 @@
     private bool animarModal = false;
     private Receita? receitaSelecionada;
 
+    private int paginaDescontos = 1;
+    private int paginaExtras = 1;
+
+    private const int itensPorPaginaDetalhes = 5;
+
+    private IBrowserFile? comprovanteGestao;
+
+    private void SelecionarComprovanteGestao(
+    InputFileChangeEventArgs e)
+    {
+        comprovanteGestao = e.File;
+    }
+
+    private async Task SalvarComprovanteGestao()
+    {
+        if (receitaSelecionada == null ||
+            comprovanteGestao == null)
+            return;
+
+        var caminho =
+            await FileService
+                .SalvarComprovante(
+                    comprovanteGestao);
+
+        if (string.IsNullOrWhiteSpace(caminho))
+            return;
+
+        receitaSelecionada.AnexoCaminho =
+            caminho;
+
+        comprovanteGestao = null;
+
+        StateHasChanged();
+    }
+
+    private void RemoverComprovante()
+    {
+        if (receitaSelecionada == null)
+            return;
+
+        FileService.RemoverArquivo(
+            receitaSelecionada.AnexoCaminho);
+
+        receitaSelecionada.AnexoCaminho = null;
+
+        StateHasChanged();
+    }
+
+    private IEnumerable<Financeiro.Desconto> DescontosPaginados =>
+    receitaSelecionada.Descontos
+        .Skip((paginaDescontos - 1) * itensPorPaginaDetalhes)
+        .Take(itensPorPaginaDetalhes);
+    private IEnumerable<Financeiro.Extras> ExtrasPaginados =>
+    receitaSelecionada.Bonus
+        .Skip((paginaExtras - 1) * itensPorPaginaDetalhes)
+        .Take(itensPorPaginaDetalhes);
+
     private string abaAtiva = "detalhes";
 
     private bool fechandoModal = false;
+
+    private bool mostrarComprovante = false;
 
     private async Task AbrirModal(Receita receita)
     {
@@ -918,6 +1415,26 @@
         Navigation.NavigateTo($"/folha-pagamento/Receita/{Receita.Id}#Receita-section");
     }
 
+    private void AdicionarDesconto()
+    {
+        receitaSelecionada?.Descontos.Add(new Financeiro.Desconto());
+    }
+
+    private void RemoverDesconto(Financeiro.Desconto desconto)
+    {
+        receitaSelecionada?.Descontos.Remove(desconto);
+    }
+
+    private void AdicionarExtra()
+    {
+        receitaSelecionada?.Bonus.Add(new Financeiro.Extras());
+    }
+
+    private void RemoverExtra(Financeiro.Extras extra)
+    {
+        receitaSelecionada?.Bonus.Remove(extra);
+    }
+
     private string GetTipoBadge(Receita.ReceitaTipo tipo) => tipo switch
     {
         Receita.ReceitaTipo.Mensalidade => "bg-primary",
@@ -933,5 +1450,8 @@
         Receita.FinanceStatus.EmAndamento => "bg-warning text-dark",
         _ => "bg-secondary"
     };
-
+    void GoFinanceiro(Guid id)
+    {
+        Navigation.NavigateTo($"/financeiro/pagamento/{id}");
+    }
 }

@@ -1,0 +1,200 @@
+﻿@page "/financeiro/pagamento/{FinanceiroId:guid}"
+
+@using Microsoft.AspNetCore.Components.Forms
+
+@using SITA.src.Model
+@using SITA.src.Controller
+@using SITA.src.Services
+
+@inject NavigationManager Navigation
+@inject FileService FileService
+
+<div class="container py-4">
+
+    @if (financeiro == null)
+    {
+        <div class="alert alert-danger">
+            Registro financeiro não encontrado.
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm p-4"
+             style="
+            border-radius: 16px;
+            max-width: 720px;
+            margin:auto;
+            ">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+                    <h3 class="fw-bold mb-1">
+                        Confirmar Pagamento
+                    </h3>
+
+                    <small class="text-muted">
+                        @financeiro.Descricao
+                    </small>
+                </div>
+
+                <span class="badge bg-primary">
+                    R$ @financeiro.GetValorTotal().ToString("N2")
+                </span>
+
+            </div>
+
+            <hr />
+
+            <!-- INFO -->
+            <div class="row mb-4">
+
+                <div class="col-md-6">
+
+                    <small class="text-muted">
+                        Tipo
+                    </small>
+
+                    <div class="fw-semibold">
+                        @(financeiro is Receita
+                            ? "Receita"
+                            : "Despesa")
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <small class="text-muted">
+                        Vencimento
+                    </small>
+
+                    <div class="fw-semibold">
+                        @financeiro.DataVencimento.ToString("dd/MM/yyyy")
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- COMPROVANTE -->
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Comprovante
+                </label>
+
+                <InputFile OnChange="SelecionarComprovante"
+                           class="form-control" />
+
+                @if (comprovantePagamento != null)
+                {
+                    <small class="text-success">
+                        @comprovantePagamento.Name
+                    </small>
+                }
+
+            </div>
+
+            <!-- OBS -->
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Observação
+                </label>
+
+                <textarea class="form-control"
+                          rows="3"
+                          @bind="observacaoPagamento">
+                </textarea>
+
+            </div>
+
+            <!-- BOTÕES -->
+            <div class="d-flex justify-content-end gap-2">
+
+                <button class="btn btn-light"
+                        @onclick="Voltar">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-success fw-bold"
+                        disabled="@(comprovantePagamento == null)"
+                        @onclick="ConfirmarPagamento">
+
+                    CONFIRMAR PAGAMENTO
+
+                </button>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@code {
+
+    [Parameter]
+    public Guid FinanceiroId { get; set; }
+
+    private Financeiro? financeiro;
+
+    private IBrowserFile? comprovantePagamento;
+
+    private string observacaoPagamento = "";
+
+    protected override void OnInitialized()
+    {
+        financeiro =
+            ReceitaController.Get(
+                FinanceiroId.ToString(),
+                null);
+
+        financeiro ??=
+            DespesaController.Get(
+                FinanceiroId.ToString(),
+                null);
+    }
+
+    private void SelecionarComprovante(
+        InputFileChangeEventArgs e)
+    {
+        comprovantePagamento = e.File;
+    }
+
+    private async Task ConfirmarPagamento()
+    {
+        if (financeiro == null ||
+            comprovantePagamento == null)
+            return;
+
+        var caminho =
+            await FileService
+                .SalvarComprovante(
+                    comprovantePagamento);
+
+        if (string.IsNullOrWhiteSpace(caminho))
+            return;
+
+        financeiro.AnexoCaminho =
+            caminho;
+
+        financeiro.Observacao =
+            observacaoPagamento;
+
+        financeiro.DataPagamento =
+            DateTime.Now;
+
+        financeiro.Status =
+            Financeiro.FinanceStatus.Pago;
+
+        Navigation.NavigateTo("/dashboard-financeiro");
+    }
+
+    private void Voltar()
+    {
+        Navigation.NavigateTo("/dashboard-financeiro");
+    }
+
+}

@@ -39,13 +39,43 @@ namespace SITA.src.Model
         private FinanceStatus _status;
         public class Desconto
         {
+            public enum TipoValor
+            {
+                Fixo = 0,
+                Percentual = 1
+            }
+
             public string Descricao = "";
             public float Valor = 0;
+
+            public TipoValor Tipo = TipoValor.Fixo;
+
+            public float GetValorFinal(float valorBase)
+            {
+                return Tipo == TipoValor.Percentual
+                    ? valorBase * (Valor / 100f)
+                    : Valor;
+            }
         }
         public class Extras
         {
+            public enum TipoValor
+            {
+                Fixo = 0,
+                Percentual = 1
+            }
+
             public string Descricao = "";
             public float Valor = 0;
+
+            public TipoValor Tipo = TipoValor.Fixo;
+
+            public float GetValorFinal(float valorBase)
+            {
+                return Tipo == TipoValor.Percentual
+                    ? valorBase * (Valor / 100f)
+                    : Valor;
+            }
         }
         public Guid Id { get; set; }
         public float Valor { get; set; }
@@ -58,6 +88,7 @@ namespace SITA.src.Model
         public DateTime DataVencimento { get; set; }
         public string? Observacao { get; set; }
         public User? UsuarioCriacao { get; set; } = null;
+        public string? AnexoCaminho { get; set; } // Caminho do PDF/Imagem
         public Financeiro()
         {
             Id = Guid.NewGuid();
@@ -84,8 +115,9 @@ namespace SITA.src.Model
         }
         public float GetValorTotal()
         {
-            float valorFinal = Valor;
-            return Valor - Descontos.Sum(d => d.Valor) + Bonus.Sum(b => b.Valor);
+            return Valor
+                - Descontos.Sum(d => d.GetValorFinal(Valor))
+                + Bonus.Sum(b => b.GetValorFinal(Valor));
         }
     }
 }
