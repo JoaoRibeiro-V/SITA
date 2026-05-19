@@ -39,7 +39,7 @@
         <tbody>
             @foreach (var aluno in alunosFiltrados)
             {
-                <tr @onclick="() => AbrirModalAluno(aluno)"
+                <tr @onclick="() => AbrirModal(aluno)"
                     style="cursor: pointer; background: transparent;">
 
                     <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
@@ -77,7 +77,7 @@
 @if ((mostrarModalAluno && alunoSelecionado != null))
 {
     <div class="overlay-modal">
-        <div class="modal-aluno">
+        <div class="modal-aluno  @(animarModal ? "modal-aberta" : "")">
 
             <div class="modal-topo">
                 <h2>@alunoSelecionado.Nome</h2>
@@ -86,6 +86,7 @@
                     ×
                 </button>
             </div>
+            <br />
 
             <div class="abas-modal">
                 <button class="@(abaAtiva == "ficha" ? "aba-ativa" : "")"
@@ -594,10 +595,22 @@
         if(AlunoId != null)
         {
             alunoSelecionado = AlunoController.Get(AlunoId.ToString(), null);
-            mostrarModalAluno = true;
             CarregarDadosAluno();
         }
 
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && AlunoId != null)
+        {
+            var aluno = AlunoController.Get(AlunoId.ToString(), null);
+
+            if (aluno != null)
+            {
+                await AbrirModal(aluno);
+            }
+        }
     }
 
     string GetResponsavelCPF(Aluno aluno)
@@ -645,17 +658,10 @@
     private string addCondicao = "";
     private string msgErro = "";
 
+    private bool animarModal = false;
+
     private Responsavel? responsavelSelecionado;
     private Responsavel? responsavelAluno;
-
-    private void AbrirModalAluno(Aluno aluno)
-    {
-        alunoSelecionado = aluno;
-        abaAtiva = "ficha";
-        modoEdicao = false;
-        CarregarDadosAluno();
-        mostrarModalAluno = true;
-    }
 
     private void CarregarDadosAluno()
     {
@@ -698,12 +704,40 @@
         msgErro = "";
     }
 
-    private void FecharModal()
+    private bool fechandoModal = false;
+
+    private async Task AbrirModal(Aluno aluno)
     {
+        alunoSelecionado = aluno;
+
+        abaAtiva = "ficha";
+
+        mostrarModalAluno = true;
+
+        animarModal = false;
+
+        CarregarDadosAluno();
+
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(50);
+
+        animarModal = true;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task FecharModal()
+    {
+        animarModal = false;
+
+        await InvokeAsync(StateHasChanged);
+
+        await Task.Delay(200);
+
         mostrarModalAluno = false;
+
         alunoSelecionado = null;
-        modoEdicao = false;
-        msgErro = "";
     }
 
     private void CalcularIdade()
