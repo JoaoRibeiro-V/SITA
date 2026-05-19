@@ -26,6 +26,7 @@ namespace SITA.src.Controller
                 Responsavel = responsavel,
                 Valor = (float)valorTaxa,
                 DataVencimento = DateTime.Now.AddDays(30),
+                DataReferente = DateTime.Now,
                 Descricao = $"Taxa referente à matrícula do aluno(a) {aluno.Nome}"
             };
             Receita.Type = Receita.ReceitaTipo.Taxas;

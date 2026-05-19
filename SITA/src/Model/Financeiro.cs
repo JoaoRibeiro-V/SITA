@@ -26,7 +26,7 @@ namespace SITA.src.Model
 
                 if (DataVencimento < DateTime.Now)
                     return FinanceStatus.EmAtraso;
-                if (DataVencimento.Month == DateTime.Now.Month)
+                if (DataReferente.Month == DateTime.Now.Month)
                     return FinanceStatus.Pendente;
 
                 return FinanceStatus.EmAndamento;

@@ -24,6 +24,13 @@
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
 }
 
+tbody tr:hover {
+    background: #eef3ff;
+    cursor: pointer;
+    box-shadow: inset 3px 0 0 #3650a1;
+    transition: 0.15s;
+}
+
 .modal-topo {
     display: flex;
     justify-content: space-between;

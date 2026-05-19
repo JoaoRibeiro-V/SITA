@@ -1,0 +1,6 @@
+﻿tbody tr:hover {
+    background: #eef3ff;
+    cursor: pointer;
+    box-shadow: inset 3px 0 0 #3650a1;
+    transition: 0.15s;
+}

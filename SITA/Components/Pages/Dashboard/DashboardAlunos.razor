@@ -306,7 +306,116 @@
                     <div class="aba-financeiro">
                         <h2>FINANCEIRO</h2>
 
-                        <p>Aqui entra a tabela de mensalidades e Receitas do aluno.</p>
+                        @if (ReceitasAluno.Any())
+                        {
+                            <div class="row mb-3 g-2 align-items-end">
+
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Pesquisar</label>
+                                    <input class="form-control"
+                                           placeholder="Tipo..."
+                                           @bind="pesquisaFinanceiro"
+                                           @bind:event="oninput" />
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Status</label>
+                                    <select class="form-select" @bind="statusFinanceiro">
+                                        <option value="">Todos</option>
+                                        <option value="Pago">Pago</option>
+                                        <option value="EmAndamento">Em Andamento</option>
+                                        <option value="EmAtraso">Em Atraso</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Data Inicial</label>
+                                    <input type="date"
+                                           class="form-control"
+                                           @bind="dataInicioFinanceiro" />
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Data Final</label>
+                                    <input type="date"
+                                           class="form-control"
+                                           @bind="dataFimFinanceiro" />
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Ordenar Valor</label>
+                                    <select class="form-select" @bind="ordemValorFinanceiro">
+                                        <option value="">Padrão</option>
+                                        <option value="asc">Menor → Maior</option>
+                                        <option value="desc">Maior → Menor</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <table class="table table-sm table-bordered table-striped mt-3">
+                                <thead style="background-color:#3650a1; color:white;">
+                                    <tr>
+                                        <th>Mês</th>
+                                        <th>Tipo</th>
+                                        <th>Vencimento</th>
+                                        <th>Valor</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in ReceitasFinanceirasPaginadas)
+                                    {
+                                        <tr @onclick="() => GoReceita(r.Id)" style="cursor: pointer;">
+                                            <td>@r.DataReferente.ToString("MM/yyyy")</td>
+                                            <td>@r.GetTypeTexto()</td>
+                                            <td>@r.DataVencimento.ToString("dd/MM/yyyy")</td>
+                                            <td>R$ @r.GetValorTotal().ToString("N2")</td>
+                                            <td>
+                                                <span class="badge @GetStatusBadge(r.Status)">
+                                                    @r.GetStatusTexto()
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="d-flex justify-content-center align-items-center mt-3 gap-1">
+                                <button class="btn btn-link p-1"
+                                        style="width: 24px; height: 24px; line-height: 1; text-decoration: none;"
+                                        disabled="@(paginaAtual == 1)"
+                                        @onclick="() => MudarPagina(paginaAtual - 1)">
+                                    ‹
+                                </button>
+
+                                @foreach (var p in GetPaginasVisiveis())
+                                {
+                                    if (p == null)
+                                    {
+                                        <span class="px-2" style="font-size: 0.8rem;">...</span>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm @(paginaAtual == p ? "btn-primary" : "btn-outline-primary") px-2 py-0"
+                                                style="width:32px; height:28px; font-size:0.75rem; display:flex; align-items:center; justify-content:center;"
+                                                @onclick="() => MudarPagina(p.Value)">
+                                            @p
+                                        </button>
+                                    }
+                                }
+
+                                <button class="btn btn-link p-1"
+                                        style="width: 24px; height: 24px; line-height: 1; text-decoration: none;"
+                                        disabled="@(paginaAtual == totalPaginas)"
+                                        @onclick="() => MudarPagina(paginaAtual + 1)">
+                                    ›
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">Nenhuma mensalidade encontrada.</div>
+                        }
                     </div>
                 }
 
@@ -322,11 +431,157 @@
     List<Responsavel> responsaveis = new();
     List<Turma> listaTurmas = new();
     List<Responsavel> sugestoesResponsaveis = new();
+
+    private int paginaAtual = 1;
+    private int itensPorPagina = 6;
+
+    private string pesquisaFinanceiro = "";
+    private string statusFinanceiro = "";
+    private string ordemValorFinanceiro = "";
+
+    private DateTime? dataInicioFinanceiro;
+    private DateTime? dataFimFinanceiro;
+
+    private int totalPaginas =>
+    (int)Math.Ceiling(
+        (double)ReceitasFinanceirasFiltradas.Count() / itensPorPagina);
+
+    private List<Receita> ReceitasPaginadas =>
+        ReceitasAluno
+            .Skip((paginaAtual - 1) * itensPorPagina)
+            .Take(itensPorPagina)
+            .ToList();
+    private IEnumerable<Receita> ReceitasFinanceirasFiltradas
+    {
+        get
+        {
+            var query = ReceitasAluno.AsEnumerable();
+
+            // PESQUISA
+            if (!string.IsNullOrWhiteSpace(pesquisaFinanceiro))
+            {
+                query = query.Where(r =>
+                    r.GetTypeTexto()
+                        .Contains(pesquisaFinanceiro,
+                            StringComparison.OrdinalIgnoreCase));
+            }
+
+            // STATUS
+            if (statusFinanceiro == "Pago")
+            {
+                query = query.Where(r => r.IsPago());
+            }
+            else if (statusFinanceiro == "EmAndamento")
+            {
+                query = query.Where(r =>
+                    r.Status == Receita.FinanceStatus.EmAndamento);
+            }
+            else if (statusFinanceiro == "EmAtraso")
+            {
+                query = query.Where(r =>
+                    r.Status == Receita.FinanceStatus.EmAtraso);
+            }
+
+            // DATA INICIAL
+            if (dataInicioFinanceiro.HasValue)
+            {
+                query = query.Where(r =>
+                    r.DataVencimento.Date >=
+                    dataInicioFinanceiro.Value.Date);
+            }
+
+            // DATA FINAL
+            if (dataFimFinanceiro.HasValue)
+            {
+                query = query.Where(r =>
+                    r.DataVencimento.Date <=
+                    dataFimFinanceiro.Value.Date);
+            }
+
+            // ORDENAÇÃO
+            query = ordemValorFinanceiro switch
+            {
+                "asc" => query.OrderBy(r => r.GetValorTotal()),
+                "desc" => query.OrderByDescending(r => r.GetValorTotal()),
+                _ => query.OrderBy(r => r.DataVencimento)
+            };
+
+            return query;
+        }
+    }
+
+    private List<Receita> ReceitasFinanceirasPaginadas =>
+    ReceitasFinanceirasFiltradas
+        .Skip((paginaAtual - 1) * itensPorPagina)
+        .Take(itensPorPagina)
+        .ToList();
+
+    private List<Receita> ReceitasAluno = new();
     string search = "";
 
     IEnumerable<Aluno> alunosFiltrados =>
         alunos.Where(a => string.IsNullOrEmpty(search) ||
         (a.Nome?.ToLower().Contains(search.ToLower()) ?? false));
+
+    private List<int?> GetPaginasVisiveis()
+    {
+        var paginas = new List<int?>();
+
+        if (totalPaginas <= 7)
+        {
+            for (int i = 1; i <= totalPaginas; i++)
+                paginas.Add(i);
+
+            return paginas;
+        }
+
+        paginas.Add(1);
+
+        if (paginaAtual > 4)
+            paginas.Add(null);
+
+        int inicio = Math.Max(2, paginaAtual - 2);
+        int fim = Math.Min(totalPaginas - 1, paginaAtual + 2);
+
+        for (int i = inicio; i <= fim; i++)
+            paginas.Add(i);
+
+        if (paginaAtual < totalPaginas - 3)
+            paginas.Add(null);
+
+        paginas.Add(totalPaginas);
+
+        return paginas;
+    }
+
+    private void MudarPagina(int p)
+    {
+        if (p >= 1 && p <= totalPaginas)
+            paginaAtual = p;
+    }
+
+    private void ConfirmarPagamentoReceita(Receita Receita)
+    {
+        if (Receita == null) return;
+
+        Receita.Status = Receita.FinanceStatus.Pago;
+        Receita.DataPagamento = DateTime.Now;
+
+        CarregarReceitas();
+    }
+
+    private void CarregarReceitas()
+    {
+        if (alunoSelecionado == null) return;
+
+        ReceitasAluno = ReceitaController
+            .GetAll()
+            .Where(r => r.Aluno != null && r.Aluno.Id == alunoSelecionado.Id)
+            .OrderBy(r => r.DataVencimento)
+            .ToList();
+
+        paginaAtual = 1;
+    }
 
     protected override void OnInitialized() => LoadData();
 
@@ -342,7 +597,7 @@
             mostrarModalAluno = true;
             CarregarDadosAluno();
         }
-        
+
     }
 
     string GetResponsavelCPF(Aluno aluno)
@@ -427,6 +682,7 @@
             tipoParentesco = parentesco?.Tipo ?? 6;
         }
 
+        CarregarReceitas();
         CalcularIdade();
     }
 
@@ -463,7 +719,7 @@
 
         idadeExtenso = $"{anos} anos e {meses} meses";
     }
-
+    void GoReceita(Guid id) => Navigation.NavigateTo($"/dashboard-financeiro/{id}");
     void OnCpfInput(ChangeEventArgs e)
     {
         var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
@@ -569,4 +825,12 @@
             msgErro = "Erro: " + ex.Message;
         }
     }
+
+    private string GetStatusBadge(Receita.FinanceStatus status) => status switch
+    {
+        Receita.FinanceStatus.Pago => "bg-success",
+        Receita.FinanceStatus.EmAtraso => "bg-danger",
+        Receita.FinanceStatus.EmAndamento => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
 }
