@@ -12,10 +12,10 @@ namespace SITA.src.Model
         {
             { 0, "Mãe" },
             { 1, "Pai" },
-            { 2, "Tio" },
-            { 3, "Tia" },
-            { 4, "Avô" },
-            { 5, "Avó" },
+            { 5, "Tio" },
+            { 4, "Tia" },
+            { 3, "Avô" },
+            { 2, "Avó" },
             { 6, "Outro" }
         };
         public string? Telefone { get; set; }

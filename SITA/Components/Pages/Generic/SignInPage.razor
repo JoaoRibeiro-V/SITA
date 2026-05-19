@@ -23,7 +23,7 @@
                        @onkeydown="HandleCpfKeyDown"
                        onkeypress="onlyNumbers(event)"
                        class="form-control"
-                       placeholder="Usuário (CPF)"
+                       placeholder="CPF "
                        maxlength="14" />
 
                 <!-- PASSWORD -->
@@ -45,15 +45,6 @@
                 <button type="submit" id="confirmar" style="background-color: #1b6ec2; color: white;">
                     Entrar
                 </button>
-
-                <!-- SIGNUP -->
-                <div style="text-align: center; margin-top: 20px;">
-                    <button type="button"
-                            @onclick="IrParaCadastro"
-                            style="background: transparent; border: none; color: #000000; cursor: pointer; text-decoration: underline;">
-                        Não tem conta? Criar conta agora
-                    </button>
-                </div>
 
             </div>
         </EditForm>

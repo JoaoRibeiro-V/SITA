@@ -5,250 +5,112 @@
 @using SITA.src.Controller
 @inject NavigationManager Navigation
 
-<div class="container"
-     style="background-color: #f4f7f6;
-    padding: 25px;
-    border-radius: 15px;
-    border-top: 5px solid #3650a1;
-    margin-top: 30px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-
-    <h2 class="text-center fw-bold mb-4" style="color:#3650a1;">
-        Detalhamento Financeiro
-    </h2>
+<div class="pagina-financeiro">
+<div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+    <h1 style="color: #3650a1; font-weight: bold;">Gestão de Turmas</h1>
+    <div style="display: flex; gap: 10px;">
+      </div>
+</div>
 
     @if (Session.GetInstanceAccess().Level >= 4)
     {
-        <!-- CARDS -->
-        <div class="row text-center mb-4">
+        <section class="cards-financeiro">
 
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0"
-                     style="border-left: 5px solid #28a745;">
-
-                    <div class="card-body">
-                        <h5 class="text-muted">Saldo em Caixa</h5>
-
-                        <h2 class="text-success">
-                            R$ @saldoCaixa.ToString("N2")
-                        </h2>
-                    </div>
-
-                </div>
+            <div class="card-resumo saldo">
+                <h2>Saldo em Caixa</h2>
+                <h3>R$ @saldoCaixa.ToString("N2")</h3>
             </div>
 
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0"
-                     style="border-left: 5px solid #007bff;">
-
-                    <div class="card-body">
-                        <h5 class="text-muted">Previsão</h5>
-
-                        <h2 class="text-primary">
-                            R$ @previsaoReceita.ToString("N2")
-                        </h2>
-                    </div>
-
-                </div>
+            <div class="card-resumo previsao">
+                <h2>Previsão</h2>
+                <h3>R$ @previsaoReceita.ToString("N2")</h3>
             </div>
 
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0"
-                     style="border-left: 5px solid #dc3545;">
-
-                    <div class="card-body">
-                        <h5 class="text-muted">Inadimplência</h5>
-
-                        <h2 class="text-danger">
-                            R$ @valorAtraso.ToString("N2")
-                        </h2>
-                    </div>
-
-                </div>
+            <div class="card-resumo atraso">
+                <h2>Inadimplência</h2>
+                <h3>R$ @valorAtraso.ToString("N2")</h3>
             </div>
 
-        </div>
+        </section>
     }
 
-    <!-- RECEITAS -->
-    <div class="mt-5">
+    <h1 class="titulo-receitas">Gestão de Receitas</h1>
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 style="color: #3650a1; font-weight: bold;">
-                Gestão de Receitas
-            </h2>
-        </div>
+    <section class="area-receitas">
 
-        <hr />
+        <!-- FILTROS LATERAIS -->
+        <aside class="filtros">
 
-        <!-- FILTROS -->
-        <div class="card border-0 shadow-sm mb-4"
-             style="border-radius: 12px;">
-
-            <div class="card-body">
-
-                <div class="row g-3">
-
-                    <!-- PESQUISA -->
-                    <div class="col-md-4">
-
-                        <label class="fw-bold">
-                            Pesquisar
-                        </label>
-
-                        <input class="form-control"
-                               placeholder="Aluno, responsável, origem ou descrição..."
-                               @bind="pesquisa"
-                               @bind:event="oninput" />
-
-                    </div>
-
-                    <!-- TIPO -->
-                    <div class="col-md-2">
-
-                        <label class="fw-bold">
-                            Tipo
-                        </label>
-
-                        <select class="form-select"
-                                @bind="tipoFiltro">
-
-                            <option value="">
-                                Todos
-                            </option>
-
-                            @foreach (var tipo in tiposDisponiveis)
-                            {
-                                <option value="@tipo">
-                                    @tipo
-                                </option>
-                            }
-
-                        </select>
-
-                    </div>
-
-                    <!-- STATUS -->
-                    <div class="col-md-2">
-
-                        <label class="fw-bold">
-                            Status
-                        </label>
-
-                        <select class="form-select"
-                                @bind="statusFiltro">
-
-                            <option value="">
-                                Todos
-                            </option>
-
-                            <option value="Pago">
-                                Pago
-                            </option>
-
-                            <option value="EmAndamento">
-                                Em Andamento
-                            </option>
-
-                            <option value="EmAtraso">
-                                Em Atraso
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <!-- DATA INICIAL -->
-                    <div class="col-md-2">
-
-                        <label class="fw-bold">
-                            Data Inicial
-                        </label>
-
-                        <input type="date"
-                               class="form-control"
-                               @bind="dataInicio" />
-
-                    </div>
-
-                    <!-- DATA FINAL -->
-                    <div class="col-md-2">
-
-                        <label class="fw-bold">
-                            Data Final
-                        </label>
-
-                        <input type="date"
-                               class="form-control"
-                               @bind="dataFim" />
-
-                    </div>
-
-                    <!-- ORDENAÇÃO -->
-                    <div class="col-md-3">
-
-                        <label class="fw-bold">
-                            Ordenar Valor
-                        </label>
-
-                        <select class="form-select"
-                                @bind="ordemValor">
-
-                            <option value="">
-                                Padrão
-                            </option>
-
-                            <option value="asc">
-                                Menor → Maior
-                            </option>
-
-                            <option value="desc">
-                                Maior → Menor
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
+            <div class="filtro">
+                <label>Pesquisar</label>
+                <input placeholder="Aluno, responsável, origem ou descrição..."
+                       @bind="pesquisa"
+                       @bind:event="oninput" />
             </div>
 
-        </div>
+            <div class="filtro">
+                <label>Tipo</label>
+                <select @bind="tipoFiltro">
+                    <option value="">Todos</option>
+
+                    @foreach (var tipo in tiposDisponiveis)
+                    {
+                        <option value="@tipo">@tipo</option>
+                    }
+                </select>
+            </div>
+
+            <div class="filtro">
+                <label>Status</label>
+                <select @bind="statusFiltro">
+                    <option value="">Todos</option>
+                    <option value="Pago">Pago</option>
+                    <option value="EmAndamento">Em Andamento</option>
+                    <option value="EmAtraso">Em Atraso</option>
+                </select>
+            </div>
+
+            <div class="filtro">
+                <label>Data Inicial</label>
+                <input type="date" @bind="dataInicio" />
+            </div>
+
+            <div class="filtro">
+                <label>Data Final</label>
+                <input type="date" @bind="dataFim" />
+            </div>
+
+            <div class="filtro">
+                <label>Ordenar Valor</label>
+                <select @bind="ordemValor">
+                    <option value="">Padrão</option>
+                    <option value="asc">Menor → Maior</option>
+                    <option value="desc">Maior → Menor</option>
+                </select>
+            </div>
+
+        </aside>
 
         <!-- TABELA -->
-        <div class="table-responsive"
-             style="background: white;
-            border-radius: 10px;
-            padding: 15px;
-            width: 100%;">
+        <div class="conteudo-tabela">
 
-            <table class="table table-hover w-100"
-                   style="table-layout: fixed;">
-
-                <thead style="background-color:#3650a1; color:white;">
-
+            <table class="tabela-receitas">
+                <thead>
                     <tr>
-                        <th style="width: 15%;">Data</th>
-                        <th style="width: 20%;">Tipo</th>
-                        <th style="width: 30%;">Descrição</th>
-                        <th style="width: 15%;">Valor</th>
-                        <th style="width: 10%;">Status</th>
-                        <th style="width: 10%;">Ações</th>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Status</th>
                     </tr>
-
                 </thead>
 
                 <tbody>
-
                     @if (!ReceitasPaginadas.Any())
                     {
                         <tr>
-                            <td colspan="6"
-                                class="text-center text-muted">
-
+                            <td colspan="5" class="sem-registro">
                                 Nenhuma receita encontrada.
-
                             </td>
                         </tr>
                     }
@@ -256,150 +118,403 @@
                     {
                         @foreach (var item in ReceitasPaginadas)
                         {
-                            <tr class="align-middle">
-
-                                <!-- DATA -->
+                           <tr class="linha-clicavel"
+    @onclick="() => IrParaRelatorioReceita(item)">
                                 <td>
                                     @item.DataVencimento.ToString("dd/MM/yyyy")
                                 </td>
 
-                                <!-- TIPO -->
                                 <td>
                                     <span class="badge @GetTipoBadge(item.Type)">
                                         @item.GetTypeTexto()
                                     </span>
                                 </td>
 
-                                <!-- DESCRIÇÃO -->
-                                <td style="word-break: break-word;
-                                    white-space: normal;">
+                                <td class="descricao">
+                                    <strong>@item.Descricao</strong>
 
-                                    <div class="fw-bold">
-                                        @item.Descricao
-                                    </div>
-
-                                    <small class="text-muted">
-
+                                    <small>
                                         @(item.Aluno?.Nome
                                             ?? item.Responsavel?.Nome
                                             ?? item.Origem)
-
                                     </small>
-
                                 </td>
 
-                                <!-- VALOR -->
-                                <td class="text-success fw-bold">
-
+                                <td class="valor">
                                     @if (Session.GetInstanceAccess().Level >= 4)
                                     {
-                                        <span>
-                                            R$ @item.Valor.ToString("N2")
-                                        </span>
+                                        <span>R$ @item.Valor.ToString("N2")</span>
                                     }
                                     else
                                     {
-                                        <span>
-                                            R$ XX.XX
-                                        </span>
+                                        <span>R$ XX.XX</span>
                                     }
-
                                 </td>
 
-                                <!-- STATUS -->
                                 <td>
-
                                     <span class="badge @GetStatusBadge(item.Status)">
                                         @item.GetStatusTexto()
                                     </span>
-
                                 </td>
 
-                                <!-- AÇÕES -->
-                                <td>
-
-                                    <button class="btn btn-sm btn-outline-primary"
-                                            @onclick="() => IrParaRelatorioReceita(item)">
-
-                                        Ver
-
-                                    </button>
-
-                                </td>
-
+                               
                             </tr>
                         }
                     }
-
                 </tbody>
-
             </table>
 
-        </div>
+            <!-- PAGINAÇÃO -->
+            <div class="paginacao">
 
-        <!-- PAGINAÇÃO -->
-        <div class="d-flex justify-content-center align-items-center mt-3 gap-1">
+                <button class="btn-pagina-seta"
+                        disabled="@(paginaAtual == 1)"
+                        @onclick="() => MudarPagina(paginaAtual - 1)">
+                    ‹
+                </button>
 
-            <!-- LEFT -->
-            <button class="btn btn-link p-1"
-                    style="width: 24px;
-                height: 24px;
-                line-height: 1;
-                text-decoration: none;"
-                    disabled="@(paginaAtual == 1)"
-                    @onclick="() => MudarPagina(paginaAtual - 1)">
-
-                ‹
-
-            </button>
-
-            <!-- PAGES -->
-            @foreach (var p in GetPaginasVisiveis())
-            {
-                if (p == null)
+                @foreach (var p in GetPaginasVisiveis())
                 {
-                    <span class="px-2"
-                          style="font-size: 0.8rem;">
-
-                        ...
-
-                    </span>
+                    if (p == null)
+                    {
+                        <span class="reticencias">...</span>
+                    }
+                    else
+                    {
+                        <button class="btn-pagina @(paginaAtual == p ? "pagina-ativa" : "")"
+                                @onclick="() => MudarPagina(p.Value)">
+                            @p
+                        </button>
+                    }
                 }
-                else
-                {
-                    <button class="btn btn-sm @(paginaAtual == p ? "btn-primary" : "btn-outline-primary") px-2 py-0"
-                            style="width:32px;
-                        height:28px;
-                        font-size:0.75rem;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;"
-                            @onclick="() => MudarPagina(p.Value)">
 
-                        @p
+                <button class="btn-pagina-seta"
+                        disabled="@(paginaAtual == totalPaginas)"
+                        @onclick="() => MudarPagina(paginaAtual + 1)">
+                    ›
+                </button>
 
-                    </button>
-                }
-            }
-
-            <!-- RIGHT -->
-            <button class="btn btn-link p-1"
-                    style="width: 24px;
-                height: 24px;
-                line-height: 1;
-                text-decoration: none;"
-                    disabled="@(paginaAtual == totalPaginas)"
-                    @onclick="() => MudarPagina(paginaAtual + 1)">
-
-                ›
-
-            </button>
+            </div>
 
         </div>
 
-    </div>
+    </section>
 
 </div>
+
+<style>
+    .linha-clicavel {
+        cursor: pointer;
+    }
+
+        .linha-clicavel:hover {
+            background: #f6f8ff;
+        }
+
+    .pagina-financeiro {
+        width: 100%;
+        padding: 8px 16px 30px 16px;
+        box-sizing: border-box;
+    }
+
+    .titulo-principal {
+        margin: 0 0 42px 8px;
+        color: #000;
+        font-size: 34px;
+        font-weight: bold;
+    }
+
+    .cards-financeiro {
+        width: 100%;
+        display: flex;
+        gap: 22px;
+        margin-bottom: 40px;
+    }
+
+    .card-resumo {
+        flex: 1;
+        min-height: 115px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 18px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        box-sizing: border-box;
+    }
+
+        .card-resumo h2 {
+            margin: 0;
+            color: #808080;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .card-resumo h3 {
+            margin: 2px 0 0 0;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+    .saldo {
+        border-left: 2px solid #16a34a;
+    }
+
+        .saldo h3 {
+            color: #16a34a;
+        }
+
+    .previsao {
+        border-left: 2px solid #000080;
+    }
+
+        .previsao h3 {
+            color: #000080;
+        }
+
+    .atraso {
+        border-left: 2px solid #dc2626;
+    }
+
+        .atraso h3 {
+            color: #dc2626;
+        }
+
+    .titulo-receitas {
+        margin: 0 0 12px 8px;
+        color: #000;
+        font-size: 34px;
+        font-weight: bold;
+    }
+
+    .area-receitas {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .filtros {
+        width: 225px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        box-sizing: border-box;
+    }
+
+    .filtro {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+        .filtro label {
+            color: #111;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .filtro input,
+        .filtro select {
+            width: 100%;
+            height: 34px;
+            padding: 0 10px;
+            border: 1px solid #cfcfcf;
+            border-radius: 7px;
+            background: #fff;
+            font-size: 12px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+            .filtro input:focus,
+            .filtro select:focus {
+                border-color: #3650a1;
+            }
+
+    .conteudo-tabela {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .tabela-receitas {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+        .tabela-receitas thead {
+            background: #000080;
+            color: white;
+        }
+
+        .tabela-receitas th {
+            height: 32px;
+            padding: 0 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .tabela-receitas td {
+            min-height: 42px;
+            padding: 8px;
+            text-align: center;
+            font-size: 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e7e7e7;
+        }
+
+        .tabela-receitas tbody tr:hover {
+            background: #f6f8ff;
+        }
+
+    .descricao {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+        .descricao strong {
+            display: block;
+            font-weight: 600;
+        }
+
+        .descricao small {
+            display: block;
+            margin-top: 3px;
+            color: #666;
+            font-size: 13px;
+        }
+
+    .valor {
+        color: #0f7d33;
+        font-weight: bold;
+    }
+
+    .sem-registro {
+        height: 50px;
+        color: #333;
+        font-size: 17px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 7px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .bg-primary {
+        background: #2563eb;
+    }
+
+    .bg-info {
+        background: #0891b2;
+    }
+
+    .bg-secondary {
+        background: #6b7280;
+    }
+
+    .bg-dark {
+        background: #1f2937;
+    }
+
+    .bg-success {
+        background: #16a34a;
+    }
+
+    .bg-danger {
+        background: #dc2626;
+    }
+
+    .bg-warning {
+        background: #facc15;
+    }
+
+    .text-dark {
+        color: #111 !important;
+    }
+
+    .btn-ver {
+        padding: 6px 12px;
+        border: 1px solid #3650a1;
+        border-radius: 6px;
+        background: white;
+        color: #3650a1;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        .btn-ver:hover {
+            background: #3650a1;
+            color: white;
+        }
+
+    .paginacao {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        margin-top: 16px;
+    }
+
+    .btn-pagina,
+    .btn-pagina-seta {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #3650a1;
+        border-radius: 6px;
+        background: white;
+        color: #3650a1;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .btn-pagina-seta {
+        border: none;
+        font-size: 18px;
+    }
+
+        .btn-pagina-seta:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+    .pagina-ativa {
+        background: #3650a1;
+        color: white;
+    }
+
+    .reticencias {
+        padding: 0 5px;
+        color: #555;
+        font-size: 13px;
+    }
+
+    @@media (max-width: 900px) {
+        .cards-financeiro {
+            flex-direction: column;
+        }
+
+        .area-receitas {
+            flex-direction: column;
+        }
+
+        .filtros {
+            width: 100%;
+        }
+    }
+</style>
 
 @code {
 
