@@ -12,7 +12,8 @@ namespace SITA.src.Model
         {
             Mensalidade = 0,
             Aquisicao = 1,
-            Outros = 2
+            Taxas = 2,
+            Outros = 9
         }
         public enum ReceitaStatus
         {
@@ -24,46 +25,17 @@ namespace SITA.src.Model
         public string Origem { get; set; }
         public Aluno? Aluno { get; set; } = null;
         public Responsavel? Responsavel { get; set; } = null;
-        public ReceitaStatus Status
-        {
-            get
-            {
-                if (_status == ReceitaStatus.Pago)
-                    return ReceitaStatus.Pago;
-
-                if (DataVencimento < DateTime.Now)
-                    return ReceitaStatus.EmAtraso;
-                if (DataVencimento.Month == DateTime.Now.Month)
-                    return ReceitaStatus.Pendente;
-
-                return ReceitaStatus.EmAndamento;
-            }
-            set
-            {
-                _status = value;
-            }
-        }
-
-        private ReceitaStatus _status;
         public ReceitaTipo Type { get; set; }
-        public DateTime DataVencimento { get; set; }
         public Receita()
         {
                 Id = Guid.NewGuid();
                 DataEmissao = DateTime.Now;
-                _status = ReceitaStatus.EmAndamento; // Em andamento
         }
-        public string GetStatusTexto() => Status switch
-        {
-            ReceitaStatus.EmAndamento => "Em andamento",
-            ReceitaStatus.Pago => "Pago",
-            ReceitaStatus.EmAtraso => "Em atraso",
-            _ => "Indefinido"
-        };
         public string GetTypeTexto() => Type switch
         {
             ReceitaTipo.Mensalidade => "Mensalidade",
             ReceitaTipo.Aquisicao => "Aquisição",
+            ReceitaTipo.Taxas => "Taxas",
             ReceitaTipo.Outros => "Outros",
             _ => "Indefinido"
         };

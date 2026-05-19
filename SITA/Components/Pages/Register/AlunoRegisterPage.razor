@@ -138,10 +138,14 @@
         </div>
     </div>
 
-    <div class="data-flex gap-3 mt-4">
+    <div class="data-flex gap-6 mt-8">
         <div class="col-md-3">
             <label class="fw-bold">Valor Matrícula (R$):</label>
             <input type="number" class="form-control border-success fw-bold" @bind="valorMatriculaDigitada" step="0.01" />
+        </div>
+        <div class="col-md-3">
+            <label class="fw-bold">Taxa Matrícula (R$):</label>
+            <input type="number" class="form-control border-success fw-bold" @bind="valorTaxaMatricula" step="0.01" />
         </div>
     </div>
         
@@ -171,6 +175,7 @@
     private Responsavel? responsavelSelecionado = null;
 
     private decimal valorMatriculaDigitada = 0;
+    private decimal valorTaxaMatricula = 0;
 
     private string idadeExtenso = "0 anos e 0 meses";
     private string turmaId = "";
@@ -250,11 +255,14 @@
                 msgErro = "Responsável não encontrado no sistema.";
                 return;
             }
+            DateTime FimAno = new DateTime(DateTime.Today.Year, 12, 31);
             novoAluno.DataCadastro = DateTime.Now;
             AlunoController.Register(novoAluno);
 
             ResponsavelController.AddParentesco(resp, novoAluno, tipoParentesco);
-            ReceitaController.GerarCarneAluno(novoAluno, resp, valorMatriculaDigitada, DateTime.Today.AddYears(1));
+            ReceitaController.GerarCarneAluno(novoAluno, resp, valorMatriculaDigitada, FimAno);
+            ReceitaController.GerarTaxaMatricula(novoAluno, resp, valorTaxaMatricula);
+
             System.Diagnostics.Debug.WriteLine(turmaId);
 
             if (!string.IsNullOrEmpty(turmaId))

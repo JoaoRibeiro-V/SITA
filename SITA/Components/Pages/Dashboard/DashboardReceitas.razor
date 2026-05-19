@@ -34,9 +34,9 @@
         </section>
     }
 
-    <h1 class="titulo-receitas">Gestão de Receitas</h1>
+    <h1 class="titulo-Receitas">Gestão de Receitas</h1>
 
-    <section class="area-receitas">
+    <section class="area-Receitas">
 
         <!-- FILTROS LATERAIS -->
         <aside class="filtros">
@@ -94,7 +94,7 @@
         <!-- TABELA -->
         <div class="conteudo-tabela">
 
-            <table class="tabela-receitas">
+            <table class="tabela-Receitas">
                 <thead>
                     <tr>
                         <th>Data</th>
@@ -110,7 +110,7 @@
                     {
                         <tr>
                             <td colspan="5" class="sem-registro">
-                                Nenhuma receita encontrada.
+                                Nenhuma Receita encontrada.
                             </td>
                         </tr>
                     }
@@ -143,7 +143,7 @@
                                 <td class="valor">
                                     @if (Session.GetInstanceAccess().Level >= 4)
                                     {
-                                        <span>R$ @item.Valor.ToString("N2")</span>
+                                        <span>R$ @item.GetValorTotal().ToString("N2")</span>
                                     }
                                     else
                                     {
@@ -281,14 +281,14 @@
             color: #dc2626;
         }
 
-    .titulo-receitas {
+    .titulo-Receitas {
         margin: 0 0 12px 8px;
         color: #000;
         font-size: 34px;
         font-weight: bold;
     }
 
-    .area-receitas {
+    .area-Receitas {
         width: 100%;
         display: flex;
         align-items: flex-start;
@@ -343,18 +343,18 @@
         min-width: 0;
     }
 
-    .tabela-receitas {
+    .tabela-Receitas {
         width: 100%;
         border-collapse: collapse;
         table-layout: fixed;
     }
 
-        .tabela-receitas thead {
+        .tabela-Receitas thead {
             background: #000080;
             color: white;
         }
 
-        .tabela-receitas th {
+        .tabela-Receitas th {
             height: 32px;
             padding: 0 8px;
             text-align: center;
@@ -362,7 +362,7 @@
             font-weight: bold;
         }
 
-        .tabela-receitas td {
+        .tabela-Receitas td {
             min-height: 42px;
             padding: 8px;
             text-align: center;
@@ -371,7 +371,7 @@
             border-bottom: 1px solid #e7e7e7;
         }
 
-        .tabela-receitas tbody tr:hover {
+        .tabela-Receitas tbody tr:hover {
             background: #f6f8ff;
         }
 
@@ -392,7 +392,7 @@
             font-size: 13px;
         }
 
-    .valor {
+    .GetValorTotal() {
         color: #0f7d33;
         font-weight: bold;
     }
@@ -506,7 +506,7 @@
             flex-direction: column;
         }
 
-        .area-receitas {
+        .area-Receitas {
             flex-direction: column;
         }
 
@@ -570,17 +570,17 @@
             if (statusFiltro == "Pago")
             {
                 query = query.Where(r =>
-                    r.Status == Receita.ReceitaStatus.Pago);
+                    r.IsPago());
             }
             else if (statusFiltro == "EmAndamento")
             {
                 query = query.Where(r =>
-                    r.Status == Receita.ReceitaStatus.EmAndamento);
+                    r.Status == Receita.FinanceStatus.EmAndamento);
             }
             else if (statusFiltro == "EmAtraso")
             {
                 query = query.Where(r =>
-                    r.Status == Receita.ReceitaStatus.EmAtraso);
+                    r.Status == Receita.FinanceStatus.EmAtraso);
             }
 
             // DATA INICIAL
@@ -600,8 +600,8 @@
             // ORDENAÇÃO
             query = ordemValor switch
             {
-                "asc" => query.OrderBy(r => r.Valor),
-                "desc" => query.OrderByDescending(r => r.Valor),
+                "asc" => query.OrderBy(r => r.GetValorTotal()),
+                "desc" => query.OrderByDescending(r => r.GetValorTotal()),
                 _ => query.OrderBy(r => r.DataVencimento)
             };
 
@@ -630,23 +630,23 @@
 
         var todasDespesas = DespesaController.GetAll();
 
-        float receitasPagas = todasReceitas
-            .Where(r => r.Status == Receita.ReceitaStatus.Pago)
-            .Sum(r => (float)r.Valor);
+        float ReceitasPagas = todasReceitas
+            .Where(r => r.IsPago())
+            .Sum(r => (float)r.GetValorTotal());
 
         float despesasPagas = todasDespesas
-            .Where(d => d.Status)
-            .Sum(d => (float)d.Valor);
+            .Where(d => d.IsPago())
+            .Sum(d => (float)d.GetValorTotal());
 
-        saldoCaixa = receitasPagas - despesasPagas;
+        saldoCaixa = ReceitasPagas - despesasPagas;
 
         previsaoReceita = todasReceitas
-            .Where(r => r.Status == Receita.ReceitaStatus.EmAndamento)
-            .Sum(r => (float)r.Valor);
+            .Where(r => r.Status == Receita.FinanceStatus.EmAndamento)
+            .Sum(r => (float)r.GetValorTotal());
 
         valorAtraso = todasReceitas
-            .Where(r => r.Status == Receita.ReceitaStatus.EmAtraso)
-            .Sum(r => (float)r.Valor);
+            .Where(r => r.Status == Receita.FinanceStatus.EmAtraso)
+            .Sum(r => (float)r.GetValorTotal());
     }
 
     private void MudarPagina(int pagina)
@@ -688,9 +688,9 @@
         return paginas;
     }
 
-    private void IrParaRelatorioReceita(Receita receita)
+    private void IrParaRelatorioReceita(Receita Receita)
     {
-        Navigation.NavigateTo($"/folha-pagamento/receita/{receita.Id}#receita-section");
+        Navigation.NavigateTo($"/folha-pagamento/Receita/{Receita.Id}#Receita-section");
     }
 
     private string GetTipoBadge(Receita.ReceitaTipo tipo) => tipo switch
@@ -701,11 +701,11 @@
         _ => "bg-dark"
     };
 
-    private string GetStatusBadge(Receita.ReceitaStatus status) => status switch
+    private string GetStatusBadge(Receita.FinanceStatus status) => status switch
     {
-        Receita.ReceitaStatus.Pago => "bg-success",
-        Receita.ReceitaStatus.EmAtraso => "bg-danger",
-        Receita.ReceitaStatus.EmAndamento => "bg-warning text-dark",
+        Receita.FinanceStatus.Pago => "bg-success",
+        Receita.FinanceStatus.EmAtraso => "bg-danger",
+        Receita.FinanceStatus.EmAndamento => "bg-warning text-dark",
         _ => "bg-secondary"
     };
 

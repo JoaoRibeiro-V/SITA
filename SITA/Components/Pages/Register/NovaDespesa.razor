@@ -168,7 +168,7 @@
 
     private void OnStatusChange(ChangeEventArgs e)
     {
-        novaDespesa.Status = bool.Parse(e.Value?.ToString() ?? "false");
+        novaDespesa.Status = bool.Parse(e.Value?.ToString() ?? "false") ? Financeiro.FinanceStatus.Pago : Financeiro.FinanceStatus.Pendente;
     }
 
     private float ParseValor(string texto)
@@ -199,7 +199,11 @@
         try
         {
             novaDespesa.Valor = valorDigitado;
-            novaDespesa.DataPagamento = novaDespesa.DataVencimento;
+            if (novaDespesa.IsPago())
+            {
+                novaDespesa.DataPagamento = novaDespesa.DataVencimento;
+            }
+            
             DespesaController.Register(novaDespesa);
             Navigation.NavigateTo("/despesas");
         }

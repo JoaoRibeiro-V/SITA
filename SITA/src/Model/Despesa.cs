@@ -8,9 +8,6 @@ namespace SITA.src.Model
     {
         public string? Fornecedor { get; set; }
         public string? Categoria { get; set; }
-        public DateTime DataPagamento { get; set; }
-        public DateTime DataVencimento { get; set; }
-        public bool Status { get; set; }
 
         // Novos Campos Robustos
         public string? QuemPagou { get; set; } // Nome do funcionário
@@ -22,10 +19,7 @@ namespace SITA.src.Model
 
         public Despesa() : base()
         {
-            Status = false;
             DataVencimento = DateTime.Now;
-
         }
-         public bool IsPago => Status == true;
     }
 }

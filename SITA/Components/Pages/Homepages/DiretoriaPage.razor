@@ -176,7 +176,7 @@
 						</div>
 
 						<small class="text-muted">
-							R$ @Movimentacoes[Key].Receita.Pendentes.ToString("N2")
+							R$ @Movimentacoes[Key].Receita.MensalidadesPendentes.ToString("N2")
 						</small>
 					</div>
 
@@ -496,7 +496,7 @@
 		todasReceitas = ReceitaController.GetAll();
 		todasDespesas = DespesaController.GetAll();
 
-		SaldoLiquidoTotal = todasReceitas.Where(r => r.DataVencimento.Year == mesAtual.Year && r.GetStatusTexto() == "Pago").Sum(r => r.Valor) - todasDespesas.Where(d => d.DataVencimento.Year == mesAtual.Year && d.IsPago).Sum(d => d.Valor);
+		SaldoLiquidoTotal = todasReceitas.Where(r => r.DataVencimento.Year == mesAtual.Year && r.GetStatusTexto() == "Pago").Sum(r => r.GetValorTotal()) - todasDespesas.Where(d => d.DataVencimento.Year == mesAtual.Year && d.IsPago()).Sum(d => d.GetValorTotal());
 	}
 
 	private void CalcularDados()
@@ -508,26 +508,26 @@
 			return;
 		}
 
-		var receitasMesAtual = todasReceitas
-			.Where(r => r.DataVencimento.Month == mesAtual.Month && r.DataVencimento.Year == mesAtual.Year)
+		var ReceitasMesAtual = todasReceitas
+			.Where(r => r.DataReferente.Month == mesAtual.Month && r.DataReferente.Year == mesAtual.Year)
 			.ToList();
 
 		var despesasMesAtual = todasDespesas
-					.Where(d => d.DataVencimento.Month == mesAtual.Month && d.DataVencimento.Year == mesAtual.Year)
+					.Where(d => d.DataReferente.Month == mesAtual.Month && d.DataReferente.Year == mesAtual.Year)
 					.ToList();
 
 		var financeData = new FinanceData();
 
-		foreach (var receita in receitasMesAtual)
+		foreach (var Receita in ReceitasMesAtual)
 		{
-			double valor = (double)receita.Valor;
-			bool isMensalidade = receita.GetTypeTexto() == "Mensalidade";
+			double valor = (double)Receita.GetValorTotal();
+			bool isMensalidade = Receita.GetTypeTexto() == "Mensalidade";
 
 			financeData.Receita.Total += valor;
 
-			switch (receita.Status)
+			switch (Receita.Status)
 			{
-				case Receita.ReceitaStatus.Pago:
+				case Receita.FinanceStatus.Pago:
 					financeData.Receita.Recebido += valor;
 					financeData.Receita.qtRecebido++;
 					if (isMensalidade)
@@ -537,7 +537,7 @@
 					}
 					break;
 
-				case Receita.ReceitaStatus.Pendente:
+				case Receita.FinanceStatus.Pendente:
 					financeData.Receita.Pendentes += valor;
 					financeData.Receita.qtPendentes++;
 					if (isMensalidade)
@@ -547,7 +547,7 @@
 					}
 					break;
 
-				case Receita.ReceitaStatus.EmAndamento:
+				case Receita.FinanceStatus.EmAndamento:
 					financeData.Receita.Pendentes += valor;
 					financeData.Receita.qtPendentes++;
 					if (isMensalidade)
@@ -557,7 +557,7 @@
 					}
 					break;
 
-				case Receita.ReceitaStatus.EmAtraso:
+				case Receita.FinanceStatus.EmAtraso:
 					financeData.Receita.Atrasadas += valor;
 					financeData.Receita.qtAtrasadas++;
 					if (isMensalidade)
@@ -577,10 +577,10 @@
 
 		foreach (var despesa in despesasMesAtual)
 		{
-			double valor = (double)despesa.Valor;
+			double valor = (double)despesa.GetValorTotal();
 			financeData.Despesa.Total += valor;
 
-			if (despesa.IsPago)
+			if (despesa.IsPago())
 			{
 				financeData.Despesa.Pagas += valor;
 				financeData.Despesa.qtPagas++;
@@ -724,15 +724,54 @@
 		if (tipoExibicao == TipoExibicao.Receitas || tipoExibicao == TipoExibicao.Ambos)
 		{
 			total += todasReceitas
-				.Where(r => r.DataVencimento.Date == data.Date)
-				.Sum(r => r.Valor);
+				.Where(r =>
+				{
+					// Se não está paga: mostrar no DataReferente
+					if (!r.IsPago())
+					{
+						return r.DataReferente.Date == data.Date;
+					}
+
+					// Se está paga: verificar se estava atrasada
+					// Atrasada = DataPagamento > DataVencimento
+					bool estavaAtrasada = r.DataPagamento.HasValue && r.DataPagamento.Value.Date > r.DataVencimento.Date;
+
+					if (estavaAtrasada)
+					{
+						// Se pagou com atraso: mostrar no DataReferente
+						return r.DataReferente.Date == data.Date;
+					}
+					else
+					{
+						// Se pagou no prazo: mostrar no DataPagamento
+						return r.DataPagamento?.Date == data.Date;
+					}
+				})
+				.Sum(r => r.GetValorTotal());
 		}
 
 		if (tipoExibicao == TipoExibicao.Despesas || tipoExibicao == TipoExibicao.Ambos)
 		{
 			total -= todasDespesas
-				.Where(d => d.DataVencimento.Date == data.Date)
-				.Sum(d => d.Valor);
+				.Where(d =>
+				{
+					if (!d.IsPago())
+					{
+						return d.DataReferente.Date == data.Date;
+					}
+
+					bool estavaAtrasada = d.DataPagamento.HasValue && d.DataPagamento.Value.Date > d.DataVencimento.Date;
+
+					if (estavaAtrasada)
+					{
+						return d.DataReferente.Date == data.Date;
+					}
+					else
+					{
+						return d.DataPagamento?.Date == data.Date;
+					}
+				})
+				.Sum(d => d.GetValorTotal());
 		}
 
 		return total;
@@ -745,13 +784,30 @@
 		if (tipoExibicao == TipoExibicao.Receitas || tipoExibicao == TipoExibicao.Ambos)
 		{
 			var receitas = todasReceitas
-				.Where(r => r.DataVencimento.Date == dataSelecionada.Date)
+				.Where(r =>
+				{
+					if (!r.IsPago())
+					{
+						return r.DataReferente.Date == dataSelecionada.Date;
+					}
+
+					bool estavaAtrasada = r.DataPagamento.HasValue && r.DataPagamento.Value.Date > r.DataVencimento.Date;
+
+					if (estavaAtrasada)
+					{
+						return r.DataReferente.Date == dataSelecionada.Date;
+					}
+					else
+					{
+						return r.DataPagamento?.Date == dataSelecionada.Date;
+					}
+				})
 				.Select(r => new TransacaoDia
 				{
 					Descricao = r.Descricao ?? "Sem descrição",
-					Valor = r.Valor,
+					Valor = r.GetValorTotal(),
 					Tipo = r.GetTypeTexto(),
-					Status = r.GetStatusTexto()
+					Status = ObterStatusDetalhado(r)
 				});
 			transacoes.AddRange(receitas);
 		}
@@ -759,18 +815,53 @@
 		if (tipoExibicao == TipoExibicao.Despesas || tipoExibicao == TipoExibicao.Ambos)
 		{
 			var despesas = todasDespesas
-				.Where(d => d.DataVencimento.Date == dataSelecionada.Date)
+				.Where(d =>
+				{
+					if (!d.IsPago())
+					{
+						return d.DataReferente.Date == dataSelecionada.Date;
+					}
+
+					bool estavaAtrasada = d.DataPagamento.HasValue && d.DataPagamento.Value.Date > d.DataVencimento.Date;
+
+					if (estavaAtrasada)
+					{
+						return d.DataReferente.Date == dataSelecionada.Date;
+					}
+					else
+					{
+						return d.DataPagamento?.Date == dataSelecionada.Date;
+					}
+				})
 				.Select(d => new TransacaoDia
 				{
 					Descricao = d.Descricao ?? "Sem descrição",
-					Valor = -d.Valor,
+					Valor = -d.GetValorTotal(),
 					Tipo = d.Categoria ?? "Despesa",
-					Status = d.IsPago ? "Pago" : "Pendente"
+					Status = ObterStatusDetalhado(d)
 				});
 			transacoes.AddRange(despesas);
 		}
 
 		return transacoes.OrderByDescending(t => Math.Abs(t.Valor)).ToList();
+	}
+
+	private string ObterStatusDetalhado(Financeiro financeiro)
+	{
+		if (!financeiro.IsPago())
+		{
+			return financeiro.GetStatusTexto();
+		}
+
+		bool estavaAtrasada = financeiro.DataPagamento.HasValue &&
+								  financeiro.DataPagamento.Value.Date > financeiro.DataVencimento.Date;
+
+		if (estavaAtrasada)
+		{
+			return $"Pago com atraso em {financeiro.DataPagamento?.ToString("dd/MM/yyyy")}";
+		}
+
+		return "Pago";
 	}
 
 	private string GetStatusBadgeClass(string status)

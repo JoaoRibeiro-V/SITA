@@ -86,8 +86,9 @@ public static class JsonHandler
 
                 DataPagamento = despesaDTO.dataPagamento,
                 DataVencimento = despesaDTO.dataVencimento,
+                DataReferente = despesaDTO.dataPagamento,
 
-                Status = despesaDTO.status,
+                Status = despesaDTO.status ? Financeiro.FinanceStatus.Pago : Financeiro.FinanceStatus.Pendente,
 
                 QuemPagou = despesaDTO.quemPagou,
 
@@ -186,10 +187,22 @@ public static class JsonHandler
                     root.mensalidade,
                     root.fimMatricula
                 );
+                decimal taxaAleatoria = 0;
+                taxaAleatoria += new Random().Next(100, 500);
+
+                ReceitaController.GerarTaxaMatricula(aluno, responsavel, taxaAleatoria);
                 var matriculas = ReceitaController.GetAll()
-                    .Where(r => r.Aluno.Id == aluno.Id)
+                    .Where(r => r.Aluno.Id == aluno.Id && r.Type == Receita.ReceitaTipo.Mensalidade)
                     .ToList().FirstOrDefault();
-                matriculas.Status = Receita.ReceitaStatus.Pago;
+                matriculas.Status = Receita.FinanceStatus.Pago;
+                matriculas.DataPagamento = DateTime.Now;
+
+                var taxa = ReceitaController.GetAll()
+                    .Where(r => r.Aluno.Id == aluno.Id && r.Type == Receita.ReceitaTipo.Taxas)
+                    .ToList().FirstOrDefault();
+                bool randomPago = new Random().Next(0, 2) == 0;
+                taxa.Status = randomPago ? Receita.FinanceStatus.Pago : Receita.FinanceStatus.Pendente;
+                taxa.DataPagamento = randomPago? DateTime.Now.AddDays(new Random().Next(2,10)) : null;
             }
         }
     }

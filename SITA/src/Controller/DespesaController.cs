@@ -21,7 +21,7 @@ namespace SITA.src.Controller
         }
 
        
-        public static List<Despesa> GetByStatus(bool pago)
+        public static List<Despesa> GetByStatus(Financeiro.FinanceStatus pago)
         {
             return GetAll().Where(d => d.Status == pago).ToList();
         }

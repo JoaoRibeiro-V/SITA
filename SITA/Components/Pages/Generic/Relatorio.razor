@@ -1,6 +1,6 @@
 ﻿@page "/folha-pagamento/"
 @page "/folha-pagamento/aluno/{AlunoId:guid?}"
-@page "/folha-pagamento/receita/{ReceitaId:guid?}"
+@page "/folha-pagamento/Receita/{ReceitaId:guid?}"
 @page "/folha-pagamento/despesas/{DespesaId:guid?}"
 @using SITA.src.Model
 @using SITA.src.Storage
@@ -102,7 +102,7 @@
     {
         <h5 style="color:#3650a1;"><b>Mensalidades</b></h5>
 
-        @if (receitasAluno.Any())
+        @if (ReceitasAluno.Any())
         {
             <table class="table table-sm table-bordered table-striped mt-3">
                 <thead style="background-color:#3650a1; color:white;">
@@ -115,12 +115,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var r in receitasPaginadas)
+                    @foreach (var r in ReceitasPaginadas)
                     {
                         <tr>
                             <td>@r.DataVencimento.ToString("MM/yyyy")</td>
                             <td>@r.DataVencimento.ToString("dd/MM/yyyy")</td>
-                            <td>R$ @r.Valor.ToString("N2")</td>
+                            <td>R$ @r.GetValorTotal().ToString("N2")</td>
                             <td>
                                 <span class="badge @GetStatusBadge(r.Status)">
                                     @r.GetStatusTexto()
@@ -175,10 +175,10 @@
         }
     }
 
-    <h4> RECEITAS </h4>
+    <h4> ReceitaS </h4>
     <hr />
 
-    <div id="receita-section" style="background-color: #f0fff4; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #28a745;">
+    <div id="Receita-section" style="background-color: #f0fff4; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #28a745;">
 
         <h5 style="color: #28a745; font-weight: bold;">
             Selecionar Receita
@@ -186,7 +186,7 @@
 
         <div class="position-relative">
 
-            <input class="form-control @(receitaSelecionadaDetalhes != null ? "border-success" : "")"
+            <input class="form-control @(ReceitaSelecionadaDetalhes != null ? "border-success" : "")"
                    value="@buscaReceita"
                    @oninput="OnReceitaInput"
                    placeholder="Descrição, origem ou aluno..." />
@@ -212,7 +212,7 @@
                             <small class="text-muted">
                                 @r.GetTypeTexto()
                                 |
-                                R$ @r.Valor.ToString("N2")
+                                R$ @r.GetValorTotal().ToString("N2")
                             </small>
 
                         </button>
@@ -221,7 +221,7 @@
                 </div>
             }
 
-            @if (receitaSelecionadaDetalhes != null)
+            @if (ReceitaSelecionadaDetalhes != null)
             {
                 <div class="text-success mt-1">
                     ✔ Receita selecionada
@@ -230,7 +230,7 @@
 
         </div>
     </div>
-    @if (receitaSelecionadaDetalhes != null)
+    @if (ReceitaSelecionadaDetalhes != null)
     {
         <div style="background-color: #f0fff4; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #28a745;">
 
@@ -254,13 +254,13 @@
 
                 <div class="col-md-6">
 
-                    <p><strong>Descrição:</strong> @receitaSelecionadaDetalhes.Descricao</p>
+                    <p><strong>Descrição:</strong> @ReceitaSelecionadaDetalhes.Descricao</p>
 
-                    <p><strong>Origem:</strong> @receitaSelecionadaDetalhes.Origem</p>
+                    <p><strong>Origem:</strong> @ReceitaSelecionadaDetalhes.Origem</p>
 
-                    <p><strong>Tipo:</strong> @receitaSelecionadaDetalhes.GetTypeTexto()</p>
+                    <p><strong>Tipo:</strong> @ReceitaSelecionadaDetalhes.GetTypeTexto()</p>
 
-                    <p><strong>Aluno:</strong> @receitaSelecionadaDetalhes.Aluno?.Nome</p>
+                    <p><strong>Aluno:</strong> @ReceitaSelecionadaDetalhes.Aluno?.Nome</p>
 
                 </div>
 
@@ -268,38 +268,38 @@
 
                     <p>
                         <strong>Vencimento:</strong>
-                        @receitaSelecionadaDetalhes.DataVencimento.ToString("dd/MM/yyyy")
+                        @ReceitaSelecionadaDetalhes.DataVencimento.ToString("dd/MM/yyyy")
                     </p>
 
                     <p>
                         <strong>Valor:</strong>
 
                         <span class="text-success fw-bold">
-                            R$ @receitaSelecionadaDetalhes.Valor.ToString("N2")
+                            R$ @ReceitaSelecionadaDetalhes.GetValorTotal().ToString("N2")
                         </span>
                     </p>
 
                     <p>
                         <strong>Status:</strong>
 
-                        <span class="badge @GetStatusBadge(receitaSelecionadaDetalhes.Status)">
-                            @receitaSelecionadaDetalhes.GetStatusTexto()
+                        <span class="badge @GetStatusBadge(ReceitaSelecionadaDetalhes.Status)">
+                            @ReceitaSelecionadaDetalhes.GetStatusTexto()
                         </span>
                     </p>
 
                     <p>
                         <strong>Responsável:</strong>
-                        @receitaSelecionadaDetalhes.Responsavel?.Nome
+                        @ReceitaSelecionadaDetalhes.Responsavel?.Nome
                     </p>
 
                 </div>
 
             </div>
 
-            @if (receitaSelecionadaDetalhes.Status != Receita.ReceitaStatus.Pago)
+            @if (ReceitaSelecionadaDetalhes.Status != Receita.FinanceStatus.Pago)
             {
                 <button class="btn btn-success w-100 mt-3"
-                        @onclick="() => ConfirmarPagamentoReceita(receitaSelecionadaDetalhes)">
+                        @onclick="() => ConfirmarPagamentoReceita(ReceitaSelecionadaDetalhes)">
                     CONFIRMAR RECEBIMENTO
                 </button>
             }
@@ -336,7 +336,7 @@
                             <strong>@d.Descricao</strong>
                             <small class="text-muted"> - @d.Fornecedor</small>
                             <br />
-                            <small class="text-muted">@d.Categoria | R$ @d.Valor.ToString("N2")</small>
+                            <small class="text-muted">@d.Categoria | R$ @d.GetValorTotal().ToString("N2")</small>
                         </button>
                     }
                 </div>
@@ -378,11 +378,11 @@
                 </div>
                 <div class="col-md-6">
                     <p><strong>Vencimento:</strong> @despesaSelecionada.DataVencimento.ToString("dd/MM/yyyy")</p>
-                    <p><strong>Valor:</strong> <span class="text-danger fw-bold">R$ @despesaSelecionada.Valor.ToString("N2")</span></p>
+                    <p><strong>Valor:</strong> <span class="text-danger fw-bold">R$ @despesaSelecionada.GetValorTotal().ToString("N2")</span></p>
                     <p>
                         <strong>Status:</strong>
-                        <span class="badge @(despesaSelecionada.IsPago ? "bg-success" : "bg-warning text-dark")">
-                            @(despesaSelecionada.IsPago ? "Pago" : "Pendente")
+                        <span class="badge @(despesaSelecionada.IsPago() ? "bg-success" : "bg-warning text-dark")">
+                            @(despesaSelecionada.IsPago() ? "Pago" : "Pendente")
                         </span>
                     </p>
                     @if (!string.IsNullOrEmpty(despesaSelecionada.QuemPagou))
@@ -393,7 +393,7 @@
                 </div>
             </div>
 
-            @if (!despesaSelecionada.IsPago)
+            @if (!despesaSelecionada.IsPago())
             {
                 <button class="btn btn-success w-100 mt-3" @onclick="ConfirmarPagamentoDespesa">
                     CONFIRMAR PAGAMENTO
@@ -402,7 +402,7 @@
             else
             {
                 <div class="alert alert-success mt-3 mb-0">
-                    <i class="oi oi-check"></i> Despesa já paga em @despesaSelecionada.DataPagamento.ToString("dd/MM/yyyy")
+                    <i class="oi oi-check"></i> Despesa já paga em @despesaSelecionada.DataPagamento?.ToString("dd/MM/yyyy")
                 </div>
             }
         </div>
@@ -419,7 +419,7 @@
     [Parameter] public Guid? ReceitaId { get; set; }
     [Parameter] public Guid? DespesaId { get; set; }
 
-    private Receita? receitaSelecionadaDetalhes;
+    private Receita? ReceitaSelecionadaDetalhes;
     private List<Receita> todasReceitas = new();
     private List<Receita> sugestoesReceitas = new();
 
@@ -428,7 +428,7 @@
     private List<Funcionario> funcionariosDisponiveis = new();
     private List<Aluno> alunos = new();
     private List<Aluno> sugestoesAlunos = new();
-    private List<Receita> receitasAluno = new();
+    private List<Receita> ReceitasAluno = new();
 
     private List<Despesa> todasDespesas = new();
     private List<Despesa> sugestoesDespesas = new();
@@ -449,10 +449,10 @@
     private int itensPorPagina = 6;
 
     private int totalPaginas =>
-        (int)Math.Ceiling((double)receitasAluno.Count / itensPorPagina);
+        (int)Math.Ceiling((double)ReceitasAluno.Count / itensPorPagina);
 
-    private List<Receita> receitasPaginadas =>
-        receitasAluno
+    private List<Receita> ReceitasPaginadas =>
+        ReceitasAluno
             .Skip((paginaAtual - 1) * itensPorPagina)
             .Take(itensPorPagina)
             .ToList();
@@ -489,11 +489,11 @@
 
         if (ReceitaId.HasValue)
         {
-            var receita = ReceitaController.Get("Id", ReceitaId.Value.ToString());
+            var Receita = ReceitaController.Get("Id", ReceitaId.Value.ToString());
 
-            if (receita != null)
+            if (Receita != null)
             {
-                SelecionarReceitaDetalhes(receita);
+                SelecionarReceitaDetalhes(Receita);
             }
         }
     }
@@ -511,18 +511,18 @@
             .ToList();
     }
 
-    private void SelecionarReceitaDetalhes(Receita receita)
+    private void SelecionarReceitaDetalhes(Receita Receita)
     {
-        receitaSelecionadaDetalhes = receita;
+        ReceitaSelecionadaDetalhes = Receita;
 
-        buscaReceita = receita.Descricao ?? "";
+        buscaReceita = Receita.Descricao ?? "";
 
         sugestoesReceitas.Clear();
     }
 
     private void LimparReceita()
     {
-        receitaSelecionadaDetalhes = null;
+        ReceitaSelecionadaDetalhes = null;
 
         buscaReceita = "";
 
@@ -614,7 +614,7 @@
     {
         if (alunoSelecionado == null) return;
 
-        receitasAluno = ReceitaController
+        ReceitasAluno = ReceitaController
             .GetAll()
             .Where(r => r.Aluno != null && r.Aluno.Id == alunoSelecionado.Id)
             .OrderBy(r => r.DataVencimento)
@@ -629,11 +629,12 @@
             paginaAtual = p;
     }
 
-    private void ConfirmarPagamentoReceita(Receita receita)
+    private void ConfirmarPagamentoReceita(Receita Receita)
     {
-        if (receita == null) return;
+        if (Receita == null) return;
 
-        receita.Status = Receita.ReceitaStatus.Pago;
+        Receita.Status = Receita.FinanceStatus.Pago;
+        Receita.DataPagamento = DateTime.Now;
 
         CarregarReceitas();
         feedbackMsg = "Receita confirmada como paga!";
@@ -669,18 +670,18 @@
     {
         if (despesaSelecionada == null) return;
 
-        despesaSelecionada.Status = true;
+        despesaSelecionada.Status = Financeiro.FinanceStatus.Pago;
         despesaSelecionada.DataPagamento = DateTime.Now;
 
         feedbackMsg = "Despesa confirmada como paga!";
         StateHasChanged();
     }
 
-    private string GetStatusBadge(Receita.ReceitaStatus status) => status switch
+    private string GetStatusBadge(Receita.FinanceStatus status) => status switch
     {
-        Receita.ReceitaStatus.Pago => "bg-success",
-        Receita.ReceitaStatus.EmAtraso => "bg-danger",
-        Receita.ReceitaStatus.EmAndamento => "bg-warning text-dark",
+        Receita.FinanceStatus.Pago => "bg-success",
+        Receita.FinanceStatus.EmAtraso => "bg-danger",
+        Receita.FinanceStatus.EmAndamento => "bg-warning text-dark",
         _ => "bg-secondary"
     };
 }

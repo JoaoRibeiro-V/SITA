@@ -102,8 +102,8 @@
                                     <td>@despesa.DataVencimento.ToString("dd/MM/yyyy")</td>
                                     <td>@despesa.Categoria</td>
                                     <td class="descricao">@despesa.Descricao</td>
-                                    <td class="valor-despesa">R$ @despesa.Valor.ToString("N2")</td>
-                                    <td>@(despesa.Status ? "Pago" : "Pendente")</td>
+                                    <td class="valor-despesa">R$ @despesa.GetValorTotal().ToString("N2")</td>
+                                    <td>@(despesa.IsPago() ? "Pago" : "Pendente")</td>
                                 </tr>
                             }
                         }
@@ -293,7 +293,7 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    .valor {
+    .GetValorTotal() {
         font-weight: bold;
     }
 
@@ -343,11 +343,11 @@
             // STATUS
             if (statusFiltro == "Pago")
             {
-                query = query.Where(d => d.Status);
+                query = query.Where(d => d.IsPago());
             }
             else if (statusFiltro == "Pendente")
             {
-                query = query.Where(d => !d.Status);
+                query = query.Where(d => !d.IsPago());
             }
 
             // DATA INICIAL
@@ -367,8 +367,8 @@
             // ORDENAÇÃO VALOR
             query = ordemValor switch
             {
-                "asc" => query.OrderBy(d => d.Valor),
-                "desc" => query.OrderByDescending(d => d.Valor),
+                "asc" => query.OrderBy(d => d.GetValorTotal()),
+                "desc" => query.OrderByDescending(d => d.GetValorTotal()),
                 _ => query.OrderBy(d => d.DataVencimento)
             };
 
