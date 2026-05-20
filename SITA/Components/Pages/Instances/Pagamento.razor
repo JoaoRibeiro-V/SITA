@@ -95,6 +95,22 @@
                 }
 
             </div>
+            @if(financeiro is Despesa)
+            {
+                Despesa financeiroDespesa = (Despesa) financeiro;
+                <div class="mb-4">
+
+                    <label class="form-label fw-semibold">
+                        Quem Pagou:
+                    </label>
+
+                    <input type="text" class="form-control"
+                              @bind="financeiroDespesa.QuemPagou">
+                </input>
+
+                </div>
+            }
+            
 
             <!-- OBS -->
             <div class="mb-4">

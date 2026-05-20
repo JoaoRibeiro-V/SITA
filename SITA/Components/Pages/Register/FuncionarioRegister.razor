@@ -23,11 +23,11 @@
                 </div>
                 <div class="col-md-4">
                     <label class="fw-bold">CPF:</label>
-                    <input type="text" class="form-control"
-                           value="@novoFuncionario.CPF"
+                    <input value="@novoFuncionario.CPF"
                            @oninput="OnCpfInput"
                            onkeypress="onlyNumbers(event)"
-                           placeholder="000.000.000-00" maxlength="14" />
+                           placeholder="CPF"
+                           maxlength="14" />
                 </div>
 
                 <div class="col-md-7">
@@ -106,11 +106,11 @@
     {
         dataAdmissao = DateTime.Today;
     }
-    private void OnCpfInput(ChangeEventArgs e)
+    void OnCpfInput(ChangeEventArgs e)
     {
-        string input = e.Value?.ToString() ?? "";
-
-        novoFuncionario.CPF = Mask.FormatCpf(input);
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        novoFuncionario.CPF = Mask.FormatCpf(digits);
     }
 
     void OnTelefoneInput(ChangeEventArgs e)
@@ -148,7 +148,7 @@
 
             // Salvando através do Controller
             FuncionarioController.Register(funcionarioNew);
-            
+            SalarioController.GerarSalarioFuncionario(funcionarioNew, salarioDigitado);
 
             // Redireciona para a lista (que faremos a seguir)
             Navigation.NavigateTo("/lista-funcionarios");

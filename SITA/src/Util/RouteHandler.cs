@@ -56,7 +56,8 @@ namespace SITA.src.Util
         {
             new RouteItem { Name = "Aluno", Path = Aluno },
             new RouteItem { Name = "Turma", Path = Turmas, MinAccessLevel = 2 },
-            new RouteItem { Name = "Gestão", Path = Relatorio, MinAccessLevel = 3 },
+            new RouteItem { Name = "Colaboradores", Path = ListaFuncionarios, MinAccessLevel = 3 },
+           // new RouteItem { Name = "Gestão", Path = Relatorio, MinAccessLevel = 3 },
             new RouteItem { Name = "Receitas", Path = Financeiro, MinAccessLevel = 3 },
             new RouteItem { Name = "Despesas", Path = Despesas, MinAccessLevel = 1 },
             
@@ -66,7 +67,8 @@ namespace SITA.src.Util
         {
             new RouteItem { Name = "Cadastro Responsável", Path = CadastroResponsavel, MinAccessLevel = 3 },
             new RouteItem { Name = "Cadastro Colaborador", Path = CadastroFuncionario, MinAccessLevel = 3 },
-            new RouteItem { Name = "Quadro Colaboradores", Path = ListaFuncionarios, MinAccessLevel = 3 },
+            
+            
         };
     }
 }

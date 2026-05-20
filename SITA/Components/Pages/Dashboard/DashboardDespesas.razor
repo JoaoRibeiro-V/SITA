@@ -4,6 +4,7 @@
 @using SITA.src.Controller
 @using SITA.src.Storage
 @using SITA.src.Services
+@using SITA.src.Util
 @using Microsoft.AspNetCore.Components.Forms
 
 @inject NavigationManager Navigation
@@ -67,12 +68,20 @@
                         Todos
                     </option>
 
-                    <option value="Pago">
+                    <option value=@Financeiro.FinanceStatus.Pago>
                         Pago
                     </option>
 
-                    <option value="Pendente">
+                    <option value=@Financeiro.FinanceStatus.Pendente>
                         Pendente
+                    </option>
+
+                    <option value=@Financeiro.FinanceStatus.EmAndamento>
+                        Em Andamento
+                    </option>
+
+                    <option value=@Financeiro.FinanceStatus.EmAtraso>
+                        Em Atraso
                     </option>
 
                 </select>
@@ -181,7 +190,7 @@
                                     </td>
 
                                     <td>
-                                        @(despesa.IsPago() ? "Pago" : "Pendente")
+                                        @(despesa.GetStatusTexto())
                                     </td>
 
                                 </tr>
@@ -242,93 +251,279 @@
 
                 @if (abaAtiva == "detalhes")
                 {
-                    <div style="
-                        background-color:#f0f0f0;
-                        padding:20px;
-                        border-radius:8px;
-                        margin-bottom:25px;
-                        border-left:5px solid #dc2626;
-                        ">
+                    switch (Mask.RemoveAccents(despesaSelecionada.Categoria))
+                    {
+                        case "Salario":
+                            {
+                                Salario despesaSelecionadaSalario = (Salario)despesaSelecionada;
 
-                        <div class="row mt-3">
+                                <div style="
+                                    background-color:#f0f0f0;
+                                    padding:20px;
+                                    border-radius:8px;
+                                    margin-bottom:25px;
+                                    border-left:5px solid #dc2626;
+                                    ">
 
-                            <div class="col-md-6">
+                                    <div class="row mt-3">
 
-                                <p>
-                                    <strong>Descrição:</strong>
-                                    @despesaSelecionada.Descricao
-                                </p>
+                                        <div class="col-md-6">
+                                            <p>
+                                                <strong>Funcionário:</strong>
+                                                @despesaSelecionadaSalario.Funcionario.Nome
+                                            </p>
+                                            <p>
+                                                <strong>Descrição:</strong>
+                                                @despesaSelecionada.Descricao
+                                            </p>
 
-                                <p>
-                                    <strong>Fornecedor:</strong>
-                                    @despesaSelecionada.Fornecedor
-                                </p>
+                                            <p>
+                                                <strong>Categoria:</strong>
+                                                @despesaSelecionada.Categoria
+                                            </p>
+                                            @if (despesaSelecionada.IsPago())
+                                            {
+                                                <p>
+                                                    <strong>Quem Pagou:</strong>
+                                                    @despesaSelecionada.QuemPagou
+                                                </p>
+                                            }
+                                        </div>
 
-                                <p>
-                                    <strong>Categoria:</strong>
-                                    @despesaSelecionada.Categoria
-                                </p>
+                                        <div class="col-md-6">
 
-                                <p>
-                                    <strong>Quem Pagou:</strong>
-                                    @despesaSelecionada.QuemPagou
-                                </p>
+                                            <p>
+                                                <strong>Vencimento:</strong>
+                                                @despesaSelecionada.DataVencimento.ToString("dd/MM/yyyy")
+                                            </p>
 
-                                <p>
-                                    <strong>CNPJ Escola:</strong>
-                                    @despesaSelecionada.CnpjEscola
-                                </p>
+                                            <p>
+                                                <strong>Valor:</strong>
+
+                                                <span class="text-danger fw-bold">
+                                                    R$ @despesaSelecionada.GetValorTotal().ToString("N2")
+                                                </span>
+
+                                            </p>
+
+                                            <p>
+                                                <strong>Status:</strong>
+
+                                                <span class="badge @(despesaSelecionada.IsPago() ? "bg-success" : "bg-warning text-dark")">
+
+                                                    @(despesaSelecionada.GetStatusTexto())
+
+                                                </span>
+
+                                            </p>
+                                            <p>
+                                                <strong>Chave Pix:</strong>
+                                                @despesaSelecionadaSalario.Funcionario.ChavePix
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="mt-2">
+                                    <small><strong>Descontos</strong></small><br />
+
+                                    @if (despesaSelecionada.Descontos.Count == 0)
+                                    {
+                                        <small class="text-muted">
+                                            Nenhum desconto encontrado
+                                        </small>
+                                    }
+
+                                    @foreach (Financeiro.Desconto desconto in DescontosPaginados)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center py-1 px-2 border-bottom"
+                                             style="font-size: 0.85rem;">
+
+                                            <span class="text-truncate"
+                                                  style="max-width: 75%;">
+                                                @desconto.Descricao
+                                            </span>
+
+                                            <span class="text-danger fw-bold">
+                                                - @(desconto.Tipo == Financeiro.Desconto.TipoValor.Percentual ? $"{desconto.Valor:N0}%" : $"R$ {desconto.Valor:N2}")
+                                            </span>
+
+                                        </div>
+                                    }
+
+                                </div>
+                                @if (despesaSelecionada.Descontos.Count > itensPorPaginaDetalhes)
+                                {
+                                    <div class="d-flex justify-content-end gap-1 mt-2">
+
+                                        <button class="btn btn-sm btn-light px-2 py-0"
+                                                disabled="@(paginaDescontos == 1)"
+                                                @onclick="() => paginaDescontos--">
+                                            ‹
+                                        </button>
+
+                                        <small class="align-self-center">
+                                            @paginaDescontos
+                                        </small>
+
+                                        <button class="btn btn-sm btn-light px-2 py-0"
+                                                disabled="@(paginaDescontos >= Math.Ceiling((double)despesaSelecionada.Descontos.Count / itensPorPaginaDetalhes))"
+                                                @onclick="() => paginaDescontos++">
+                                            ›
+                                        </button>
+
+                                    </div>
+                                }
+
+                                <div class="mt-2">
+                                    <small><strong>Extras</strong></small><br />
+                                    @if (despesaSelecionada.Bonus.Count == 0)
+                                    {
+                                        <small class="text-muted">
+                                            Nenhum extra encontrado
+                                        </small>
+                                    }
+
+                                    @foreach (Financeiro.Extras extra in ExtrasPaginados)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center py-1 px-2 border-bottom"
+                                             style="font-size: 0.85rem;">
+
+                                            <span class="text-truncate"
+                                                  style="max-width: 75%;">
+                                                @extra.Descricao
+                                            </span>
+
+                                            <span class="text-success fw-bold">
+                                                + @(extra.Tipo == Financeiro.Extras.TipoValor.Percentual ? $"{extra.Valor:N0}%" : $"R$ {extra.Valor:N2}")
+                                            </span>
+
+                                        </div>
+                                    }
+
+                                </div>
+                                @if (despesaSelecionada.Bonus.Count > itensPorPaginaDetalhes)
+                                {
+                                    <div class="d-flex justify-content-end gap-1 mt-2">
+
+                                        <button class="btn btn-sm btn-light px-2 py-0"
+                                                disabled="@(paginaExtras == 1)"
+                                                @onclick="() => paginaExtras--">
+                                            ‹
+                                        </button>
+
+                                        <small class="align-self-center">
+                                            @paginaExtras
+                                        </small>
+
+                                        <button class="btn btn-sm btn-light px-2 py-0"
+                                                disabled="@(paginaExtras >= Math.Ceiling((double)despesaSelecionada.Bonus.Count / itensPorPaginaDetalhes))"
+                                                @onclick="() => paginaExtras++">
+                                            ›
+                                        </button>
+
+                                    </div>
+                                }
+                            }
+                            break; 
+                        default:
+                            <div style="
+                                background-color:#f0f0f0;
+                                padding:20px;
+                                border-radius:8px;
+                                margin-bottom:25px;
+                                border-left:5px solid #dc2626;
+                                ">
+
+                                <div class="row mt-3">
+
+                                    <div class="col-md-6">
+
+                                        <p>
+                                            <strong>Descrição:</strong>
+                                            @despesaSelecionada.Descricao
+                                        </p>
+
+                                        <p>
+                                            <strong>Fornecedor:</strong>
+                                            @despesaSelecionada.Fornecedor
+                                        </p>
+
+                                        <p>
+                                            <strong>Categoria:</strong>
+                                            @despesaSelecionada.Categoria
+                                        </p>
+
+                                        @if (despesaSelecionada.IsPago())
+                                        {
+                                            <p>
+                                                <strong>Quem Pagou:</strong>
+                                                @despesaSelecionada.QuemPagou
+                                            </p>
+                                        }
+                                        
+                                        <p>
+                                            <strong>CNPJ Escola:</strong>
+                                            @despesaSelecionada.CnpjEscola
+                                        </p>
+
+                                    </div>
+
+                                    <div class="col-md-6">
+
+                                        <p>
+                                            <strong>Vencimento:</strong>
+                                            @despesaSelecionada.DataVencimento.ToString("dd/MM/yyyy")
+                                        </p>
+
+                                        <p>
+                                            <strong>CNPJ Fornecedor:</strong>
+                                            @despesaSelecionada.CnpjFornecedor
+                                        </p>
+
+                                        <p>
+                                            <strong>Nº Nota Fiscal:</strong>
+                                            @despesaSelecionada.NumeroNotaFiscal
+                                        </p>
+
+                                        <p>
+                                            <strong>Chave NF:</strong>
+                                            @despesaSelecionada.ChaveAcessoNF
+                                        </p>
+
+                                        <p>
+                                            <strong>Valor:</strong>
+
+                                            <span class="text-danger fw-bold">
+                                                R$ @despesaSelecionada.GetValorTotal().ToString("N2")
+                                            </span>
+
+                                        </p>
+
+                                        <p>
+                                            <strong>Status:</strong>
+
+                                            <span class="badge @(despesaSelecionada.IsPago() ? "bg-success" : "bg-warning text-dark")">
+
+                                                @(despesaSelecionada.GetStatusTexto())
+
+                                            </span>
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
 
                             </div>
 
-                            <div class="col-md-6">
-
-                                <p>
-                                    <strong>Vencimento:</strong>
-                                    @despesaSelecionada.DataVencimento.ToString("dd/MM/yyyy")
-                                </p>
-
-                                <p>
-                                    <strong>CNPJ Fornecedor:</strong>
-                                    @despesaSelecionada.CnpjFornecedor
-                                </p>
-
-                                <p>
-                                    <strong>Nº Nota Fiscal:</strong>
-                                    @despesaSelecionada.NumeroNotaFiscal
-                                </p>
-
-                                <p>
-                                    <strong>Chave NF:</strong>
-                                    @despesaSelecionada.ChaveAcessoNF
-                                </p>
-
-                                <p>
-                                    <strong>Valor:</strong>
-
-                                    <span class="text-danger fw-bold">
-                                        R$ @despesaSelecionada.GetValorTotal().ToString("N2")
-                                    </span>
-
-                                </p>
-
-                                <p>
-                                    <strong>Status:</strong>
-
-                                    <span class="badge @(despesaSelecionada.IsPago() ? "bg-success" : "bg-warning text-dark")">
-
-                                        @(despesaSelecionada.IsPago() ? "Pago" : "Pendente")
-
-                                    </span>
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
+                            
+                            break;
+                    }
+                    
                     <hr />
 
                     <h5 class="fw-bold mb-3">
@@ -353,6 +548,210 @@
                 }
                 else if (abaAtiva == "gestao")
                 {
+                    @if(despesaSelecionada is Salario)
+                    {
+                        <!-- DESCONTOS -->
+                        <div class="card border-0 shadow-sm p-3 mb-4"
+                             style="border-radius: 12px;">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold m-0">
+                                    Descontos
+                                </h6>
+
+                                <button class="btn btn-success btn-sm"
+                                        style="
+                                    width: 28px;
+                                    height: 28px;
+                                    padding: 0;
+                                    border-radius: 8px;
+                                    font-size: 1rem;
+                                    line-height: 1;
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    "
+                                        @onclick="AdicionarDesconto">
+                                    +
+                                </button>
+                            </div>
+
+                            @if (despesaSelecionada.Descontos.Count == 0)
+                            {
+                                <small class="text-muted">
+                                    Nenhum desconto cadastrado.
+                                </small>
+                            }
+
+                            @foreach (var desconto in despesaSelecionada.Descontos)
+                            {
+                                <div class="d-flex gap-2 align-items-center mb-2">
+
+                                    <input class="form-control form-control-sm"
+                                           placeholder="Descrição"
+                                           style="font-size: 0.82rem;"
+                                           @bind="desconto.Descricao" />
+
+                                    <select class="form-select form-select-sm"
+                                            style="width: 70px;"
+                                            @bind="desconto.Tipo">
+
+                                        <option value="@Financeiro.Desconto.TipoValor.Fixo">
+                                            R$
+                                        </option>
+
+                                        <option value="@Financeiro.Desconto.TipoValor.Percentual">
+                                            %
+                                        </option>
+
+                                    </select>
+
+                                    <input class="form-control form-control-sm"
+                                           type="number"
+                                           step="0.01"
+                                           style="width: 90px;"
+                                           @bind="desconto.Valor" />
+
+                                    <button class="btn btn-danger btn-sm"
+                                            style="
+                                        width: 28px;
+                                        height: 28px;
+                                        padding: 0;
+                                        border-radius: 8px;
+                                        font-size: 0.9rem;
+                                        line-height: 1;
+                                        display:flex;
+                                        align-items:center;
+                                        justify-content:center;
+                                        flex-shrink: 0;
+                                        "
+                                            @onclick="() => RemoverDesconto(desconto)">
+                                        ×
+                                    </button>
+
+                                </div>
+                            }
+                        </div>
+
+                        <!-- EXTRAS -->
+                        <div class="card border-0 shadow-sm p-3 mb-4"
+                             style="border-radius: 12px;">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold m-0">
+                                    Extras
+                                </h6>
+
+                                <button class="btn btn-success btn-sm"
+                                        style="
+                                    width: 28px;
+                                    height: 28px;
+                                    padding: 0;
+                                    border-radius: 8px;
+                                    font-size: 1rem;
+                                    line-height: 1;
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    "
+                                        @onclick="AdicionarExtra">
+                                    +
+                                </button>
+                            </div>
+
+                            @if (despesaSelecionada.Bonus.Count == 0)
+                            {
+                                <small class="text-muted">
+                                    Nenhum extra cadastrado.
+                                </small>
+                            }
+
+                            @foreach (var extra in despesaSelecionada.Bonus)
+                            {
+                                <div class="d-flex gap-2 align-items-center mb-2">
+
+                                    <input class="form-control form-control-sm"
+                                           placeholder="Descrição"
+                                           style="font-size: 0.82rem;"
+                                           @bind="extra.Descricao" />
+
+                                    <select class="form-select form-select-sm"
+                                            style="width: 70px;"
+                                            @bind="extra.Tipo">
+
+                                        <option value="@Financeiro.Extras.TipoValor.Fixo">
+                                            R$
+                                        </option>
+
+                                        <option value="@Financeiro.Extras.TipoValor.Percentual">
+                                            %
+                                        </option>
+
+                                    </select>
+
+                                    <input class="form-control form-control-sm"
+                                           type="number"
+                                           step="0.01"
+                                           style="width: 90px;"
+                                           @bind="extra.Valor" />
+
+                                    <button class="btn btn-danger btn-sm"
+                                            style="
+                                        width: 28px;
+                                        height: 28px;
+                                        padding: 0;
+                                        border-radius: 8px;
+                                        font-size: 0.9rem;
+                                        line-height: 1;
+                                        display:flex;
+                                        align-items:center;
+                                        justify-content:center;
+                                        flex-shrink: 0;
+                                        "
+                                            @onclick="() => RemoverExtra(extra)">
+                                        ×
+                                    </button>
+
+                                </div>
+                            }
+                        </div>
+
+                        <!-- RESUMO -->
+                        <div class="card border-0 shadow-sm p-4 mb-4"
+                             style="border-radius: 12px; background: #f8f9fa;">
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Valor Base:</span>
+                                <strong>
+                                    R$ @despesaSelecionada.Valor.ToString("N2")
+                                </strong>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2 text-danger">
+                                <span>Total Descontos:</span>
+                                <strong>
+                                    - R$ @despesaSelecionada.Descontos.Sum(d => d.GetValorFinal(@despesaSelecionada.Valor)).ToString("N2")
+                                </strong>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2 text-success">
+                                <span>Total Extras:</span>
+                                <strong>
+                                    + R$ @despesaSelecionada.Bonus.Sum(b => b.GetValorFinal(@despesaSelecionada.Valor)).ToString("N2")
+                                </strong>
+                            </div>
+
+                            <hr />
+
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Valor Final:</span>
+
+                                <strong class="text-primary">
+                                    R$ @despesaSelecionada.GetValorTotal().ToString("N2")
+                                </strong>
+                            </div>
+                        </div>
+                    }
                     @if (despesaSelecionada.Status != Receita.FinanceStatus.Pago)
                     {
                         <button class="btn btn-success w-100 p-3 fw-bold"
@@ -786,11 +1185,16 @@
 
     private string pesquisa = "";
     private string categoriaFiltro = "";
-    private string statusFiltro = "";
+    private Financeiro.FinanceStatus? statusFiltro = null;
     private string ordemValor = "";
 
     private DateTime? dataInicial;
     private DateTime? dataFinal;
+
+    private int paginaDescontos = 1;
+    private int paginaExtras = 1;
+
+    private const int itensPorPaginaDetalhes = 5;
 
     private bool mostrarModalDespesa = false;
     private bool animarModal = false;
@@ -802,6 +1206,15 @@
     private Despesa? despesaSelecionada;
 
     private IBrowserFile? comprovanteGestao;
+
+    private IEnumerable<Financeiro.Desconto> DescontosPaginados =>
+    despesaSelecionada?.Descontos
+        .Skip((paginaDescontos - 1) * itensPorPaginaDetalhes)
+        .Take(itensPorPaginaDetalhes);
+    private IEnumerable<Financeiro.Extras> ExtrasPaginados =>
+    despesaSelecionada?.Bonus
+        .Skip((paginaExtras - 1) * itensPorPaginaDetalhes)
+        .Take(itensPorPaginaDetalhes);
 
     private List<string> categoriasDisponiveis =>
         listaDespesas
@@ -832,15 +1245,9 @@
                     d.Categoria == categoriaFiltro);
             }
 
-            if (statusFiltro == "Pago")
+            if(statusFiltro != null)
             {
-                query = query.Where(d =>
-                    d.IsPago());
-            }
-            else if (statusFiltro == "Pendente")
-            {
-                query = query.Where(d =>
-                    !d.IsPago());
+                query = query.Where(d => d.Status == statusFiltro);
             }
 
             if (dataInicial.HasValue)
@@ -869,6 +1276,19 @@
     protected override void OnInitialized()
     {
         CarregarDespesas();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && DespesaId != null)
+        {
+            despesaSelecionada = DespesaController.Get(DespesaId.ToString(), null);
+
+            if (despesaSelecionada != null)
+            {
+                await AbrirModal(despesaSelecionada);
+            }
+        }
     }
 
     private void CarregarDespesas()
@@ -975,4 +1395,5 @@
 
         StateHasChanged();
     }
+    
 }

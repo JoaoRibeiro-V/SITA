@@ -1,97 +1,697 @@
-﻿@page "/lista-funcionarios"
+﻿@page "/lista-funcionarios/{FuncionarioId:guid?}"
 @using SITA.src.Model
 @using SITA.src.Controller
+@using SITA.src.Util
 @inject NavigationManager Navigation
 
-<div class="container" style="background-color: #f4f7f6; padding: 25px; border-radius: 15px; border-top: 5px solid #3650a1; margin-top: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 style="color: #3650a1; font-weight: bold;">Quadro de Colaboradores</h2>
-        <button class="btn btn-primary fw-bold" @onclick="IrParaCadastro" style="background-color: #3650a1;">
+<div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+    <h1 style="color: #3650a1; font-weight: bold;">Quadro de Colaboradores</h1>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-funcionario")'
+                style="background-color: #3650a1; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
             + Novo Funcionário
         </button>
-    </div>
-
-    <div class="table-responsive" style="background: white; border-radius: 10px; padding: 15px;">
-        <table class="table table-hover">
-            <thead style="background-color: #3650a1; color: white;">
-                <tr>
-                    <th>Nome</th>
-                    <th>Cargo / Depto</th>
-                    <th>Acesso</th>
-                    <th>Salário Base</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (funcionarios == null || !funcionarios.Any())
-                {
-                    <tr>
-                        <td colspan="6" class="text-center text-muted py-4">Nenhum colaborador cadastrado no sistema.</td>
-                    </tr>
-                }
-                else
-                {
-                    @foreach (var func in funcionarios)
-                    {
-                        <tr class="align-middle">
-                            <td>
-                                <strong>@func.Nome</strong><br />
-                                <small class="text-muted">@func.Email</small>
-                            </td>
-                            <td>
-                                <span class="badge bg-info text-dark">@func.Cargo</span><br />
-                                <small>@func.Departamento</small>
-                            </td>
-                            <td>
-                                <span class="badge bg-secondary">
-                                    @func.AccessType?.GetAccessName()
-                                </span>
-                            </td>
-                            <td class="fw-bold">R$ @func.SalarioBase.ToString("N2")</td>
-                            <td>
-                                <span class="badge @(func.Ativo ? "bg-success" : "bg-danger")">
-                                    @(func.Ativo ? "Ativo" : "Desativado")
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-dark" @onclick="() => VerDetalhes(func)">
-                                    🔍 Detalhes
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
+        <input @bind="search" @bind:event="oninput" placeholder="Pesquisar funcionário..."
+               style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
     </div>
 </div>
 
-@code {
-    private List<Funcionario> funcionarios = new List<Funcionario>();
+<section style="padding: 20px; width:100%">
+    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+        <thead>
+            <tr style="color: white;">
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1; border-top-left-radius: 8px;">Nome</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Cargo</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Departamento</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Acesso</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Salário</th>
+                <th style="padding: 15px 12px; text-align: left; background: #3650a1; border-top-right-radius: 8px;">Status</th>
+            </tr>
+        </thead>
 
-    protected override void OnInitialized()
-    {
-        CarregarFuncionarios();
+        <tbody>
+            @foreach (var funcionario in funcionariosFiltrados)
+            {
+                <tr @onclick="() => AbrirModal(funcionario)"
+                    style="cursor: pointer; background: transparent;">
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
+                        @funcionario.Nome
+                    </td>
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
+                        @funcionario.Cargo
+                    </td>
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
+                        @(funcionario.Departamento ?? "N/A")
+                    </td>
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
+                        @funcionario.AccessType?.GetAccessName()
+                    </td>
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
+                        R$ @funcionario.SalarioBase.ToString("N2")
+                    </td>
+                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
+                        @(funcionario.Ativo ? "Ativo" : "Inativo")
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+@if (mostrarModalFuncionario && funcionarioSelecionado != null)
+{
+    <div class="overlay-modal">
+        <div class="modal-funcionario @(animarModal ? "modal-aberta" : "")">
+            <div class="modal-topo">
+                <h2>@funcionarioSelecionado.Nome</h2>
+                <button class="btn-fechar" @onclick="FecharModal">×</button>
+            </div>
+            <br />
+
+            <div class="abas-modal">
+                <button class="@(abaAtiva == "ficha" ? "aba-ativa" : "")"
+                        @onclick='() => abaAtiva = "ficha"'>
+                    Ficha do Colaborador
+                </button>
+                <button class="@(abaAtiva == "financeiro" ? "aba-ativa" : "")"
+                        @onclick='() => abaAtiva = "financeiro"'>
+                    Financeiro
+                </button>
+            </div>
+
+            <div class="conteudo-modal">
+                @if (abaAtiva == "ficha")
+                {
+                    <div class="ficha-container">
+                        <div class="ficha-titulo">
+                            <h2>FICHA DO COLABORADOR</h2>
+                        </div>
+
+                        <div class="linha">
+                            <div class="campo campo-grande">
+                                <label>Nome Completo:</label>
+                                <input @bind="Nome" @bind:event="oninput" disabled="@(!modoEdicao)" />
+                            </div>
+                            <div class="campo campo-medio">
+                                <label>CPF:</label>
+                                <input value="@CPF" readonly />
+                            </div>
+                        </div>
+
+                        <div class="linha">
+                            <div class="campo campo-terco">
+                                <label>Email:</label>
+                                <input @bind="Email" @bind:event="oninput" disabled="@(!modoEdicao)" />
+                            </div>
+                            <div class="campo campo-terco">
+                                <label>Telefone:</label>
+                                <input @bind="Telefone" @bind:event="oninput" disabled="@(!modoEdicao)" />
+                            </div>
+                            <div class="campo campo-terco">
+                                <label>Chave Pix:</label>
+                                <input @bind="ChavePix" @bind:event="oninput" disabled="@(!modoEdicao)" />
+                            </div>
+                        </div>
+
+                        <div class="bloco responsavel">
+                            <h3>Informações Profissionais</h3>
+                            <div class="linha">
+                                <div class="campo metade">
+                                    <label>Cargo:</label>
+                                    <input @bind="Cargo" @bind:event="oninput" disabled="@(!modoEdicao)" />
+                                </div>
+                                <div class="campo metade">
+                                    <label>Departamento:</label>
+                                    <input @bind="Departamento" @bind:event="oninput" disabled="@(!modoEdicao)" />
+                                </div>
+                            </div>
+                            <div class="linha">
+                                <div class="campo metade">
+                                    <label>Salário Base:</label>
+                                    <input type="number" step="0.01" @bind="SalarioBase" @bind:event="oninput" disabled="@(!modoEdicao)" />
+                                </div>
+                                <div class="campo metade">
+                                    <label>Data de Admissão:</label>
+                                    <input type="date" @bind="DataAdmissao" disabled="@(!modoEdicao)" />
+                                </div>
+                            </div>
+                            <div class="linha">
+                                <div class="campo metade">
+                                    <label>Nível de Acesso:</label>
+                                    @if (modoEdicao)
+                                    {
+                                        <select @bind="NivelAcesso">
+                                            <option value="1">Funcionário</option>
+                                            <option value="2">Professor</option>
+                                            <option value="3">Secretário</option>
+                                            <option value="4">Diretor</option>
+                                            <option value="5">Administrador</option>
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <input value="@funcionarioSelecionado.AccessType?.GetAccessName()" readonly />
+                                    }
+                                </div>
+                                <div class="campo metade">
+                                    <label>Status:</label>
+                                    @if (modoEdicao)
+                                    {
+                                        <select @bind="Ativo">
+                                            <option value="true">Ativo</option>
+                                            <option value="false">Inativo</option>
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <input value="@(funcionarioSelecionado.Ativo ? "Ativo" : "Inativo")" readonly />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(msgErro))
+                        {
+                            <div class="alert alert-danger mt-3">@msgErro</div>
+                        }
+
+                        <div class="d-flex gap-3 mt-4">
+                            @if (modoEdicao)
+                            {
+                                <button class="btn btn-outline-secondary w-25 p-3 fw-bold" @onclick="CancelarEdicao">CANCELAR</button>
+                                <button class="btn w-75 p-3 fw-bold" style="background-color: #3650a1; color: white;" @onclick="SalvarFuncionario">
+                                    SALVAR
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn w-100 p-3 fw-bold" style="background-color: #3650a1; color: white;" @onclick="HabilitarEdicao">
+                                    EDITAR
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (abaAtiva == "financeiro")
+                {
+                    <div class="aba-financeiro">
+                        <h2>FINANCEIRO - DESPESAS</h2>
+
+                        @if (DespesasFuncionario.Any())
+                        {
+                            <div class="row mb-3 g-2 align-items-end">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Pesquisar</label>
+                                    <input class="form-control" placeholder="Categoria..."
+                                           @bind="pesquisaFinanceiro" @bind:event="oninput" />
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Status</label>
+                                    <select class="form-select" @bind="statusFinanceiro">
+                                        <option value="">Todos</option>
+                                        <option value="Pago">Pago</option>
+                                        <option value="Pendente">Pendente</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Data Inicial</label>
+                                    <input type="date" class="form-control" @bind="dataInicioFinanceiro" />
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Data Final</label>
+                                    <input type="date" class="form-control" @bind="dataFimFinanceiro" />
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Ordenar Valor</label>
+                                    <select class="form-select" @bind="ordemValorFinanceiro">
+                                        <option value="">Padrão</option>
+                                        <option value="asc">Menor → Maior</option>
+                                        <option value="desc">Maior → Menor</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <table class="table table-sm table-bordered table-striped mt-3">
+                                <thead style="background-color:#3650a1; color:white;">
+                                    <tr>
+                                        <th>Mês</th>
+                                        <th>Categoria</th>
+                                        <th>Vencimento</th>
+                                        <th>Valor</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var d in DespesasFinanceirasPaginadas)
+                                    {
+                                        <tr @onclick="() => GoDespesa(d.Id)" style="cursor: pointer;">
+                                            <td>@d.DataVencimento.ToString("MM/yyyy")</td>
+                                            <td>@d.Categoria</td>
+                                            <td>@d.DataVencimento.ToString("dd/MM/yyyy")</td>
+                                            <td>R$ @d.GetValorTotal().ToString("N2")</td>
+                                            <td>
+                                                <span class="badge @(d.IsPago() ? "bg-success" : "bg-warning text-dark")">
+                                                    @(d.IsPago() ? "Pago" : "Pendente")
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="d-flex justify-content-center align-items-center mt-3 gap-1">
+                                <button class="btn btn-link p-1" style="width: 24px; height: 24px;"
+                                        disabled="@(paginaAtual == 1)" @onclick="() => MudarPagina(paginaAtual - 1)">
+                                    ‹
+                                </button>
+
+                                @foreach (var p in GetPaginasVisiveis())
+                                {
+                                    if (p == null)
+                                    {
+                                        <span class="px-2" style="font-size: 0.8rem;">...</span>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm @(paginaAtual == p ? "btn-primary" : "btn-outline-primary") px-2 py-0"
+                                                @onclick="() => MudarPagina(p.Value)">
+                                            @p
+                                        </button>
+                                    }
+                                }
+
+                                <button class="btn btn-link p-1" style="width: 24px; height: 24px;"
+                                        disabled="@(paginaAtual == totalPaginas)" @onclick="() => MudarPagina(paginaAtual + 1)">
+                                    ›
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">Nenhuma despesa encontrada.</div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .linha-clicavel {
+        cursor: pointer;
     }
 
-    private void CarregarFuncionarios()
+        .linha-clicavel:hover {
+            background: #f6f8ff;
+        }
+
+    .overlay-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: 0.2s;
+        opacity: 1;
+    }
+
+    .modal-funcionario {
+        width: 95%;
+        max-width: 850px;
+        max-height: 92vh;
+        overflow-y: auto;
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        transform: scale(0.96);
+        transition: 0.2s;
+    }
+
+    .modal-aberta {
+        transform: scale(1);
+    }
+
+    .modal-topo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-fechar {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 8px;
+        background: #ef4444;
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .abas-modal {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+        .abas-modal button {
+            border: none;
+            background: #e5e7eb;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+    .aba-ativa {
+        background: #3650a1 !important;
+        color: white;
+    }
+
+    .ficha-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .ficha-titulo {
+        text-align: center;
+        border-bottom: 2px solid #3650a1;
+        padding-bottom: 10px;
+    }
+
+    .linha {
+        display: flex;
+        gap: 15px;
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .campo-grande {
+        flex: 2;
+    }
+
+    .campo-medio {
+        flex: 1;
+    }
+
+    .campo-terco {
+        flex: 1;
+    }
+
+    .metade {
+        flex: 1;
+    }
+
+    .campo label {
+        font-weight: bold;
+        color: #3650a1;
+    }
+
+    .campo input,
+    .campo select,
+    .campo textarea {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+        .campo input:disabled {
+            background-color: #f5f5f5;
+        }
+
+    .bloco {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 5px solid #3650a1;
+    }
+
+        .bloco h3 {
+            color: #3650a1;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+    .aba-financeiro h2 {
+        color: #3650a1;
+        margin-bottom: 20px;
+    }
+</style>
+
+@code {
+    [Parameter] public Guid? FuncionarioId { get; set; }
+
+    List<Funcionario> funcionarios = new();
+    string search = "";
+
+    IEnumerable<Funcionario> funcionariosFiltrados =>
+        funcionarios.Where(f => string.IsNullOrEmpty(search) ||
+        (f.Nome?.ToLower().Contains(search.ToLower()) ?? false));
+
+    private bool mostrarModalFuncionario = false;
+    private string abaAtiva = "ficha";
+    private Funcionario? funcionarioSelecionado;
+    private bool modoEdicao = false;
+    private bool animarModal = false;
+
+    private string Nome = "";
+    private string CPF = "";
+    private string Email = "";
+    private string Telefone = "";
+    private string ChavePix = "";
+    private string Cargo = "";
+    private string Departamento = "";
+    private decimal SalarioBase = 0;
+    private DateTime DataAdmissao = DateTime.Now;
+    private int NivelAcesso = 1;
+    private bool Ativo = true;
+    private string msgErro = "";
+
+    private int paginaAtual = 1;
+    private int itensPorPagina = 6;
+    private string pesquisaFinanceiro = "";
+    private string statusFinanceiro = "";
+    private string ordemValorFinanceiro = "";
+    private DateTime? dataInicioFinanceiro;
+    private DateTime? dataFimFinanceiro;
+
+    private List<Despesa> DespesasFuncionario = new();
+
+    private int totalPaginas =>
+        (int)Math.Ceiling((double)DespesasFinanceirasFiltradas.Count() / itensPorPagina);
+
+    private IEnumerable<Despesa> DespesasFinanceirasFiltradas
     {
+        get
+        {
+            var query = DespesasFuncionario.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(pesquisaFinanceiro))
+            {
+                query = query.Where(d =>
+                    (d.Categoria?.Contains(pesquisaFinanceiro, StringComparison.OrdinalIgnoreCase) ?? false));
+            }
+
+            if (statusFinanceiro == "Pago")
+            {
+                query = query.Where(d => d.IsPago());
+            }
+            else if (statusFinanceiro == "Pendente")
+            {
+                query = query.Where(d => !d.IsPago());
+            }
+
+            if (dataInicioFinanceiro.HasValue)
+            {
+                query = query.Where(d => d.DataVencimento.Date >= dataInicioFinanceiro.Value.Date);
+            }
+
+            if (dataFimFinanceiro.HasValue)
+            {
+                query = query.Where(d => d.DataVencimento.Date <= dataFimFinanceiro.Value.Date);
+            }
+
+            query = ordemValorFinanceiro switch
+            {
+                "asc" => query.OrderBy(d => d.GetValorTotal()),
+                "desc" => query.OrderByDescending(d => d.GetValorTotal()),
+                _ => query.OrderBy(d => d.DataVencimento)
+            };
+
+            return query;
+        }
+    }
+
+    private List<Despesa> DespesasFinanceirasPaginadas =>
+        DespesasFinanceirasFiltradas
+            .Skip((paginaAtual - 1) * itensPorPagina)
+            .Take(itensPorPagina)
+            .ToList();
+
+    protected override void OnInitialized() => LoadData();
+
+    void LoadData()
+    {
+        funcionarios = FuncionarioController.GetAll();
+
+        if (FuncionarioId != null)
+        {
+            funcionarioSelecionado = FuncionarioController.Get(FuncionarioId.ToString(), null);
+            CarregarDadosFuncionario();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && FuncionarioId != null)
+        {
+            var funcionario = FuncionarioController.Get(FuncionarioId.ToString(), null);
+            if (funcionario != null)
+            {
+                await AbrirModal(funcionario);
+            }
+        }
+    }
+
+    private void CarregarDadosFuncionario()
+    {
+        if (funcionarioSelecionado == null) return;
+
+        Nome = funcionarioSelecionado.Nome ?? "";
+        CPF = Mask.FormatCpf(funcionarioSelecionado.CPF ?? "");
+        Email = funcionarioSelecionado.Email ?? "";
+        Telefone = funcionarioSelecionado.Telefone ?? "";
+        ChavePix = funcionarioSelecionado.ChavePix ?? "";
+        Cargo = funcionarioSelecionado.Cargo ?? "";
+        Departamento = funcionarioSelecionado.Departamento ?? "";
+        SalarioBase = funcionarioSelecionado.SalarioBase;
+        DataAdmissao = funcionarioSelecionado.DataAdmissao;
+        NivelAcesso = funcionarioSelecionado.AccessType?.Level ?? 1;
+        Ativo = funcionarioSelecionado.Ativo;
+
+        CarregarDespesas();
+    }
+
+    private void CarregarDespesas()
+    {
+        if (funcionarioSelecionado == null) return;
+
+        DespesasFuncionario = DespesaController.GetAll()
+            .Where(d => d is Salario salario && salario.Funcionario?.Id == funcionarioSelecionado.Id)
+            .OrderBy(d => d.DataVencimento)
+            .ToList();
+
+        paginaAtual = 1;
+    }
+
+    private async Task AbrirModal(Funcionario funcionario)
+    {
+        funcionarioSelecionado = funcionario;
+        abaAtiva = "ficha";
+        mostrarModalFuncionario = true;
+        animarModal = false;
+        CarregarDadosFuncionario();
+
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(50);
+        animarModal = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task FecharModal()
+    {
+        animarModal = false;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(200);
+        mostrarModalFuncionario = false;
+        funcionarioSelecionado = null;
+    }
+
+    private void HabilitarEdicao()
+    {
+        modoEdicao = true;
+    }
+
+    private void CancelarEdicao()
+    {
+        modoEdicao = false;
+        CarregarDadosFuncionario();
+        msgErro = "";
+    }
+
+    private async Task SalvarFuncionario()
+    {
+        if (funcionarioSelecionado == null) return;
+
+        if (string.IsNullOrWhiteSpace(Nome))
+        {
+            msgErro = "Nome é obrigatório.";
+            return;
+        }
+
         try
         {
-            funcionarios = FuncionarioController.GetAll();
+            funcionarioSelecionado.Nome = Nome;
+            funcionarioSelecionado.Email = Email;
+            funcionarioSelecionado.Telefone = Telefone;
+            funcionarioSelecionado.ChavePix = ChavePix;
+            funcionarioSelecionado.Cargo = Cargo;
+            funcionarioSelecionado.Departamento = Departamento;
+            funcionarioSelecionado.SalarioBase = SalarioBase;
+            funcionarioSelecionado.DataAdmissao = DataAdmissao;
+            funcionarioSelecionado.AccessType = new AccessType { Level = NivelAcesso };
+            funcionarioSelecionado.Ativo = Ativo;
+
+            modoEdicao = false;
+            LoadData();
+            msgErro = "";
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro: {ex.Message}");
+            msgErro = "Erro: " + ex.Message;
         }
     }
 
-    private void IrParaCadastro() => Navigation.NavigateTo("/cadastro-funcionario");
-
-    private void VerDetalhes(Funcionario f)
+    private List<int?> GetPaginasVisiveis()
     {
-        System.Diagnostics.Debug.WriteLine($"Consultando: {f.Nome}");
+        var paginas = new List<int?>();
+
+        if (totalPaginas <= 7)
+        {
+            for (int i = 1; i <= totalPaginas; i++)
+                paginas.Add(i);
+            return paginas;
+        }
+
+        paginas.Add(1);
+        if (paginaAtual > 4) paginas.Add(null);
+
+        int inicio = Math.Max(2, paginaAtual - 2);
+        int fim = Math.Min(totalPaginas - 1, paginaAtual + 2);
+
+        for (int i = inicio; i <= fim; i++)
+            paginas.Add(i);
+
+        if (paginaAtual < totalPaginas - 3) paginas.Add(null);
+        paginas.Add(totalPaginas);
+
+        return paginas;
     }
+
+    private void MudarPagina(int p)
+    {
+        if (p >= 1 && p <= totalPaginas)
+            paginaAtual = p;
+    }
+
+    void GoDespesa(Guid id) => Navigation.NavigateTo($"/despesas/{id}");
 }
