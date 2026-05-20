@@ -5,50 +5,35 @@
 @using System.Text.Json
 @inject NavigationManager Navigation
 
-<div class="cadastro-container">
-    <div class="card cadastro-card">
-
+<div class="container" style="max-width: 950px; margin-top: 20px; padding-bottom: 50px;">
+    <div class="card shadow-lg border-0" style="border-radius: 15px; border-top: 8px solid #3650a1;">
+        
         <div class="card-header bg-white p-4 text-center">
-            <h3 class="fw-bold titulo-principal">
-                Registro de Novo Colaborador
-            </h3>
+            <h3 class="fw-bold" style="color: #3650a1;"> Registro de Novo Colaborador</h3>
+            
         </div>
 
-        <div class="card-body p-4 corpo-card">
+        <div class="card-body p-4" style="background-color: #fcfcfc;">
             <div class="row g-3">
-
-                <div class="col-12">
-                    <h5 class="text-primary border-bottom pb-2">
-                        Credenciais e Identificação
-                    </h5>
-                </div>
-
+                <div class="col-12"><h5 class="text-primary border-bottom pb-2">Credenciais e Identificação</h5></div>
+                
                 <div class="col-md-8">
                     <label class="fw-bold">Nome Completo:</label>
-                    <input type="text"
-                           class="form-control"
-                           @bind="novoFuncionario.Nome"
-                           placeholder="Nome Completo" />
+                    <input type="text" class="form-control" @bind="novoFuncionario.Nome" placeholder="Nome Completo" />
                 </div>
-
                 <div class="col-md-4">
                     <label class="fw-bold">CPF:</label>
-                    <input type="text"
-                           class="form-control"
-                           value="@novoFuncionario.CPF"
-                           @oninput="CpfComMascara"
-                           placeholder="000.000.000-00"
+                    <input value="@novoFuncionario.CPF"
+                           @oninput="OnCpfInput"
+                           onkeypress="onlyNumbers(event)"
+                           placeholder="CPF"
                            maxlength="14" />
                 </div>
 
                 <div class="col-md-7">
                     <label class="fw-bold">E-mail (Login):</label>
-                    <input type="email"
-                           class="form-control"
-                           @bind="novoFuncionario.Email"
-                           placeholder="colaborador@gmail.com" />
+                    <input type="email" class="form-control" @bind="novoFuncionario.Email" placeholder="colaborador@gmail.com" />
                 </div>
-
                 <div class="col-md-5">
                     <label class="fw-bold">Nível de Acesso:</label>
                     <select class="form-select" @bind="nivelAcessoDigitado">
@@ -59,20 +44,12 @@
                     </select>
                 </div>
 
-                <div class="col-12 mt-4">
-                    <h5 class="text-primary border-bottom pb-2">
-                        Informações Contratuais
-                    </h5>
-                </div>
+                <div class="col-12 mt-4"><h5 class="text-primary border-bottom pb-2">Informações Contratuais</h5></div>
 
                 <div class="col-md-5">
                     <label class="fw-bold">Cargo:</label>
-                    <input type="text"
-                           class="form-control border-info"
-                           @bind="cargo"
-                           placeholder="Ex: Professora" />
+                    <input type="text" class="form-control border-info" @bind="cargo" placeholder="Ex: Professora" />
                 </div>
-
                 <div class="col-md-4">
                     <label class="fw-bold">Departamento:</label>
                     <select class="form-select border-info" @bind="departamento">
@@ -81,232 +58,87 @@
                         <option value="Docente">Corpo Docente</option>
                     </select>
                 </div>
-
                 <div class="col-md-3">
                     <label class="fw-bold">Salário Base (R$):</label>
-                    <input type="number"
-                           class="form-control border-success fw-bold"
-                           @bind="salarioDigitado"
-                           step="0.01" />
+                    <input type="number" class="form-control border-success fw-bold" @bind="salarioDigitado" step="0.01" />
                 </div>
 
                 <div class="col-md-4">
                     <label class="fw-bold">Data de Admissão:</label>
-                    <input type="date"
-                           class="form-control"
-                           @bind="dataAdmissao" />
+                    <input type="date" class="form-control" @bind="dataAdmissao" />
                 </div>
-
                 <div class="col-md-4">
                     <label class="fw-bold">Telefone:</label>
-                    <input type="text"
-                           class="form-control"
+                    <input type="text" class="form-control"
                            value="@telefone"
                            @oninput="OnTelefoneInput"
-                           placeholder="(12) 99999-9999"
-                           maxlength="15" />
+                           onkeypress="onlyNumbers(event)"
+                           placeholder="(12) 99999-9999" maxlength="15" />
                 </div>
-
                 <div class="col-md-4">
                     <label class="fw-bold">Chave PIX (Pagamento):</label>
-                    <input type="text"
-                           class="form-control"
-                           @bind="chavePix" />
+                    <input type="text" class="form-control" @bind="chavePix" />
                 </div>
-
-                @if (!string.IsNullOrEmpty(msgErro))
-                {
-                    <div class="col-12">
-                        <div class="alert alert-danger mt-3">
-                            @msgErro
-                        </div>
-                    </div>
-                }
-
             </div>
         </div>
 
         <div class="card-footer bg-white p-4 d-flex justify-content-end gap-2">
-            <button class="btn btn-light px-4 border"
-                    @onclick="Voltar">
-                Cancelar
-            </button>
-
-            <button class="btn btn-primary px-5 fw-bold btn-finalizar"
-                    @onclick="SalvarFuncionario">
+            <button class="btn btn-light px-4 border" @onclick="Voltar">Cancelar</button>
+            <button class="btn btn-primary px-5 fw-bold" style="background-color: #3650a1;" @onclick="SalvarFuncionario">
                 FINALIZAR E REGISTRAR
             </button>
         </div>
-
     </div>
 </div>
-
-<style>
-    .cadastro-container {
-        max-width: 950px;
-        margin: 20px auto 0 auto;
-        padding-bottom: 50px;
-    }
-
-    .cadastro-card {
-        border-radius: 15px;
-        border: none;
-        border-top: 8px solid #3650a1;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .titulo-principal {
-        color: #3650a1;
-        margin: 0;
-    }
-
-    .corpo-card {
-        background-color: #fcfcfc;
-    }
-
-    label {
-        margin-bottom: 5px;
-        color: #222;
-    }
-
-    .form-control,
-    .form-select {
-        min-height: 42px;
-        border-radius: 6px;
-    }
-
-        .form-control:focus,
-        .form-select:focus {
-            border-color: #3650a1;
-            box-shadow: 0 0 0 0.15rem rgba(54, 80, 161, 0.25);
-        }
-
-    .btn-finalizar {
-        background-color: #3650a1;
-        border-color: #3650a1;
-    }
-
-        .btn-finalizar:hover {
-            background-color: #2d4388;
-            border-color: #2d4388;
-        }
-</style>
 
 @code {
     private User novoFuncionario = new User();
     private Funcionario funcionarioNew = new Funcionario();
-
-    private string departamento = "Assistente";
+    private string departamento = string.Empty;
     private string chavePix = string.Empty;
     private string cargo = string.Empty;
     private string telefone = string.Empty;
-    private DateTime dataAdmissao = DateTime.Today;
+    private DateTime dataAdmissao = DateTime.Now;
     private decimal salarioDigitado = 0;
     private string nivelAcessoDigitado = "1";
-    private string msgErro = "";
 
     protected override void OnInitialized()
     {
         dataAdmissao = DateTime.Today;
     }
-
-    private void CpfComMascara(ChangeEventArgs e)
+    void OnCpfInput(ChangeEventArgs e)
     {
-        var texto = e.Value?.ToString() ?? "";
-
-        var numeros = new string(texto
-            .Where(char.IsDigit)
-            .ToArray());
-
-        if (numeros.Length > 11)
-        {
-            numeros = numeros[..11];
-        }
-
-        if (numeros.Length <= 3)
-        {
-            novoFuncionario.CPF = numeros;
-        }
-        else if (numeros.Length <= 6)
-        {
-            novoFuncionario.CPF = $"{numeros[..3]}.{numeros[3..]}";
-        }
-        else if (numeros.Length <= 9)
-        {
-            novoFuncionario.CPF = $"{numeros[..3]}.{numeros[3..6]}.{numeros[6..]}";
-        }
-        else
-        {
-            novoFuncionario.CPF = $"{numeros[..3]}.{numeros[3..6]}.{numeros[6..9]}-{numeros[9..]}";
-        }
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        novoFuncionario.CPF = Mask.FormatCpf(digits);
     }
 
-    private void OnTelefoneInput(ChangeEventArgs e)
+    void OnTelefoneInput(ChangeEventArgs e)
     {
-        var digits = new string((e.Value?.ToString() ?? "")
-            .Where(char.IsDigit)
-            .ToArray());
-
-        if (digits.Length > 11)
-        {
-            digits = digits[..11];
-        }
-
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
         telefone = Mask.FormatPhone(digits);
     }
-
     private void SalvarFuncionario()
     {
-        msgErro = "";
-
-        novoFuncionario.CPF = new string((novoFuncionario.CPF ?? "")
-            .Where(char.IsDigit)
-            .ToArray());
-
-        if (string.IsNullOrWhiteSpace(novoFuncionario.Nome))
-        {
-            msgErro = "Informe o nome completo do funcionário.";
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(novoFuncionario.CPF) || novoFuncionario.CPF.Length != 11)
-        {
-            msgErro = "Informe um CPF com 11 números, sem pontos ou traços.";
-            return;
-        }
-
-        if (!Mask.IsValidEmail(novoFuncionario.Email))
-        {
-            msgErro = "Informe um e-mail válido.";
-            return;
-        }
-
-        if (salarioDigitado <= 0)
-        {
-            msgErro = "Informe um salário base maior que zero.";
-            return;
-        }
+        // Validações de Robustez
+        if ((string.IsNullOrWhiteSpace(novoFuncionario.Nome) || salarioDigitado <= 0 || !Mask.IsValidEmail(novoFuncionario.Email) )) return;
 
         try
         {
-            novoFuncionario.AccessType = new AccessType
+
+            novoFuncionario.AccessType = new SITA.src.Model.AccessType
             {
                 Level = int.Parse(nivelAcessoDigitado)
             };
 
+
             novoFuncionario.Senha = PasswordHandler.HashPassword("123456", novoFuncionario.Salt);
-
+            novoFuncionario.CPF = Mask.RemoveMask(novoFuncionario.CPF);
             UserController.Register(novoFuncionario);
-
-            string jsonString = JsonSerializer.Serialize(
-                novoFuncionario,
-                new JsonSerializerOptions { WriteIndented = true }
-            );
-
+            string jsonString = JsonSerializer.Serialize(novoFuncionario, new JsonSerializerOptions { WriteIndented = true });
             System.Diagnostics.Debug.WriteLine(jsonString);
-
             funcionarioNew = FuncionarioController.CreateByUser(novoFuncionario);
-
             funcionarioNew.Telefone = telefone;
             funcionarioNew.Cargo = cargo;
             funcionarioNew.Departamento = departamento;
@@ -314,19 +146,18 @@
             funcionarioNew.SalarioBase = salarioDigitado;
             funcionarioNew.DataAdmissao = dataAdmissao;
 
+            // Salvando através do Controller
             FuncionarioController.Register(funcionarioNew);
+            SalarioController.GerarSalarioFuncionario(funcionarioNew, salarioDigitado);
 
-            Navigation.NavigateTo("/funcionarios");
+            // Redireciona para a lista (que faremos a seguir)
+            Navigation.NavigateTo("/lista-funcionarios");
         }
         catch (Exception ex)
         {
-            msgErro = "Erro ao registrar colaborador: " + ex.Message;
             System.Diagnostics.Debug.WriteLine($"Erro ao registrar colaborador: {ex.Message}");
         }
     }
 
-    private void Voltar()
-    {
-        Navigation.NavigateTo("/funcionarios");
-    }
+    private void Voltar() => Navigation.NavigateTo("/");
 }

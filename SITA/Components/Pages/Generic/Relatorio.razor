@@ -581,7 +581,7 @@
         var salario = new Salario
         {
             Funcionario = funcionarioSelecionado,
-            MesReferencia = mesReferencia.ToString("MM/yyyy"),
+            DataReferente = mesReferencia,
             Valor = (float)CalcularTotal(),
             DataEmissao = DateTime.Now
         };
