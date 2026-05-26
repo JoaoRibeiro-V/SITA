@@ -1,0 +1,437 @@
+@page "/dashboard-financeiro"
+@using SITA.src.Model
+@using SITA.src.Controller
+@using SITA.src.Services
+@using Microsoft.JSInterop
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="container-fluid" style="background-color: #f4f7f6; min-height: 100vh; padding: 20px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="color:#3650a1;">📊 Dashboard Financeiro</h2>
+        <button class="btn fw-bold" style="background:#3650a1; color:white;"
+                @onclick="GerarRelatorioGeral">
+            @if (dataInicio.HasValue && dataFim.HasValue)
+            {
+                <span>
+                    📄 Relatório Geral(PDF) |
+                    @dataInicio?.ToString("yyyy/MM/dd") -
+                    @dataFim?.ToString("yyyy/MM/dd")
+                </span>
+             }
+            else
+            {
+                <span>📄 Relatório Geral(PDF)</span>
+            }
+        </button>
+    </div>
+
+    <!-- CARDS -->
+    <div class="row text-center mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0" style="border-left: 5px solid #28a745 !important;">
+                <div class="card-body">
+                    <h5 class="text-muted">Saldo em Caixa</h5>
+                    <h2 class="text-success">R$ @saldoCaixa.ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0" style="border-left: 5px solid #007bff !important;">
+                <div class="card-body">
+                    <h5 class="text-muted">Previsão (Em Aberto)</h5>
+                    <h2 class="text-primary">R$ @previsaoReceita.ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0" style="border-left: 5px solid #dc3545 !important;">
+                <div class="card-body">
+                    <h5 class="text-muted">Inadimplência</h5>
+                    <h2 class="text-danger">R$ @valorAtraso.ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="mt-3">
+        <h4 style="color:#3650a1;">Movimentações</h4>
+
+        <!-- Filtro tipo e modo (receita/despesa) -->
+        <div class="d-flex gap-2 mb-3 flex-wrap">
+            <div class="btn-group">
+                <button class="btn @(modoExibicao == "receita" ? "btn-primary" : "btn-outline-primary")"
+                        @onclick='() => SetModo("receita")'>Receitas</button>
+                <button class="btn @(modoExibicao == "despesa" ? "btn-danger" : "btn-outline-danger")"
+                        @onclick='() => SetModo("despesa")'>Despesas</button>
+            </div>
+
+            @if (modoExibicao == "receita")
+            {
+                <div class="btn-group">
+                    <button class="btn @(filtroTipo == null ? "btn-primary" : "btn-outline-primary")"
+                            @onclick="() => SetFiltro(null)">Todos</button>
+                    <button class="btn @(filtroTipo == Receita.ReceitaTipo.Mensalidade ? "btn-primary" : "btn-outline-primary")"
+                            @onclick="() => SetFiltro(Receita.ReceitaTipo.Mensalidade)">Mensalidade</button>
+                    <button class="btn @(filtroTipo == Receita.ReceitaTipo.Aquisicao ? "btn-primary" : "btn-outline-primary")"
+                            @onclick="() => SetFiltro(Receita.ReceitaTipo.Aquisicao)">Aquisição</button>
+                    <button class="btn @(filtroTipo == Receita.ReceitaTipo.Taxas ? "btn-primary" : "btn-outline-primary")"
+                            @onclick="() => SetFiltro(Receita.ReceitaTipo.Taxas)">Taxas</button>
+                </div>
+            }
+        </div>
+
+        <!-- Filtro de data -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label>Data Início</label>
+                <input type="date" class="form-control"
+                       value="@dataInicio?.ToString("yyyy-MM-dd")"
+                       @onchange="e => OnDataChanged(e, true)" />
+            </div>
+            <div class="col-md-3">
+                <label>Data Fim</label>
+                <input type="date" class="form-control"
+                       value="@dataFim?.ToString("yyyy-MM-dd")"
+                       @onchange="e => OnDataChanged(e, false)" />
+            </div>
+        </div>
+
+        <!-- TABELA RECEITAS -->
+        @if (modoExibicao == "receita")
+        {
+            <table class="table table-hover bg-white shadow-sm mt-2">
+                <thead style="background-color:#3650a1; color:white;">
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in receitasExibidas)
+                    {
+                        <tr class="@(receitaSelecionada == item ? "table-primary" : "")"
+                            style="cursor:pointer"
+                            @onclick="() => SelecionarReceita(item)">
+                            <td><span class="badge @GetTipoBadge(item.Type)">@item.GetTypeTexto()</span></td>
+                            <td>@(item.Descricao ?? "-")</td>
+                            <td>R$ @item.GetValorTotal().ToString("N2")</td>
+                            <td>@item.DataReferente.ToShortDateString()</td>
+                            <td><span class="badge @GetStatusBadge(item.Status)">@item.GetStatusTexto()</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        @onclick:stopPropagation
+                                        @onclick="() => GerarPdfReceita(item)">
+                                    📄
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @Paginacao(totalPaginasReceita, paginaAtualReceita, p => MudarPaginaReceita(p))
+        }
+
+        <!-- TABELA DESPESAS -->
+        @if (modoExibicao == "despesa")
+        {
+            <table class="table table-hover bg-white shadow-sm mt-2">
+                <thead style="background-color:#c62828; color:white;">
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in despesasExibidas)
+                    {
+                        <tr class="@(despesaSelecionada == item ? "table-danger" : "")"
+                            style="cursor:pointer"
+                            @onclick="() => SelecionarDespesa(item)">
+                            <td>@(item.Categoria ?? "-")</td>
+                            <td>@(item.Descricao ?? "-")</td>
+                            <td>R$ @item.GetValorTotal().ToString("N2")</td>
+                            <td>@item.DataReferente.ToShortDateString()</td>
+                            <td><span class="badge @GetStatusBadgeDespesa(item.Status)">@item.GetStatusTexto()</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        @onclick:stopPropagation
+                                        @onclick="() => GerarPdfDespesa(item)">
+                                    📄
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @Paginacao(totalPaginasDespesa, paginaAtualDespesa, p => MudarPaginaDespesa(p))
+        }
+    </div>
+
+    <!-- DETALHES RECEITA -->
+    @if (receitaSelecionada != null && modoExibicao == "receita")
+    {
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="text-primary">Detalhes da Receita</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Tipo:</strong> @receitaSelecionada.GetTypeTexto()</p>
+                        <p><strong>Valor:</strong> R$ @receitaSelecionada.GetValorTotal().ToString("N2")</p>
+                        <p><strong>Status:</strong> @receitaSelecionada.GetStatusTexto()</p>
+                        <p><strong>Vencimento:</strong> @receitaSelecionada.DataVencimento.ToShortDateString()</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Descrição:</strong> @receitaSelecionada.Descricao</p>
+                        <p><strong>Aluno:</strong> @receitaSelecionada.Aluno?.Nome</p>
+                        <p><strong>Responsável:</strong> @receitaSelecionada.Responsavel?.Nome</p>
+                    </div>
+                </div>
+                @if (!receitaSelecionada.IsPago())
+                {
+                    <button class="btn btn-success mt-2" @onclick="ConfirmarPagamentoReceita">
+                        Confirmar Pagamento
+                    </button>
+                }
+                <button class="btn btn-sm btn-secondary mt-2 ms-2" @onclick="() => receitaSelecionada = null">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- DETALHES DESPESA -->
+    @if (despesaSelecionada != null && modoExibicao == "despesa")
+    {
+        <div class="card mt-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="text-danger">Detalhes da Despesa</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Categoria:</strong> @despesaSelecionada.Categoria</p>
+                        <p><strong>Valor:</strong> R$ @despesaSelecionada.GetValorTotal().ToString("N2")</p>
+                        <p><strong>Status:</strong> @despesaSelecionada.GetStatusTexto()</p>
+                        <p><strong>Vencimento:</strong> @despesaSelecionada.DataVencimento.ToShortDateString()</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Descrição:</strong> @despesaSelecionada.Descricao</p>
+                        <p><strong>Fornecedor:</strong> @(despesaSelecionada.Fornecedor ?? "-")</p>
+                        <p><strong>Quem Pagou:</strong> @(despesaSelecionada.QuemPagou ?? "-")</p>
+                        <p><strong>Nº NF:</strong> @(despesaSelecionada.NumeroNotaFiscal ?? "-")</p>
+                    </div>
+                </div>
+                @if (!despesaSelecionada.IsPago())
+                {
+                    <button class="btn btn-success mt-2" @onclick="ConfirmarPagamentoDespesa">
+                        Confirmar Pagamento
+                    </button>
+                }
+                <button class="btn btn-sm btn-secondary mt-2 ms-2" @onclick="() => despesaSelecionada = null">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(msgFeedback))
+    {
+        <div class="alert alert-info mt-3">@msgFeedback</div>
+    }
+</div>
+
+@code {
+    private string modoExibicao = "receita";
+    private int itensPorPagina = 8;
+
+    private List<Receita> todasReceitas = new();
+    private List<Receita> receitasExibidas = new();
+    private Receita? receitaSelecionada = null;
+    private Receita.ReceitaTipo? filtroTipo = null;
+    private int paginaAtualReceita = 1;
+    private int totalPaginasReceita = 1;
+
+    private List<Despesa> todasDespesas = new();
+    private List<Despesa> despesasExibidas = new();
+    private Despesa? despesaSelecionada = null;
+    private int paginaAtualDespesa = 1;
+    private int totalPaginasDespesa = 1;
+
+    private float saldoCaixa = 0;
+    private float previsaoReceita = 0;
+    private float valorAtraso = 0;
+
+    private DateTime? dataInicio = null;
+    private DateTime? dataFim = null;
+
+    private string msgFeedback = "";
+
+    protected override void OnInitialized() => CarregarDados();
+
+    private void CarregarDados()
+    {
+        todasReceitas = ReceitaController.GetAll();
+        todasDespesas = DespesaController.GetAll();
+
+        float receitasPagas = todasReceitas.Where(r => r.IsPago()).Sum(r => r.GetValorTotal());
+        float despesasPagas = todasDespesas.Where(d => d.IsPago()).Sum(d => d.GetValorTotal());
+
+        saldoCaixa = receitasPagas - despesasPagas;
+        previsaoReceita = todasReceitas.Where(r => !r.IsPago()).Sum(r => r.GetValorTotal());
+        valorAtraso = todasReceitas
+            .Where(r => r.Status == Financeiro.FinanceStatus.EmAtraso)
+            .Sum(r => r.GetValorTotal());
+
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        // Receitas
+        IEnumerable<Receita> qr = todasReceitas;
+        if (filtroTipo != null) qr = qr.Where(r => r.Type == filtroTipo);
+        if (dataInicio != null) qr = qr.Where(r => r.DataReferente.Date >= dataInicio.Value.Date);
+        if (dataFim != null) qr = qr.Where(r => r.DataReferente.Date <= dataFim.Value.Date);
+        qr = qr.OrderByDescending(r => r.DataReferente);
+        totalPaginasReceita = Math.Max(1, (int)Math.Ceiling(qr.Count() / (double)itensPorPagina));
+        if (paginaAtualReceita > totalPaginasReceita) paginaAtualReceita = totalPaginasReceita;
+        receitasExibidas = qr.Skip((paginaAtualReceita - 1) * itensPorPagina).Take(itensPorPagina).ToList();
+
+        // Despesas
+        IEnumerable<Despesa> qd = todasDespesas;
+        if (dataInicio != null) qd = qd.Where(d => d.DataReferente.Date >= dataInicio.Value.Date);
+        if (dataFim != null) qd = qd.Where(d => d.DataReferente.Date <= dataFim.Value.Date);
+        qd = qd.OrderByDescending(d => d.DataReferente);
+        totalPaginasDespesa = Math.Max(1, (int)Math.Ceiling(qd.Count() / (double)itensPorPagina));
+        if (paginaAtualDespesa > totalPaginasDespesa) paginaAtualDespesa = totalPaginasDespesa;
+        despesasExibidas = qd.Skip((paginaAtualDespesa - 1) * itensPorPagina).Take(itensPorPagina).ToList();
+    }
+
+    void SelecionarReceita(Receita r) => receitaSelecionada = r;
+    void SelecionarDespesa(Despesa d) => despesaSelecionada = d;
+
+    void ConfirmarPagamentoReceita()
+    {
+        if (receitaSelecionada == null) return;
+        receitaSelecionada.Status = Financeiro.FinanceStatus.Pago;
+        receitaSelecionada.DataPagamento = DateTime.Now;
+        CarregarDados();
+        receitaSelecionada = todasReceitas.FirstOrDefault(r => r.Id == receitaSelecionada?.Id);
+    }
+
+    void ConfirmarPagamentoDespesa()
+    {
+        if (despesaSelecionada == null) return;
+        despesaSelecionada.Status = Financeiro.FinanceStatus.Pago;
+        despesaSelecionada.DataPagamento = DateTime.Now;
+        CarregarDados();
+        despesaSelecionada = todasDespesas.FirstOrDefault(d => d.Id == despesaSelecionada?.Id);
+    }
+
+    void SetModo(string modo) { modoExibicao = modo; receitaSelecionada = null; despesaSelecionada = null; }
+
+    void SetFiltro(Receita.ReceitaTipo? tipo)
+    {
+        filtroTipo = tipo;
+        paginaAtualReceita = 1;
+        receitaSelecionada = null;
+        AplicarFiltros();
+    }
+
+    void OnDataChanged(ChangeEventArgs e, bool isInicio)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            if (isInicio) dataInicio = date;
+            else dataFim = date;
+            paginaAtualReceita = 1;
+            paginaAtualDespesa = 1;
+            AplicarFiltros();
+        }
+    }
+
+    void MudarPaginaReceita(int p) { paginaAtualReceita = p; AplicarFiltros(); }
+    void MudarPaginaDespesa(int p) { paginaAtualDespesa = p; AplicarFiltros(); }
+
+    private async Task GerarPdfReceita(Receita receita)
+    {
+        try
+        {
+            byte[] pdf = PdfService.GerarRelatorioReceita(receita);
+            await DownloadPdf(pdf, $"Receita_{receita.Id.ToString()[..8]}.pdf");
+        }
+        catch (Exception ex) { msgFeedback = "Erro: " + ex.Message; }
+    }
+
+    private async Task GerarPdfDespesa(Despesa despesa)
+    {
+        try
+        {
+            byte[] pdf = PdfService.GerarRelatorioDespesa(despesa);
+            await DownloadPdf(pdf, $"Despesa_{despesa.Id.ToString()[..8]}.pdf");
+        }
+        catch (Exception ex) { msgFeedback = "Erro: " + ex.Message; }
+    }
+
+    private async Task GerarRelatorioGeral()
+    {
+        try
+        {
+            byte[] pdf = PdfService.GerarRelatorioGeral(todasReceitas, todasDespesas,
+                dataInicio: dataInicio, dataFim: dataFim);
+            await DownloadPdf(pdf, $"RelatorioGeral_{DateTime.Now:yyyyMMdd}.pdf");
+        }
+        catch (Exception ex) { msgFeedback = "Erro: " + ex.Message; }
+    }
+
+    private async Task DownloadPdf(byte[] pdf, string nomeArquivo)
+    {
+        string base64 = Convert.ToBase64String(pdf);
+        await JS.InvokeVoidAsync("downloadPdf", base64, nomeArquivo);
+    }
+
+    private string GetTipoBadge(Receita.ReceitaTipo tipo) => tipo switch
+    {
+        Receita.ReceitaTipo.Mensalidade => "bg-primary",
+        Receita.ReceitaTipo.Aquisicao => "bg-info",
+        Receita.ReceitaTipo.Taxas => "bg-secondary",
+        _ => "bg-dark"
+    };
+
+    private string GetStatusBadge(Financeiro.FinanceStatus s) => s switch
+    {
+        Financeiro.FinanceStatus.Pago => "bg-success",
+        Financeiro.FinanceStatus.EmAtraso => "bg-danger",
+        Financeiro.FinanceStatus.Pendente => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+
+    private string GetStatusBadgeDespesa(Financeiro.FinanceStatus s) => GetStatusBadge(s);
+
+    private RenderFragment Paginacao(int total, int atual, Action<int> mudar) => builder =>
+    {
+        if (total <= 1) return;
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "d-flex justify-content-center gap-1 mt-2");
+        for (int p = 1; p <= total; p++)
+        {
+            var pg = p;
+            builder.OpenElement(2, "button");
+            builder.AddAttribute(3, "class", $"btn btn-sm {(atual == pg ? "btn-primary" : "btn-outline-primary")}");
+            builder.AddAttribute(4, "onclick", EventCallback.Factory.Create(this, () => mudar(pg)));
+            builder.AddContent(5, pg.ToString());
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+    };
+}

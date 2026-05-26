@@ -252,7 +252,7 @@
                                             <td>R$ @d.GetValorTotal().ToString("N2")</td>
                                             <td>
                                                 <span class="badge @(d.IsPago() ? "bg-success" : "bg-warning text-dark")">
-                                                    @(d.IsPago() ? "Pago" : "Pendente")
+                                                    @(d.GetStatusTexto())
                                                 </span>
                                             </td>
                                         </tr>

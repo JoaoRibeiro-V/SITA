@@ -1,12 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System;
-using System.Collections.Generic;
-using System.Collections;
 using SITA.src.Controller;
 
 namespace SITA.src.Model
@@ -27,11 +20,13 @@ namespace SITA.src.Model
         public DateTime DataCadastro { get; set; }
         public Turma? Turma { get; set; }
         public List<Responsavel> Responsaveis { get; set; } = new List<Responsavel>();
+        public List<ContatoEmergencia> ContatosEmergencia { get; set; } = new List<ContatoEmergencia>();
 
         public Aluno()
         {
             Id = Guid.NewGuid();
         }
+
         public int CalcularIdade()
         {
             if (!DataNascimento.HasValue) return 0;
@@ -40,6 +35,7 @@ namespace SITA.src.Model
             if (DataNascimento.Value.Date > hoje.AddYears(-idade)) idade--;
             return idade;
         }
+
         public void GerarRA()
         {
             RA = "201" + (AlunoController.GetAll().Count + 1).ToString("D4");
