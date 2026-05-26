@@ -16,11 +16,11 @@
     <div class="row mb-3">
         <div class="col-md-6">
             <label class="fw-bold" style="color: #3650a1;">Nome Completo do Aluno:</label>
-            <input class="form-control border-navy" @bind="novoAluno.Nome" />
+            <input class="form-control" @bind="novoAluno.Nome" />
         </div>
         <div class="col-md-3">
             <label class="fw-bold" style="color: #3650a1;">Data de Nascimento:</label>
-            <input type="date" class="form-control border-navy" @bind="novoAluno.DataNascimento" @bind:after="() => CalcularIdade()" />
+            <input type="date" class="form-control" @bind="novoAluno.DataNascimento" @bind:after="() => CalcularIdade()" />
         </div>
         <div class="col-md-3">
             <label class="fw-bold text-muted">Idade Calculada:</label>
@@ -30,16 +30,16 @@
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <label class="fw-bold" style="color: #3650a1;">RA:</label>
-            <input readonly class="form-control border-navy" @bind="novoAluno.RA" />
+            <label class="fw-bold" style="color: #3650a1;">RA (gerado automaticamente):</label>
+            <input readonly class="form-control bg-light" @bind="novoAluno.RA" />
         </div>
         <div class="col-md-4">
             <label class="fw-bold" style="color: #3650a1;">Religião:</label>
-            <input class="form-control border-navy" @bind="novoAluno.Religiao" />
+            <input class="form-control" @bind="novoAluno.Religiao" />
         </div>
         <div class="col-md-4">
             <label class="fw-bold" style="color: #3650a1;">Turma:</label>
-            <select class="form-select border-navy" @bind="turmaId">
+            <select class="form-select" @bind="turmaId">
                 <option value="">Selecione...</option>
                 @foreach (var t in listaTurmas)
                 {
@@ -49,17 +49,15 @@
         </div>
     </div>
 
-    <!-- SEÇÃO 2: Dados do Responsável -->
+    <!-- SEÇÃO 2: Dados do Responsável Principal -->
     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #3650a1;">
-        <h5 style="color: #3650a1; font-weight: bold;">Dados do Responsável</h5>
+        <h5 style="color: #3650a1; font-weight: bold;">Responsável Principal</h5>
         <div class="row mt-3 position-relative">
             <div class="col-md-6">
                 <label class="fw-bold">CPF do Responsável:</label>
-
                 <input class="form-control @(responsavelSelecionado != null ? "border-success" : "")"
                        value="@responsavelCpf"
                        @oninput="OnCpfInput"
-                       onkeypress="onlyNumbers(event)"
                        placeholder="000.000.000-00"
                        maxlength="14" />
 
@@ -68,8 +66,7 @@
                     <div class="list-group position-absolute w-100" style="z-index: 1000;">
                         @foreach (var r in sugestoesResponsaveis)
                         {
-                            <button type="button"
-                                    class="list-group-item list-group-item-action"
+                            <button type="button" class="list-group-item list-group-item-action"
                                     @onclick="() => SelecionarResponsavel(r)">
                                 <strong>@r.Nome</strong><br />
                                 <small>@Mask.FormatCpf(r.CPF)</small>
@@ -80,27 +77,92 @@
 
                 @if (responsavelSelecionado != null)
                 {
-                    <div class="text-success mt-1">
-                        ✔ @responsavelSelecionado.Nome selecionado
-                    </div>
+                    <div class="text-success mt-1">✔ @responsavelSelecionado.Nome selecionado</div>
                 }
             </div>
-
             <div class="col-md-6">
                 <label class="fw-bold">Grau de Parentesco:</label>
                 <select class="form-select" @bind="tipoParentesco">
-                    <option value="1">Pai / Mãe</option>
-                    <option value="2">Avô / Avó</option>
-                    <option value="3">Tio / Tia</option>
+                    <option value="0">Mãe</option>
+                    <option value="1">Pai</option>
+                    <option value="2">Avó</option>
+                    <option value="3">Avô</option>
+                    <option value="4">Tia</option>
+                    <option value="5">Tio</option>
                     <option value="6">Outro Responsável</option>
                 </select>
             </div>
         </div>
     </div>
 
-    <!-- SEÇÃO 3: Saúde e Emergência -->
+    <!-- SEÇÃO 3: Contatos de Emergência -->
+    <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #f0a500;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 style="color: #9a6500; font-weight: bold; margin: 0;">Contatos de Emergência</h5>
+            <button type="button" class="btn btn-sm fw-bold"
+                    style="background-color: #f0a500; color: white;"
+                    @onclick="AdicionarContatoEmergencia">
+                + Adicionar Contato
+            </button>
+        </div>
+
+        @if (!contatosEmergencia.Any())
+        {
+            <p class="text-muted fst-italic">Nenhum contato de emergência adicionado.</p>
+        }
+
+        @for (int i = 0; i < contatosEmergencia.Count; i++)
+        {
+            var idx = i;
+            var contato = contatosEmergencia[idx];
+            <div class="row mb-2 align-items-end p-2"
+                 style="background: white; border-radius: 6px; border: 1px solid #ffe0a0;">
+                <div class="col-md-3">
+                    <label class="fw-bold" style="font-size: 0.85rem;">Nome:</label>
+                    <input class="form-control form-control-sm" @bind="contato.Nome" placeholder="Nome completo" />
+                </div>
+                <div class="col-md-2">
+                    <label class="fw-bold" style="font-size: 0.85rem;">CPF:</label>
+                    <input class="form-control form-control-sm"
+                           value="@cpfsContatos[idx]"
+                           @oninput="e => OnCpfContatoInput(e, idx)"
+                           placeholder="000.000.000-00"
+                           maxlength="14" />
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold" style="font-size: 0.85rem;">Parentesco:</label>
+                    <select class="form-select form-select-sm" @bind="contato.GrauParentesco">
+                        <option value="Mãe">Mãe</option>
+                        <option value="Pai">Pai</option>
+                        <option value="Avó">Avó</option>
+                        <option value="Avô">Avô</option>
+                        <option value="Tia">Tia</option>
+                        <option value="Tio">Tio</option>
+                        <option value="Irmão(ã)">Irmão(ã)</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold" style="font-size: 0.85rem;">Telefone:</label>
+                    <input class="form-control form-control-sm"
+                           value="@telefonesContatos[idx]"
+                           @oninput="e => OnTelefoneContatoInput(e, idx)"
+                           placeholder="(00) 00000-0000"
+                           maxlength="15" />
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-sm btn-outline-danger w-100"
+                            @onclick="() => RemoverContatoEmergencia(idx)">
+                        ✕
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- SEÇÃO 4: Saúde e Emergência -->
     <div style="background-color: #fff5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #d9534f;">
-        <h5 style="color: #d9534f; font-weight: bold;">Saúde e Emergência</h5>
+        <h5 style="color: #d9534f; font-weight: bold;">Saúde</h5>
 
         <div class="row mt-3">
             <div class="col-md-6">
@@ -115,21 +177,20 @@
 
         <div class="row mt-3">
             <div class="col-md-6">
-                <label>Alergias (Enter):</label>
+                <label>Alergias (pressione Enter para adicionar):</label>
                 <input class="form-control" @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" />
                 <div class="mt-2">
-                    @foreach (var a in novoAluno.Alergias)
+                    @foreach (var a in novoAluno.Alergias ?? new())
                     {
                         <span class="badge bg-danger me-1">@a</span>
                     }
                 </div>
             </div>
-
             <div class="col-md-6">
-                <label>Condições Especiais:</label>
+                <label>Condições Especiais (pressione Enter para adicionar):</label>
                 <input class="form-control" @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" />
                 <div class="mt-2">
-                    @foreach (var c in novoAluno.CondicoesEspeciais)
+                    @foreach (var c in novoAluno.CondicoesEspeciais ?? new())
                     {
                         <span class="badge bg-warning text-dark me-1">@c</span>
                     }
@@ -138,21 +199,26 @@
         </div>
     </div>
 
-    <div class="data-flex gap-6 mt-8">
-        <div class="col-md-3">
-            <label class="fw-bold">Valor Matrícula (R$):</label>
-            <input type="number" class="form-control border-success fw-bold" @bind="valorMatriculaDigitada" step="0.01" />
+    <!-- SEÇÃO 5: Financeiro -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label class="fw-bold">Valor da Mensalidade (R$):</label>
+            <input type="number" class="form-control" @bind="valorMatriculaDigitada" step="0.01" />
         </div>
-        <div class="col-md-3">
-            <label class="fw-bold">Taxa Matrícula (R$):</label>
-            <input type="number" class="form-control border-success fw-bold" @bind="valorTaxaMatricula" step="0.01" />
+        <div class="col-md-6">
+            <label class="fw-bold">Taxa de Matrícula (R$):</label>
+            <input type="number" class="form-control" @bind="valorTaxaMatricula" step="0.01" />
         </div>
     </div>
-        
+
     <!-- Botões -->
     <div class="d-flex gap-3 mt-4">
-        <button class="btn btn-outline-secondary w-25 p-3 fw-bold" @onclick='() => Navigation.NavigateTo("/alunos")'>CANCELAR</button>
-        <button class="btn w-75 p-3 fw-bold" style="background-color: #3650a1; color: white;" @onclick="SalvarAluno">
+        <button class="btn btn-outline-secondary w-25 p-3 fw-bold"
+                @onclick='() => Navigation.NavigateTo("/alunos")'>
+            CANCELAR
+        </button>
+        <button class="btn w-75 p-3 fw-bold" style="background-color: #3650a1; color: white;"
+                @onclick="SalvarAluno">
             FINALIZAR MATRÍCULA E GERAR CARNÊ
         </button>
     </div>
@@ -165,23 +231,27 @@
 </div>
 
 @code {
-    private Aluno novoAluno = new Aluno { Alergias = new List<string>(), CondicoesEspeciais = new List<string>() };
-
+    private Aluno novoAluno = new Aluno
+    {
+        Alergias = new List<string>(),
+        CondicoesEspeciais = new List<string>()
+    };
 
     private List<Turma> listaTurmas = new();
     private List<Responsavel> listaResponsaveis = new();
     private List<Responsavel> sugestoesResponsaveis = new();
-
     private Responsavel? responsavelSelecionado = null;
+
+    private List<ContatoEmergencia> contatosEmergencia = new();
+    private List<string> cpfsContatos = new();
+    private List<string> telefonesContatos = new();
 
     private decimal valorMatriculaDigitada = 0;
     private decimal valorTaxaMatricula = 0;
-
     private string idadeExtenso = "0 anos e 0 meses";
     private string turmaId = "";
     private string responsavelCpf = "";
     private int tipoParentesco = 6;
-
     private string addAlergia = "";
     private string addCondicao = "";
     private string msgErro = "";
@@ -195,20 +265,12 @@
 
     void OnCpfInput(ChangeEventArgs e)
     {
-        var digits = new string((e.Value?.ToString() ?? "")
-            .Where(char.IsDigit)
-            .ToArray());
-
-        if (digits.Length > 11)
-            digits = digits[..11];
-
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
         responsavelCpf = Mask.FormatCpf(digits);
-
         sugestoesResponsaveis = listaResponsaveis
             .Where(r => !string.IsNullOrEmpty(r.CPF) && r.CPF.Contains(digits))
-            .Take(5)
-            .ToList();
-
+            .Take(5).ToList();
         responsavelSelecionado = null;
     }
 
@@ -219,18 +281,45 @@
         sugestoesResponsaveis.Clear();
     }
 
+    void AdicionarContatoEmergencia()
+    {
+        contatosEmergencia.Add(new ContatoEmergencia());
+        cpfsContatos.Add("");
+        telefonesContatos.Add("");
+    }
+
+    void RemoverContatoEmergencia(int idx)
+    {
+        contatosEmergencia.RemoveAt(idx);
+        cpfsContatos.RemoveAt(idx);
+        telefonesContatos.RemoveAt(idx);
+    }
+
+    void OnCpfContatoInput(ChangeEventArgs e, int idx)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        cpfsContatos[idx] = Mask.FormatCpf(digits);
+        contatosEmergencia[idx].CPF = Mask.RemoveMask(cpfsContatos[idx]);
+    }
+
+    void OnTelefoneContatoInput(ChangeEventArgs e, int idx)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        telefonesContatos[idx] = Mask.FormatPhone(digits);
+        contatosEmergencia[idx].Telefone = Mask.RemoveMask(telefonesContatos[idx]);
+    }
+
     private void CalcularIdade()
     {
         DateTime data = novoAluno.DataNascimento ?? DateTime.Today;
-
         DateTime hoje = DateTime.Today;
         int anos = hoje.Year - data.Year;
         if (hoje < data.AddYears(anos)) anos--;
-
         int meses = hoje.Month - data.Month;
         if (hoje.Day < data.Day) meses--;
         if (meses < 0) meses += 12;
-
         idadeExtenso = $"{anos} anos e {meses} meses";
         novoAluno.Idade = anos;
     }
@@ -239,38 +328,44 @@
     {
         var cpfSemMascara = Mask.RemoveMask(responsavelCpf);
 
-        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(cpfSemMascara) || valorMatriculaDigitada <= 0)
+        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(cpfSemMascara))
         {
             msgErro = "Nome e CPF do responsável são obrigatórios.";
+            return;
+        }
+        if (valorMatriculaDigitada <= 0)
+        {
+            msgErro = "Informe o valor da mensalidade.";
             return;
         }
 
         try
         {
-            var resp = responsavelSelecionado
-                       ?? ResponsavelController.Get("CPF", cpfSemMascara);
-
+            var resp = responsavelSelecionado ?? ResponsavelController.Get("CPF", cpfSemMascara);
             if (resp == null)
             {
                 msgErro = "Responsável não encontrado no sistema.";
                 return;
             }
-            DateTime FimAno = new DateTime(DateTime.Today.Year, 12, 31);
+
+            // Vincula contatos de emergência ao aluno
+            novoAluno.ContatosEmergencia = contatosEmergencia;
             novoAluno.DataCadastro = DateTime.Now;
+
             AlunoController.Register(novoAluno);
-
             ResponsavelController.AddParentesco(resp, novoAluno, tipoParentesco);
-            ReceitaController.GerarCarneAluno(novoAluno, resp, valorMatriculaDigitada, FimAno);
-            ReceitaController.GerarTaxaMatricula(novoAluno, resp, valorTaxaMatricula);
 
-            System.Diagnostics.Debug.WriteLine(turmaId);
+            DateTime fimAno = new DateTime(DateTime.Today.Year, 12, 31);
+            ReceitaController.GerarCarneAluno(novoAluno, resp, valorMatriculaDigitada, fimAno);
+
+            if (valorTaxaMatricula > 0)
+                ReceitaController.GerarTaxaMatricula(novoAluno, resp, valorTaxaMatricula);
 
             if (!string.IsNullOrEmpty(turmaId))
             {
-                System.Diagnostics.Debug.WriteLine("Entrou");
                 var turma = TurmaController.Get(turmaId, null);
-                System.Diagnostics.Debug.WriteLine(turma != null);
-                TurmaController.AddAlunoToTurma(turma, novoAluno);
+                if (turma != null)
+                    TurmaController.AddAlunoToTurma(turma, novoAluno);
             }
 
             Navigation.NavigateTo("/alunos");
@@ -285,7 +380,8 @@
     {
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia))
         {
-            novoAluno.Alergias.Add(addAlergia);
+            novoAluno.Alergias ??= new();
+            novoAluno.Alergias.Add(addAlergia.Trim());
             addAlergia = "";
         }
     }
@@ -294,7 +390,8 @@
     {
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao))
         {
-            novoAluno.CondicoesEspeciais.Add(addCondicao);
+            novoAluno.CondicoesEspeciais ??= new();
+            novoAluno.CondicoesEspeciais.Add(addCondicao.Trim());
             addCondicao = "";
         }
     }

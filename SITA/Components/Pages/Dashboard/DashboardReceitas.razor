@@ -1,4 +1,4 @@
-@page "/dashboard-financeiro/{ReceitaId:guid?}"
+@page "/receitas/{ReceitaId:guid?}"
 @using SITA.src.Model
 @using SITA.src.Util
 @using SITA.src.Storage
@@ -121,7 +121,7 @@
                             <tr class="linha-clicavel"
                                 @onclick="() => AbrirModal(item)">
                                 <td>
-                                    @item.DataVencimento.ToString("dd/MM/yyyy")
+                                    @item.DataReferente.ToString("dd/MM/yyyy")
                                 </td>
 
                                 <td>
@@ -1286,14 +1286,14 @@
             if (dataInicio.HasValue)
             {
                 query = query.Where(r =>
-                    r.DataVencimento.Date >= dataInicio.Value.Date);
+                    r.DataReferente.Date >= dataInicio.Value.Date);
             }
 
             // DATA FINAL
             if (dataFim.HasValue)
             {
                 query = query.Where(r =>
-                    r.DataVencimento.Date <= dataFim.Value.Date);
+                    r.DataReferente.Date <= dataFim.Value.Date);
             }
 
             // ORDENAÇÃO
@@ -1301,7 +1301,7 @@
             {
                 "asc" => query.OrderBy(r => r.GetValorTotal()),
                 "desc" => query.OrderByDescending(r => r.GetValorTotal()),
-                _ => query.OrderBy(r => r.DataVencimento)
+                _ => query.OrderBy(r => r.DataReferente)
             };
 
             return query;

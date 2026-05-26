@@ -65,6 +65,7 @@ namespace SITA.src.Storage
             GeneralStorage.AddStorage<Receita>();
             GeneralStorage.AddStorage<Despesa>();
             GeneralStorage.AddStorage<Salario>();
+            GeneralStorage.AddStorage<ItemEstoque>();
         }
 
     }
