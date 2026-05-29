@@ -207,7 +207,7 @@
 
         if (financeiro is Receita)
         {
-            Navigation.NavigateTo($"/dashboard-financeiro/{financeiro.Id}");
+            Navigation.NavigateTo($"/receitas/{financeiro.Id}");
         }
         else
         {
@@ -219,7 +219,7 @@
     {
         if (financeiro is Receita)
         {
-            Navigation.NavigateTo($"/dashboard-financeiro/{financeiro?.Id}");
+            Navigation.NavigateTo($"/receitas/{financeiro?.Id}");
         }
         else
         {
