@@ -246,14 +246,6 @@
                                             <label class="fw-bold" style="font-size: 0.85rem;">Nome:</label>
                                             <input class="form-control form-control-sm" @bind="contato.Nome" placeholder="Nome completo" />
                                         </div>
-                                        <div class="col-md-2">
-                                            <label class="fw-bold" style="font-size: 0.85rem;">CPF:</label>
-                                            <input class="form-control form-control-sm"
-                                                   value="@cpfsContatos[idx]"
-                                                   @oninput="e => OnCpfContatoInput(e, idx)"
-                                                   placeholder="000.000.000-00"
-                                                   maxlength="14" />
-                                        </div>
                                         <div class="col-md-3">
                                             <label class="fw-bold" style="font-size: 0.85rem;">Parentesco:</label>
                                             <select class="form-select form-select-sm" @bind="contato.GrauParentesco">
@@ -293,7 +285,6 @@
                                     <thead style="background-color: #f0a500; color: white;">
                                         <tr>
                                             <th>Nome</th>
-                                            <th>CPF</th>
                                             <th>Parentesco</th>
                                             <th>Telefone</th>
                                         </tr>
@@ -303,7 +294,6 @@
                                         {
                                             <tr>
                                                 <td>@c.Nome</td>
-                                                <td>@Mask.FormatCpf(c.CPF)</td>
                                                 <td>@c.GrauParentesco</td>
                                                 <td>@Mask.FormatPhone(c.Telefone)</td>
                                             </tr>
@@ -803,7 +793,6 @@
         if (alunoSelecionado.ContatosEmergencia != null || alunoSelecionado.ContatosEmergencia.Any())
         {
             contatosEmergencia = new List<ContatoEmergencia>(alunoSelecionado.ContatosEmergencia ?? new List<ContatoEmergencia>());
-            cpfsContatos = contatosEmergencia.Select(c => Mask.FormatCpf(c.CPF)).ToList();
             telefonesContatos = contatosEmergencia.Select(c => Mask.FormatPhone(c.Telefone)).ToList();
         }
 
@@ -1020,14 +1009,6 @@
         contatosEmergencia.RemoveAt(idx);
         cpfsContatos.RemoveAt(idx);
         telefonesContatos.RemoveAt(idx);
-    }
-
-    void OnCpfContatoInput(ChangeEventArgs e, int idx)
-    {
-        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
-        if (digits.Length > 11) digits = digits[..11];
-        cpfsContatos[idx] = Mask.FormatCpf(digits);
-        contatosEmergencia[idx].CPF = Mask.RemoveMask(cpfsContatos[idx]);
     }
 
     void OnTelefoneContatoInput(ChangeEventArgs e, int idx)

@@ -108,7 +108,6 @@ namespace SITA.src.Services
                                 foreach (var c in aluno.ContatosEmergencia)
                                 {
                                     t.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(c.Nome);
-                                    t.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(c.CPF);
                                     t.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(c.GrauParentesco);
                                     t.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(c.Telefone);
                                 }
