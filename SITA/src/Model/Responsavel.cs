@@ -18,8 +18,10 @@ namespace SITA.src.Model
             { 2, "Avó" },
             { 6, "Outro" }
         };
+        public DateTime? DataNascimento { get; set; }
         public string? Telefone { get; set; }
         public string? Endereco { get; set; }
+        public string? CEP { get; set; }
         private List<Parentesco> Parentescos { get; set; } = new List<Parentesco>();
         public Responsavel()
         {

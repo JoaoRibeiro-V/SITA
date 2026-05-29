@@ -71,6 +71,16 @@ namespace SITA.src.Util
 
             return $"{digits[..3]}.{digits[3..6]}.{digits[6..9]}-{digits[9..]}";
         }
+        public static string FormatCEP(string digits)
+        {
+            if (string.IsNullOrEmpty(digits))
+                return "";
+
+            if (digits.Length <= 5)
+                return digits;
+
+            return $"{digits[..5]}-{digits[5..]}";
+        }
         public static string FormatPhone(string digits)
         {
             if (string.IsNullOrEmpty(digits))

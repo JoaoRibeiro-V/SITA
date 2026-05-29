@@ -23,8 +23,7 @@ namespace SITA.src.Util
         public const string Home = "/";
         public const string SignIn = "/signin";
         public const string Aluno = "/alunos";
-        public const string Financeiro = "/receitas";
-        public const string Financeiro2 = "/dashboard-financeiro";
+        public const string Financeiro = "/dashboard-financeiro";
         public const string Turmas = "/turmas";
         public const string Relatorio = "/folha-pagamento";
         public const string Despesas = "/despesas";
@@ -35,9 +34,6 @@ namespace SITA.src.Util
         public const string Perfil = "/profile";
         public const string ListaFuncionarios = "/lista-funcionarios";
         public const string Estoque = "/estoque";
-
-        // Em MainNav:
-       
         public class RouteItem
         {
             public string Name { get; set; } = "";
@@ -50,32 +46,29 @@ namespace SITA.src.Util
      * Níveis atuais:
      * -1: Não Logado
      * 0 : Responsável
-     * 1 : Funcionário
+     * 1 : Fu   ncionário
      * 2 : Professor
      * 3 : Secretário
      * 4 : Diretor
      * 
      */
 
+
+
         public static List<RouteItem> MainNav = new()
         {
             new RouteItem { Name = "Aluno", Path = Aluno },
             new RouteItem { Name = "Turma", Path = Turmas, MinAccessLevel = 2 },
-            new RouteItem { Name = "Colaboradores", Path = ListaFuncionarios, MinAccessLevel = 3 },
-           // new RouteItem { Name = "Gestão", Path = Relatorio, MinAccessLevel = 3 },
-            new RouteItem { Name = "Estoque", Path = Estoque, MinAccessLevel = 3 },
-            new RouteItem { Name = "Receitas", Path = Financeiro, MinAccessLevel = 3 },
-            new RouteItem { Name = "Despesas", Path = Despesas, MinAccessLevel = 1 },
-            new RouteItem { Name = "Financeiro", Path = Financeiro2, MinAccessLevel = 1 },
-
+            new RouteItem { Name = "Funcionários", Path = ListaFuncionarios, MinAccessLevel = 3 },
+            new RouteItem { Name = "Estoque", Path = Estoque, MinAccessLevel = 2 },
+            new RouteItem { Name = "Financeiro", Path = Financeiro, MinAccessLevel = 3 },
         };
 
         public static List<RouteItem> CadastroNav = new()
         {
-            new RouteItem { Name = "Cadastro Responsável", Path = CadastroResponsavel, MinAccessLevel = 3 },
-            new RouteItem { Name = "Cadastro Colaborador", Path = CadastroFuncionario, MinAccessLevel = 3 },
-            
-            
+            /* new RouteItem { Name = "Cadastro Responsável", Path = CadastroResponsavel, MinAccessLevel = 3 },
+             new RouteItem { Name = "Cadastro Colaborador", Path = CadastroFuncionario, MinAccessLevel = 3 },
+             new RouteItem { Name = "Quadro Colaboradores", Path = ListaFuncionarios, MinAccessLevel = 3 },*/
         };
     }
 }

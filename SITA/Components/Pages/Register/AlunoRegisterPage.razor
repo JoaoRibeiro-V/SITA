@@ -49,58 +49,195 @@
         </div>
     </div>
 
-    <!-- SEÇÃO 2: Dados do Responsável Principal -->
+    <!-- SEÇÃO 2: Responsáveis -->
     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #3650a1;">
-        <h5 style="color: #3650a1; font-weight: bold;">Responsável Principal</h5>
-        <div class="row mt-3 position-relative">
-            <div class="col-md-6">
-                <label class="fw-bold">CPF do Responsável:</label>
-                <input class="form-control @(responsavelSelecionado != null ? "border-success" : "")"
-                       value="@responsavelCpf"
-                       @oninput="OnCpfInput"
-                       placeholder="000.000.000-00"
-                       maxlength="14" />
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 style="color: #3650a1; font-weight: bold; margin: 0;">Responsáveis</h5>
+            <button type="button" class="btn btn-sm fw-bold"
+                    style="background-color: #3650a1; color: white; max-width: 280px;"
+                    @onclick="AdicionarResponsavel">
+                + Adicionar Responsável
+            </button>
+        </div>
 
-                @if (sugestoesResponsaveis.Any())
-                {
-                    <div class="list-group position-absolute w-100" style="z-index: 1000;">
-                        @foreach (var r in sugestoesResponsaveis)
+        @for (int i = 0; i < responsaveisForm.Count; i++)
+        {
+            var idx = i;
+            var rf = responsaveisForm[idx];
+
+            <div style="border: 1px solid #c8d3f0; border-radius: 8px; margin-bottom: 12px; overflow: hidden;">
+
+                <!-- Cabeçalho do card do responsável -->
+                <div style="background-color: #e8ecf8; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
+                     @onclick="() => ToggleResponsavel(idx)">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 0.9rem; font-weight: bold; color: #3650a1;">
+                            Responsável @(idx + 1)
+                            @if (!string.IsNullOrEmpty(rf.NomeExibicao))
+                            {
+                                <span style="font-weight: normal; color: #555;"> — @rf.NomeExibicao</span>
+                            }
+                        </span>
+                        @if (rf.Confirmado)
                         {
-                            <button type="button" class="list-group-item list-group-item-action"
-                                    @onclick="() => SelecionarResponsavel(r)">
-                                <strong>@r.Nome</strong><br />
-                                <small>@Mask.FormatCpf(r.CPF)</small>
+                            <span class="badge bg-success" style="font-size: 0.7rem;">Confirmado</span>
+                        }
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        @if (responsaveisForm.Count > 1)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    style="padding: 2px 8px; font-size: 0.75rem;"
+                                    @onclick:stopPropagation
+                                    @onclick="() => RemoverResponsavel(idx)">
+                                ✕
                             </button>
                         }
+                        <h6 class="fw-bold m-0"
+                            style="
+                            transition: transform 0.25s ease;
+                            transform: @(rf.Expandido ? "rotate(180deg)" : "rotate(0deg)");
+                            ">
+                            ▾
+                        </h6>
+                    </div>
+                </div>
+
+                <!-- Corpo expansível -->
+                @if (rf.Expandido)
+                {
+                    <div style="padding: 15px;">
+
+                        <!-- Campo CPF com sugestões -->
+                        <div class="row mb-3">
+                            <div class="col-md-6 position-relative">
+                                <label class="fw-bold">CPF:</label>
+                                <input class="form-control @(rf.ResponsavelVinculado != null ? "border-success" : "")"
+                                       value="@rf.CpfFormatado"
+                                       onkeypress="onlyNumbers(event)"
+                                       @oninput="e => OnCpfResponsavelInput(e, idx)"
+                                       placeholder="000.000.000-00"
+                                       maxlength="14"
+                                       disabled="@rf.Confirmado" />
+
+                                @if (rf.Sugestoes.Any() && !rf.Confirmado)
+                                {
+                                    <div class="list-group position-absolute w-100" style="z-index: 1000; top: 100%;">
+                                        @foreach (var r in rf.Sugestoes)
+                                        {
+                                            <button type="button"
+                                                    class="list-group-item list-group-item-action"
+                                                    @onclick="() => SelecionarResponsavelExistente(idx, r)">
+                                                <strong>@r.Nome</strong><br />
+                                                <small>@Mask.FormatCpf(r.CPF)</small>
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold">Grau de Parentesco:</label>
+                                <select class="form-select" @bind="rf.TipoParentesco" disabled="@rf.Confirmado">
+                                    @foreach (var kv in Responsavel.TipoParentescoMap)
+                                    {
+                                        <option value="@kv.Key">@kv.Value</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Campos de dados do responsável -->
+                        <div class="row mb-3">
+                            <div class="col-md-9">
+                                <label class="fw-bold">Nome Completo:</label>
+                                <input class="form-control" @bind="rf.Nome"
+                                       placeholder="Nome completo"
+                                       disabled="@rf.Confirmado" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold">CEP:</label>
+                                <input class="form-control" @bind="rf.CEP"
+                                       placeholder="00000-000"
+                                       type="text"
+                                       onkeypress="onlyNumbers(event)"
+                                       @oninput="e => OnCEPResponsavelInput(e, idx)"
+                                       maxlength="9"
+                                       disabled="@rf.Confirmado" />
+                            </div>
+                            
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="fw-bold">Telefone:</label>
+                                <input class="form-control"
+                                       value="@rf.TelefoneFormatado"
+                                       onkeypress="onlyNumbers(event)"
+                                       @oninput="e => OnTelefoneResponsavelInput(e, idx)"
+                                       placeholder="(00) 00000-0000"
+                                       maxlength="15"
+                                       disabled="@rf.Confirmado" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold">Endereço:</label>
+                                <input class="form-control" @bind="rf.Endereco"
+                                       placeholder="Rua, número, bairro..."
+                                       disabled="@rf.Confirmado" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-9">
+                                <label class="fw-bold">E-mail:</label>
+                                <input class="form-control" @bind="rf.Email"
+                                       placeholder="email@exemplo.com"
+                                       type="email"
+                                       disabled="@rf.Confirmado" />
+                            </div>
+                            <div class="col-md-3">
+                            <label class="fw-bold">Data de Nascimento:</label>
+                            <input type="date" class="form-control" @bind="rf.DataNascimento"/>
+                        </div>
+                        </div>
+                        
+
+                        @if (!string.IsNullOrEmpty(rf.ErroCampo))
+                        {
+                            <div class="alert alert-danger py-2">@rf.ErroCampo</div>
+                        }
+
+                        <!-- Botão confirmar (só aparece se não confirmado) -->
+                        @if (!rf.Confirmado)
+                        {
+                            <button type="button" class="btn fw-bold"
+                                    style="background-color: #3650a1; color: white;"
+                                    @onclick="() => ConfirmarResponsavel(idx)">
+                                Confirmar Responsável
+                            </button>
+                        }
+                        else
+                        {
+                            <!-- Botão editar (só aparece se confirmado) -->
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    @onclick="() => EditarResponsavel(idx)">
+                                Editar
+                            </button>
+                        }
+
                     </div>
                 }
 
-                @if (responsavelSelecionado != null)
-                {
-                    <div class="text-success mt-1">✔ @responsavelSelecionado.Nome selecionado</div>
-                }
             </div>
-            <div class="col-md-6">
-                <label class="fw-bold">Grau de Parentesco:</label>
-                <select class="form-select" @bind="tipoParentesco">
-                    <option value="0">Mãe</option>
-                    <option value="1">Pai</option>
-                    <option value="2">Avó</option>
-                    <option value="3">Avô</option>
-                    <option value="4">Tia</option>
-                    <option value="5">Tio</option>
-                    <option value="6">Outro Responsável</option>
-                </select>
-            </div>
-        </div>
+        }
     </div>
 
     <!-- SEÇÃO 3: Contatos de Emergência -->
     <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #f0a500;">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 style="color: #9a6500; font-weight: bold; margin: 0;">Contatos de Emergência</h5>
+
             <button type="button" class="btn btn-sm fw-bold"
-                    style="background-color: #f0a500; color: white;"
+                    style="background-color: #f0a500; color: white; max-width: 280px;"
                     @onclick="AdicionarContatoEmergencia">
                 + Adicionar Contato
             </button>
@@ -115,52 +252,103 @@
         {
             var idx = i;
             var contato = contatosEmergencia[idx];
-            <div class="row mb-2 align-items-end p-2"
-                 style="background: white; border-radius: 6px; border: 1px solid #ffe0a0;">
-                <div class="col-md-3">
-                    <label class="fw-bold" style="font-size: 0.85rem;">Nome:</label>
-                    <input class="form-control form-control-sm" @bind="contato.Nome" placeholder="Nome completo" />
+
+            <div style="border: 1px solid #ffe0a0; border-radius: 8px; margin-bottom: 12px; overflow: hidden;">
+
+                <!-- Cabeçalho -->
+                <div style="
+                    background-color: #fff4da;
+                    padding: 10px 15px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    cursor: pointer;"
+                     @onclick="() => contato.Expandido = !contato.Expandido">
+
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 0.9rem; font-weight: bold; color: #9a6500;">
+                            Contato @(idx + 1)
+
+                            @if (!string.IsNullOrWhiteSpace(contato.Nome))
+                            {
+                                <span style="font-weight: normal; color: #555;">
+                                    — @contato.Nome
+                                </span>
+                            }
+                        </span>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; align-items: center;">
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                style="padding: 2px 8px; font-size: 0.75rem;"
+                                @onclick:stopPropagation
+                                @onclick="() => RemoverContatoEmergencia(idx)">
+                            ✕
+                        </button>
+
+                        <h6 class="fw-bold m-0"
+                            style="
+                            transition: transform 0.25s ease;
+                            transform: @(contato.Expandido ? "rotate(180deg)" : "rotate(0deg)");
+                            ">
+                            ▾
+                        </h6>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="fw-bold" style="font-size: 0.85rem;">CPF:</label>
-                    <input class="form-control form-control-sm"
-                           value="@cpfsContatos[idx]"
-                           @oninput="e => OnCpfContatoInput(e, idx)"
-                           placeholder="000.000.000-00"
-                           maxlength="14" />
-                </div>
-                <div class="col-md-3">
-                    <label class="fw-bold" style="font-size: 0.85rem;">Parentesco:</label>
-                    <select class="form-select form-select-sm" @bind="contato.GrauParentesco">
-                        <option value="Mãe">Mãe</option>
-                        <option value="Pai">Pai</option>
-                        <option value="Avó">Avó</option>
-                        <option value="Avô">Avô</option>
-                        <option value="Tia">Tia</option>
-                        <option value="Tio">Tio</option>
-                        <option value="Irmão(ã)">Irmão(ã)</option>
-                        <option value="Outro">Outro</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="fw-bold" style="font-size: 0.85rem;">Telefone:</label>
-                    <input class="form-control form-control-sm"
-                           value="@telefonesContatos[idx]"
-                           @oninput="e => OnTelefoneContatoInput(e, idx)"
-                           placeholder="(00) 00000-0000"
-                           maxlength="15" />
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-sm btn-outline-danger w-100"
-                            @onclick="() => RemoverContatoEmergencia(idx)">
-                        ✕
-                    </button>
-                </div>
+
+                <!-- Corpo -->
+                @if (contato.Expandido)
+                {
+                    <div style="padding: 15px;">
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="fw-bold">Nome Completo:</label>
+
+                                <input class="form-control"
+                                       @bind="contato.Nome"
+                                       placeholder="Nome completo" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold">Telefone:</label>
+
+                                <input class="form-control"
+                                       value="@telefonesContatos[idx]"
+                                       onkeypress="onlyNumbers(event)"
+                                       @oninput="e => OnTelefoneContatoInput(e, idx)"
+                                       placeholder="(00) 00000-0000"
+                                       maxlength="15" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="fw-bold">Parentesco:</label>
+
+                                <select class="form-select"
+                                        @bind="contato.GrauParentesco">
+
+                                    <option value="">Selecione</option>
+                                    <option value="Mãe">Mãe</option>
+                                    <option value="Pai">Pai</option>
+                                    <option value="Avó">Avó</option>
+                                    <option value="Avô">Avô</option>
+                                    <option value="Tia">Tia</option>
+                                    <option value="Tio">Tio</option>
+                                    <option value="Irmão(ã)">Irmão(ã)</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                            
+                        </div>
+
+                    </div>
+                }
+
             </div>
         }
     </div>
 
-    <!-- SEÇÃO 4: Saúde e Emergência -->
+    <!-- SEÇÃO 4: Saúde -->
     <div style="background-color: #fff5f5; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #d9534f;">
         <h5 style="color: #d9534f; font-weight: bold;">Saúde</h5>
 
@@ -211,7 +399,7 @@
         </div>
     </div>
 
-    <!-- Botões -->
+    <!-- Botões finais -->
     <div class="d-flex gap-3 mt-4">
         <button class="btn btn-outline-secondary w-25 p-3 fw-bold"
                 @onclick='() => Navigation.NavigateTo("/alunos")'>
@@ -231,6 +419,33 @@
 </div>
 
 @code {
+    private class ResponsavelForm
+    {
+        public string CpfFormatado { get; set; } = "";
+        public string CEP { get; set; } = "";
+        public string Nome { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string TelefoneFormatado { get; set; } = "";
+        public string Endereco { get; set; } = "";
+        public DateTime DataNascimento { get; set; } = DateTime.Now;
+        public int TipoParentesco { get; set; } = 6;
+        public bool Confirmado { get; set; } = false;
+        public bool Expandido { get; set; } = true;
+        public Responsavel? ResponsavelVinculado { get; set; } = null; // responsável já existente no sistema
+        public List<Responsavel> Sugestoes { get; set; } = new();
+        public string ErroCampo { get; set; } = "";
+
+        // Nome de exibição no cabeçalho do card
+        public string NomeExibicao => ResponsavelVinculado?.Nome ?? Nome;
+    }
+    private class ContatoEmergenciaForm
+    {
+        public string Nome { get; set; } = "";
+        public string GrauParentesco { get; set; } = "";
+        public string Telefone { get; set; } = "";
+        public bool Expandido { get; set; } = true;
+    }
+
     private Aluno novoAluno = new Aluno
     {
         Alergias = new List<string>(),
@@ -238,20 +453,16 @@
     };
 
     private List<Turma> listaTurmas = new();
-    private List<Responsavel> listaResponsaveis = new();
-    private List<Responsavel> sugestoesResponsaveis = new();
-    private Responsavel? responsavelSelecionado = null;
+    private List<Responsavel> todosResponsaveis = new();
 
-    private List<ContatoEmergencia> contatosEmergencia = new();
-    private List<string> cpfsContatos = new();
+    private List<ResponsavelForm> responsaveisForm = new();
+    private List<ContatoEmergenciaForm> contatosEmergencia = new();
     private List<string> telefonesContatos = new();
 
     private decimal valorMatriculaDigitada = 0;
     private decimal valorTaxaMatricula = 0;
     private string idadeExtenso = "0 anos e 0 meses";
     private string turmaId = "";
-    private string responsavelCpf = "";
-    private int tipoParentesco = 6;
     private string addAlergia = "";
     private string addCondicao = "";
     private string msgErro = "";
@@ -260,56 +471,118 @@
     {
         novoAluno.GerarRA();
         listaTurmas = TurmaController.GetAll();
-        listaResponsaveis = ResponsavelController.GetAll();
+        todosResponsaveis = ResponsavelController.GetAll();
+
+        // Inicia com um responsável vazio
+        responsaveisForm.Add(new ResponsavelForm());
     }
 
-    void OnCpfInput(ChangeEventArgs e)
+    private void AdicionarResponsavel()
+    {
+        responsaveisForm.Add(new ResponsavelForm { Expandido = true });
+    }
+
+    private void RemoverResponsavel(int idx)
+    {
+        if (responsaveisForm.Count <= 1) return;
+        responsaveisForm.RemoveAt(idx);
+    }
+
+    private void ToggleResponsavel(int idx)
+    {
+        responsaveisForm[idx].Expandido = !responsaveisForm[idx].Expandido;
+    }
+
+    private void OnCpfResponsavelInput(ChangeEventArgs e, int idx)
     {
         var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
         if (digits.Length > 11) digits = digits[..11];
-        responsavelCpf = Mask.FormatCpf(digits);
-        sugestoesResponsaveis = listaResponsaveis
+
+        responsaveisForm[idx].CpfFormatado = Mask.FormatCpf(digits);
+        responsaveisForm[idx].ResponsavelVinculado = null;
+
+        // Busca sugestões entre responsáveis cadastrados
+        responsaveisForm[idx].Sugestoes = todosResponsaveis
             .Where(r => !string.IsNullOrEmpty(r.CPF) && r.CPF.Contains(digits))
-            .Take(5).ToList();
-        responsavelSelecionado = null;
+            .Take(5)
+            .ToList();
     }
 
-    void SelecionarResponsavel(Responsavel r)
+    private void OnTelefoneResponsavelInput(ChangeEventArgs e, int idx)
     {
-        responsavelSelecionado = r;
-        responsavelCpf = Mask.FormatCpf(r.CPF);
-        sugestoesResponsaveis.Clear();
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        responsaveisForm[idx].TelefoneFormatado = Mask.FormatPhone(digits);
+    }
+    private void OnCEPResponsavelInput(ChangeEventArgs e, int idx)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 8) digits = digits[..8];
+        responsaveisForm[idx].CEP = Mask.FormatCEP(digits);
+    }
+    private void SelecionarResponsavelExistente(int idx, Responsavel r)
+    {
+        var rf = responsaveisForm[idx];
+        rf.ResponsavelVinculado = r;
+        rf.CpfFormatado = Mask.FormatCpf(r.CPF ?? "");
+        rf.Nome = r.Nome ?? "";
+        rf.Email = r.Email ?? "";
+        rf.TelefoneFormatado = Mask.FormatPhone(r.Telefone ?? "");
+        rf.Endereco = r.Endereco ?? "";
+        rf.Sugestoes.Clear();
+        rf.ErroCampo = "";
     }
 
-    void AdicionarContatoEmergencia()
+    private void ConfirmarResponsavel(int idx)
     {
-        contatosEmergencia.Add(new ContatoEmergencia());
-        cpfsContatos.Add("");
+        var rf = responsaveisForm[idx];
+        rf.ErroCampo = "";
+
+        var cpfLimpo = Mask.RemoveMask(rf.CpfFormatado);
+
+        // Valida campos obrigatórios
+        if (string.IsNullOrWhiteSpace(cpfLimpo) || cpfLimpo.Length != 11)
+        {
+            rf.ErroCampo = "CPF inválido.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(rf.Nome))
+        {
+            rf.ErroCampo = "Nome é obrigatório.";
+            return;
+        }
+
+        rf.Confirmado = true;
+        rf.Expandido = false; // minimiza ao confirmar
+    }
+
+    private void EditarResponsavel(int idx)
+    {
+        // Ao editar, só permite alterar campos que não o CPF (CPF fica disabled mesmo)
+        responsaveisForm[idx].Confirmado = false;
+        responsaveisForm[idx].Expandido = true;
+    }
+
+    private void AdicionarContatoEmergencia()
+    {
+        contatosEmergencia.Add(new ContatoEmergenciaForm());
         telefonesContatos.Add("");
     }
 
-    void RemoverContatoEmergencia(int idx)
+    private void RemoverContatoEmergencia(int idx)
     {
         contatosEmergencia.RemoveAt(idx);
-        cpfsContatos.RemoveAt(idx);
         telefonesContatos.RemoveAt(idx);
     }
 
-    void OnCpfContatoInput(ChangeEventArgs e, int idx)
-    {
-        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
-        if (digits.Length > 11) digits = digits[..11];
-        cpfsContatos[idx] = Mask.FormatCpf(digits);
-        contatosEmergencia[idx].CPF = Mask.RemoveMask(cpfsContatos[idx]);
-    }
-
-    void OnTelefoneContatoInput(ChangeEventArgs e, int idx)
+    private void OnTelefoneContatoInput(ChangeEventArgs e, int idx)
     {
         var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
         if (digits.Length > 11) digits = digits[..11];
         telefonesContatos[idx] = Mask.FormatPhone(digits);
         contatosEmergencia[idx].Telefone = Mask.RemoveMask(telefonesContatos[idx]);
     }
+    
 
     private void CalcularIdade()
     {
@@ -326,13 +599,22 @@
 
     private async Task SalvarAluno()
     {
-        var cpfSemMascara = Mask.RemoveMask(responsavelCpf);
+        msgErro = "";
 
-        if (string.IsNullOrWhiteSpace(novoAluno.Nome) || string.IsNullOrWhiteSpace(cpfSemMascara))
+        // Valida nome do aluno
+        if (string.IsNullOrWhiteSpace(novoAluno.Nome))
         {
-            msgErro = "Nome e CPF do responsável são obrigatórios.";
+            msgErro = "Nome do aluno é obrigatório.";
             return;
         }
+
+        // Valida que ao menos um responsável está confirmado
+        if (!responsaveisForm.Any(rf => rf.Confirmado))
+        {
+            msgErro = "Confirme ao menos um responsável antes de finalizar.";
+            return;
+        }
+
         if (valorMatriculaDigitada <= 0)
         {
             msgErro = "Informe o valor da mensalidade.";
@@ -341,25 +623,52 @@
 
         try
         {
-            var resp = responsavelSelecionado ?? ResponsavelController.Get("CPF", cpfSemMascara);
-            if (resp == null)
+            novoAluno.ContatosEmergencia = contatosEmergencia.Select(c => new ContatoEmergencia
             {
-                msgErro = "Responsável não encontrado no sistema.";
-                return;
-            }
-
-            // Vincula contatos de emergência ao aluno
-            novoAluno.ContatosEmergencia = contatosEmergencia;
+                Nome = c.Nome,
+                GrauParentesco = c.GrauParentesco,
+                Telefone = c.Telefone
+            }).ToList();
             novoAluno.DataCadastro = DateTime.Now;
 
             AlunoController.Register(novoAluno);
-            ResponsavelController.AddParentesco(resp, novoAluno, tipoParentesco);
 
-            DateTime fimAno = new DateTime(DateTime.Today.Year, 12, 31);
-            ReceitaController.GerarCarneAluno(novoAluno, resp, valorMatriculaDigitada, fimAno);
+            // Processa cada responsável confirmado
+            foreach (var rf in responsaveisForm.Where(rf => rf.Confirmado))
+            {
+                var cpfLimpo = Mask.RemoveMask(rf.CpfFormatado);
+                Responsavel resp;
 
-            if (valorTaxaMatricula > 0)
-                ReceitaController.GerarTaxaMatricula(novoAluno, resp, valorTaxaMatricula);
+                if (rf.ResponsavelVinculado != null)
+                {
+                    // Usa o responsável já existente no sistema
+                    resp = rf.ResponsavelVinculado;
+                }
+                else
+                {
+                    // Verifica se já existe um com esse CPF
+                    resp = ResponsavelController.Get("CPF", cpfLimpo)
+                           ?? CriarNovoResponsavel(rf, cpfLimpo);
+                }
+
+                ResponsavelController.AddParentesco(resp, novoAluno, rf.TipoParentesco);
+            }
+
+            // Primeiro responsável confirmado gera o carnê
+            var respPrincipal = responsaveisForm
+                .Where(rf => rf.Confirmado)
+                .Select(rf => rf.ResponsavelVinculado
+                              ?? ResponsavelController.Get("CPF", Mask.RemoveMask(rf.CpfFormatado)))
+                .FirstOrDefault(r => r != null);
+
+            if (respPrincipal != null)
+            {
+                DateTime fimAno = new DateTime(DateTime.Today.Year, 12, 31);
+                ReceitaController.GerarCarneAluno(novoAluno, respPrincipal, valorMatriculaDigitada, fimAno);
+
+                if (valorTaxaMatricula > 0)
+                    ReceitaController.GerarTaxaMatricula(novoAluno, respPrincipal, valorTaxaMatricula);
+            }
 
             if (!string.IsNullOrEmpty(turmaId))
             {
@@ -374,6 +683,28 @@
         {
             msgErro = "Erro: " + ex.Message;
         }
+    }
+
+    private Responsavel CriarNovoResponsavel(ResponsavelForm rf, string cpfLimpo)
+    {
+        var user = new User
+        {
+            Nome = rf.Nome,
+            CPF = cpfLimpo,
+            Email = rf.Email,
+            AccessType = new AccessType { Level = 0 }
+        };
+        user.Senha = PasswordHandler.HashPassword(rf.DataNascimento.ToString("yyyy-MM-dd").Replace("/", ""), user.Salt);
+
+        UserController.Register(user);
+
+        var resp = ResponsavelController.CreateByUser(user);
+        resp.Telefone = Mask.RemoveMask(rf.TelefoneFormatado);
+        resp.Endereco = rf.Endereco;
+        resp.CEP = Mask.RemoveMask(rf.CEP);
+
+        ResponsavelController.Register(resp);
+        return resp;
     }
 
     private void HandleAlergiaKeyUp(KeyboardEventArgs e)

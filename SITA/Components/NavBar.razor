@@ -2,66 +2,72 @@
 @using SITA.src.Util
 @using SITA.src.Model
 
-<section class="nav-bar">
+<section class="app-navbar">
 
-    <!-- LOGO -->
-    <div class="nav-logo">
+    <div class="app-navbar-logo">
         <img src="assets/images/NewCanvas1.png"
-             @onclick="GoHome"
-             style="cursor:pointer;" />
+             @onclick="GoHome" />
     </div>
 
-    <!-- MAIN NAV -->
-    <ul class="nav-list">
+    <ul class="app-navbar-list">
         @foreach (var item in RouteHandler.MainNav.Where(CanAccess))
         {
-            <li class="nav-item">
+            <li class="app-navbar-item">
                 <a href="javascript:void(0)"
-                       @onclick='() => GoAndClose(item.Path)'>
+                   @onclick='() => GoAndClose(item.Path)'>
                     @item.Name
                 </a>
             </li>
         }
     </ul>
 
-    <!-- tem que fazer aparecer so no cell -->
+    <button type="button"
+            class="app-navbar-logout"
+            @onclick="Logout">
+        Sair
+    </button>
 
-    <!-- HAMBURGER -->
-    <div class="checkbox-wrapper">
+    <div class="app-mobile-menu">
 
-        <!-- BUTTON -->
-        <div class="checkbox @(menuOpen ? "open" : "")" @onclick="ToggleMenu">
-            <div class="trace"></div>
-            <div class="trace"></div>
-            <div class="trace"></div>
+        <button type="button"
+                class="app-hamburger @(menuOpen ? "open" : "")"
+                @onclick="ToggleMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <div class="app-menu-overlay @(menuOpen ? "open" : "")"
+             @onclick="CloseMenu">
         </div>
 
-        <!-- OVERLAY -->
-        <div class="menu @(menuOpen ? "open" : "")"
-             @onclick="CloseMenu"></div>
-
-        <!-- SIDE MENU -->
-        <nav class="menu-items @(menuOpen ? "open" : "")">
+        <nav class="app-menu-panel @(menuOpen ? "open" : "")">
             <ul>
-
-                @foreach (var item in RouteHandler.CadastroNav.Where(CanAccess))
+                @foreach (var item in RouteHandler.MainNav.Where(CanAccess))
                 {
                     <li>
                         <a href="javascript:void(0)"
-                               @onclick='() => GoAndClose(item.Path)'>
+                           @onclick='() => GoAndClose(item.Path)'>
                             @item.Name
                         </a>
                     </li>
                 }
 
-                <li style="margin-top:30px;">
-                    <a href="javascript:void(0)"
-                           @onclick="Logout"
-                           style="color:#ffcccc;">
+                @foreach (var item in RouteHandler.CadastroNav.Where(CanAccess))
+                {
+                    <li>
+                        <a href="javascript:void(0)"
+                           @onclick='() => GoAndClose(item.Path)'>
+                            @item.Name
+                        </a>
+                    </li>
+                }
+
+                <li class="app-menu-logout">
+                    <a href="javascript:void(0)" @onclick="Logout">
                         Sair
                     </a>
                 </li>
-
             </ul>
         </nav>
 
@@ -69,8 +75,8 @@
 
 </section>
 
+                        
 @code {
-
     private int userLevel;
     private bool menuOpen = false;
 
@@ -83,12 +89,8 @@
         => userLevel >= item.MinAccessLevel;
 
     void ToggleMenu() => menuOpen = !menuOpen;
-    void CloseMenu() => menuOpen = false;
 
-    void Go(string route)
-    {
-        Navigation.NavigateTo(route);
-    }
+    void CloseMenu() => menuOpen = false;
 
     void GoAndClose(string route)
     {
@@ -113,4 +115,4 @@
 
         Navigation.NavigateTo(RouteHandler.SignIn, true);
     }
-}
+}   
