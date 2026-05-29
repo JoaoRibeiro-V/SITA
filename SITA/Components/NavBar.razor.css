@@ -196,7 +196,7 @@
     right: -320px;
     width: 320px;
     height: 100vh;
-    background: #005F73;
+    background: linear-gradient(90deg, #1e3c72, #2b7fc3);
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;

@@ -45,7 +45,7 @@ namespace SITA.src.Util
      * Níveis atuais:
      * -1: Não Logado
      * 0 : Responsável
-     * 1 : Funcionário
+     * 1 : Fu   ncionário
      * 2 : Professor
      * 3 : Secretário
      * 4 : Diretor
@@ -66,9 +66,9 @@ namespace SITA.src.Util
 
         public static List<RouteItem> CadastroNav = new()
         {
-            new RouteItem { Name = "Cadastro Responsável", Path = CadastroResponsavel, MinAccessLevel = 3 },
+           /* new RouteItem { Name = "Cadastro Responsável", Path = CadastroResponsavel, MinAccessLevel = 3 },
             new RouteItem { Name = "Cadastro Colaborador", Path = CadastroFuncionario, MinAccessLevel = 3 },
-            new RouteItem { Name = "Quadro Colaboradores", Path = ListaFuncionarios, MinAccessLevel = 3 },
+            new RouteItem { Name = "Quadro Colaboradores", Path = ListaFuncionarios, MinAccessLevel = 3 },*/
         };
     }
 }
