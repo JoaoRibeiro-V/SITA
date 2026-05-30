@@ -147,58 +147,58 @@
                         </div>
 
                         <!-- Campos de dados do responsável -->
-                        <div class="row mb-3">
-                            <div class="col-md-9">
-                                <label class="fw-bold">Nome Completo:</label>
-                                <input class="form-control" @bind="rf.Nome"
-                                       placeholder="Nome completo"
-                                       disabled="@rf.Confirmado" />
-                            </div>
-                            <div class="col-md-3">
-                                <label class="fw-bold">CEP:</label>
-                                <input class="form-control" @bind="rf.CEP"
-                                       placeholder="00000-000"
-                                       type="text"
-                                       onkeypress="onlyNumbers(event)"
-                                       @oninput="e => OnCEPResponsavelInput(e, idx)"
-                                       maxlength="9"
-                                       disabled="@rf.Confirmado" />
-                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-9">
+                                    <label class="fw-bold">Nome Completo:</label>
+                                    <input class="form-control" @bind="rf.Nome"
+                                           placeholder="Nome completo"
+                                           disabled="@rf.Confirmado" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="fw-bold">CEP:</label>
+                                    <input class="form-control" @bind="rf.CEP"
+                                           placeholder="00000-000"
+                                           type="text"
+                                           onkeypress="onlyNumbers(event)"
+                                           @oninput="e => OnCEPResponsavelInput(e, idx)"
+                                           maxlength="9"
+                                           disabled="@rf.Confirmado" />
+                                </div>
                             
-                        </div>
+                            </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="fw-bold">Telefone:</label>
-                                <input class="form-control"
-                                       value="@rf.TelefoneFormatado"
-                                       onkeypress="onlyNumbers(event)"
-                                       @oninput="e => OnTelefoneResponsavelInput(e, idx)"
-                                       placeholder="(00) 00000-0000"
-                                       maxlength="15"
-                                       disabled="@rf.Confirmado" />
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Telefone:</label>
+                                    <input class="form-control"
+                                           value="@rf.TelefoneFormatado"
+                                           onkeypress="onlyNumbers(event)"
+                                           @oninput="e => OnTelefoneResponsavelInput(e, idx)"
+                                           placeholder="(00) 00000-0000"
+                                           maxlength="15"
+                                           disabled="@rf.Confirmado" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold">Endereço:</label>
+                                    <input class="form-control" @bind="rf.Endereco"
+                                           placeholder="Rua, número, bairro..."
+                                           disabled="@rf.Confirmado" />
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="fw-bold">Endereço:</label>
-                                <input class="form-control" @bind="rf.Endereco"
-                                       placeholder="Rua, número, bairro..."
-                                       disabled="@rf.Confirmado" />
-                            </div>
-                        </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-9">
-                                <label class="fw-bold">E-mail:</label>
-                                <input class="form-control" @bind="rf.Email"
-                                       placeholder="email@exemplo.com"
-                                       type="email"
-                                       disabled="@rf.Confirmado" />
+                            <div class="row mb-3">
+                                <div class="col-md-9">
+                                    <label class="fw-bold">E-mail:</label>
+                                    <input class="form-control" @bind="rf.Email"
+                                           placeholder="email@exemplo.com"
+                                           type="email"
+                                           disabled="@rf.Confirmado" />
+                                </div>
+                                <div class="col-md-3">
+                                <label class="fw-bold">Data de Nascimento:</label>
+                                <input type="date" class="form-control" @bind="rf.DataNascimento"/>
                             </div>
-                            <div class="col-md-3">
-                            <label class="fw-bold">Data de Nascimento:</label>
-                            <input type="date" class="form-control" @bind="rf.DataNascimento"/>
-                        </div>
-                        </div>
+                            </div>
                         
 
                         @if (!string.IsNullOrEmpty(rf.ErroCampo))
