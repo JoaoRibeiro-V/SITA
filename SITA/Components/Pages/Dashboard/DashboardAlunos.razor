@@ -7,142 +7,108 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
-<div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-    <h1 style="color: #3650a1; font-weight: bold;">Alunos Matriculados</h1>
-    <div style="display: flex; gap: 10px;">
-
+<!--  HEADER  -->
+<div class="header" style="display:flex; justify-content:space-between; align-items:center; padding:20px;">
+    <h1 style="color:#3650a1; font-weight:bold;">Alunos Matriculados</h1>
+    <div style="display:flex; gap:10px;">
         <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-aluno")'
-                style="background-color: #3650a1; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                style="background-color:#3650a1; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold;">
             + Nova Matrícula
         </button>
-
         <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-responsavel")'
-                style="background-color: #3650a1; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                style="background-color:#3650a1; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold;">
             + Novo Responsável
         </button>
-
-        <input @bind="search" @bind:event="oninput" placeholder="Pesquisar aluno..." style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
+        <input @bind="search" @bind:event="oninput" placeholder="Pesquisar aluno..."
+               style="padding:8px; border-radius:5px; border:1px solid #ccc;" />
     </div>
 </div>
-<section style="padding: 20px; width:100%">
 
-    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
-
+<!--  TABELA  -->
+<section style="padding:20px; width:100%">
+    <table style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">
         <thead>
-            <tr style="color: white;">
-                <th style="padding: 15px 12px; text-align: left; background: #3650a1; border-top-left-radius: 8px;">Nome</th>
-                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">RA</th>
-                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Idade</th>
-                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Turma</th>
-                <th style="padding: 15px 12px; text-align: left; background: #3650a1;">Responsável</th>
-                <th style="padding: 15px 12px; text-align: left; background: #3650a1; border-top-right-radius: 8px;">Status</th>
+            <tr style="color:white;">
+                <th style="padding:15px 12px; text-align:left; background:#3650a1; border-top-left-radius:8px;">Nome</th>
+                <th style="padding:15px 12px; text-align:left; background:#3650a1;">RA</th>
+                <th style="padding:15px 12px; text-align:left; background:#3650a1;">Idade</th>
+                <th style="padding:15px 12px; text-align:left; background:#3650a1;">Turma</th>
+                <th style="padding:15px 12px; text-align:left; background:#3650a1;">Responsável</th>
+                <th style="padding:15px 12px; text-align:left; background:#3650a1; border-top-right-radius:8px;">Status</th>
             </tr>
         </thead>
-
         <tbody>
             @foreach (var aluno in alunosFiltrados)
             {
-                <tr @onclick="() => AbrirModal(aluno)"
-                    style="cursor: pointer; background: transparent;">
-
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
-                        @aluno.Nome
-                    </td>
-
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
-                        @aluno.RA
-                    </td>
-
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
-                        @aluno.Idade anos
-                    </td>
-
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
-                        @(aluno.Turma?.Nome ?? "Sem Turma")
-                    </td>
-
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
-                        @GetResponsavelNome(aluno)
-                    </td>
-
-                    <td style="padding: 15px 12px; border-bottom: 2px solid #3650a1;">
-                        @(aluno.Turma != null ? "Ativo" : "Pendências")
-                    </td>
-
+                <tr @onclick="() => AbrirModal(aluno)" style="cursor:pointer; background:transparent;">
+                    <td style="padding:15px 12px; border-bottom:2px solid #3650a1;">@aluno.Nome</td>
+                    <td style="padding:15px 12px; border-bottom:2px solid #3650a1;">@aluno.RA</td>
+                    <td style="padding:15px 12px; border-bottom:2px solid #3650a1;">@aluno.Idade anos</td>
+                    <td style="padding:15px 12px; border-bottom:2px solid #3650a1;">@(aluno.Turma?.Nome ?? "Sem Turma")</td>
+                    <td style="padding:15px 12px; border-bottom:2px solid #3650a1;">@GetResponsavelNome(aluno)</td>
+                    <td style="padding:15px 12px; border-bottom:2px solid #3650a1;">@(aluno.Turma != null ? "Ativo" : "Pendências")</td>
                 </tr>
             }
         </tbody>
-
     </table>
-
 </section>
 
-@if ((mostrarModalAluno && alunoSelecionado != null))
+<!--  MODAL PRINCIPAL (FICHA DO ALUNO)  -->
+@if (mostrarModalAluno && alunoSelecionado != null)
 {
     <div class="overlay-modal">
-        <div class="modal-aluno  @(animarModal ? "modal-aberta" : "")">
+        <div class="modal-aluno @(animarModal ? "modal-aberta" : "")">
 
             <div class="modal-topo">
                 <h2>@alunoSelecionado.Nome</h2>
-
-                <button class="btn-fechar" @onclick="FecharModal">
-                    ×
-                </button>
+                <button class="btn-fechar" @onclick="FecharModal">×</button>
             </div>
             <br />
 
             <div class="abas-modal">
-                <button class="@(abaAtiva == "ficha" ? "aba-ativa" : "")"
-                        @onclick='() => abaAtiva = "ficha"'>
+                <button class="@(abaAtiva == "ficha" ? "aba-ativa" : "")" @onclick='() => abaAtiva = "ficha"'>
                     Ficha de Matrícula
                 </button>
-
-                <button class="@(abaAtiva == "financeiro" ? "aba-ativa" : "")"
-                        @onclick='() => abaAtiva = "financeiro"'>
+                <button class="@(abaAtiva == "financeiro" ? "aba-ativa" : "")" @onclick='() => abaAtiva = "financeiro"'>
                     Financeiro
                 </button>
             </div>
 
             <div class="conteudo-modal">
 
+                <!-- ══ ABA FICHA ══════════════════════════════════════════════ -->
                 @if (abaAtiva == "ficha")
                 {
                     <div class="ficha-container">
 
-                        <div class="ficha-titulo">
-                            <h2>FICHA DE MATRÍCULA COMPLETA</h2>
-                        </div>
+                        <div class="ficha-titulo"><h2>FICHA DE MATRÍCULA COMPLETA</h2></div>
 
+                        <!-- Nome / nascimento / idade -->
                         <div class="linha">
                             <div class="campo campo-grande">
                                 <label>Nome Completo do Aluno:</label>
                                 <input @bind="Nome" @bind:event="oninput" disabled="@(!modoEdicao)" />
                             </div>
-
                             <div class="campo campo-medio">
                                 <label>Data de Nascimento:</label>
                                 <input type="date" @bind="dataNascimento" @bind:after="CalcularIdade" disabled="@(!modoEdicao)" />
                             </div>
-
                             <div class="campo campo-medio">
                                 <label class="label-cinza">Idade Calculada:</label>
-                                <div class="caixa-idade">
-                                    @idadeExtenso
-                                </div>
+                                <div class="caixa-idade">@idadeExtenso</div>
                             </div>
                         </div>
 
+                        <!-- RA / Religião / Turma -->
                         <div class="linha">
                             <div class="campo campo-terco">
                                 <label>RA:</label>
                                 <input value="@RA" readonly />
                             </div>
-
                             <div class="campo campo-terco">
                                 <label>Religião:</label>
                                 <input @bind="Religiao" @bind:event="oninput" disabled="@(!modoEdicao)" />
                             </div>
-
                             <div class="campo campo-terco">
                                 <label>Turma:</label>
                                 @if (modoEdicao)
@@ -162,185 +128,365 @@
                             </div>
                         </div>
 
-                        <div class="bloco responsavel">
-                            <h3>Dados do Responsável</h3>
+                        <hr />
 
-                            <div class="linha">
-                                <div class="campo metade position-relative">
-                                    <label>CPF do Responsável:</label>
-                                    @if (modoEdicao)
-                                    {
-                                        <input value="@responsavelCpf"
-                                               @oninput="OnCpfInput"
-                                               placeholder="000.000.000-00"
-                                               maxlength="14" />
+                        <!--  RESPONSÁVEIS  -->
+                        <div style="background-color:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:25px; border-left:5px solid #3650a1;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 style="color:#3650a1; font-weight:bold; margin:0;">Responsáveis</h5>
+                                @if (modoEdicao)
+                                {
+                                    <button type="button" class="btn btn-sm fw-bold"
+                                            style="background-color:#3650a1; color:white; max-width: 280px;"
+                                            @onclick="AdicionarResponsavelRascunho">
+                                        + Adicionar Responsável
+                                    </button>
+                                }
+                            </div>
 
-                                        @if (sugestoesResponsaveis.Any())
-                                        {
-                                            <div class="list-group position-absolute w-100" style="z-index: 1000; background: white; border: 1px solid #ccc;">
-                                                @foreach (var r in sugestoesResponsaveis)
+                            @{
+                                // Em modo edição usa o rascunho; em visualização usa a lista carregada
+                                var listaExibida = modoEdicao ? responsaveisRascunho : responsaveisEdicao;
+                            }
+
+                            @for (int i = 0; i < listaExibida.Count; i++)
+                            {
+                                var idx = i;
+                                var rf = listaExibida[idx];
+
+                                <div style="border:1px solid #c8d3f0; border-radius:8px; margin-bottom:12px; overflow:hidden;">
+
+                                    <!-- Cabeçalho -->
+                                    <div style="background-color:#e8ecf8; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;"
+                                         @onclick="() => rf.Expandido = !rf.Expandido">
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <span style="font-size:0.9rem; font-weight:bold; color:#3650a1;">
+                                                Responsável @(idx + 1)
+                                                @if (!string.IsNullOrEmpty(rf.NomeExibicao))
                                                 {
-                                                    <button type="button"
-                                                            class="list-group-item list-group-item-action"
-                                                            @onclick="() => SelecionarResponsavel(r)">
-                                                        <strong>@r.Nome</strong><br />
-                                                        <small>@Mask.FormatCpf(r.CPF)</small>
+                                                    <span style="font-weight:normal; color:#555;"> — @rf.NomeExibicao</span>
+                                                }
+                                            </span>
+                                            @if (rf.Confirmado)
+                                            {
+                                                <span class="badge bg-success" style="font-size:0.7rem;">Confirmado</span>
+                                            }
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <!-- Botão VER (modo visualização) -->
+                                            @if (!modoEdicao && rf.ResponsavelObj != null)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        style="padding:2px 10px; font-size:0.75rem;"
+                                                        @onclick:stopPropagation
+                                                        @onclick="() => AbrirModalResponsavel(rf.ResponsavelObj, rf.TipoParentesco)">
+                                                    Ver
+                                                </button>
+                                            }
+                                            <!-- Botão remover (só no rascunho, mínimo 1) -->
+                                            @if (modoEdicao && responsaveisRascunho.Count > 1)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        style="padding:2px 8px; font-size:0.75rem;"
+                                                        @onclick:stopPropagation
+                                                        @onclick="() => RemoverResponsavelRascunho(idx)">
+                                                    ✕
+                                                </button>
+                                            }
+                                            <h6 class="fw-bold m-0"
+                                                style="transition:transform 0.25s ease; transform:@(rf.Expandido ? "rotate(180deg)" : "rotate(0deg)")">
+                                                ▾
+                                            </h6>
+                                        </div>
+                                    </div>
+
+                                    <!-- Corpo -->
+                                    @if (rf.Expandido)
+                                    {
+                                        <div style="padding:15px;">
+
+                                            @if (modoEdicao)
+                                            {
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6 position-relative">
+                                                        <label class="fw-bold">CPF:</label>
+                                                        @if (rf.EhExistente || rf.Confirmado)
+                                                        {
+                                                            <input class="form-control" value="@Mask.FormatCpf(rf.CpfFormatado)" readonly />
+                                                        }
+                                                        else
+                                                        {
+                                                            <input class="form-control @(rf.ResponsavelObj != null ? "border-success" : "")"
+                                                                   value="@rf.CpfFormatado"
+                                                                   onkeypress="onlyNumbers(event)"
+                                                                   @oninput="e => OnCpfRascunhoInput(e, idx)"
+                                                                   placeholder="000.000.000-00"
+                                                                   maxlength="14" />
+                                                            @if (rf.Sugestoes.Any())
+                                                            {
+                                                                <div class="list-group position-absolute w-100" style="z-index:1000; top:100%;">
+                                                                    @foreach (var r in rf.Sugestoes)
+                                                                    {
+                                                                        <button type="button" class="list-group-item list-group-item-action"
+                                                                                @onclick="() => SelecionarResponsavelRascunho(idx, r)">
+                                                                            <strong>@r.Nome</strong><br />
+                                                                            <small>@Mask.FormatCpf(r.CPF)</small>
+                                                                        </button>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="fw-bold">Grau de Parentesco:</label>
+                                                        <select class="form-select" @bind="rf.TipoParentesco">
+                                                            @foreach (var kv in Responsavel.TipoParentescoMap)
+                                                            {
+                                                                <option value="@kv.Key">@kv.Value</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-md-9">
+                                                        <label class="fw-bold">Nome Completo:</label>
+                                                        <input class="form-control" @bind="rf.Nome"
+                                                               disabled="@(rf.EhExistente || rf.Confirmado)" />
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="fw-bold">CEP:</label>
+                                                        <input class="form-control" value="@rf.CEP"
+                                                               onkeypress="onlyNumbers(event)"
+                                                               @oninput="e => OnCEPRascunhoInput(e, idx)"
+                                                               maxlength="9"
+                                                               disabled="@(rf.EhExistente || rf.Confirmado)" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label class="fw-bold">Telefone:</label>
+                                                        <input class="form-control"
+                                                               value="@rf.TelefoneFormatado"
+                                                               onkeypress="onlyNumbers(event)"
+                                                               @oninput="e => OnTelefoneRascunhoInput(e, idx)"
+                                                               placeholder="(00) 00000-0000"
+                                                               maxlength="15"
+                                                               disabled="@(rf.EhExistente || rf.Confirmado)" />
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="fw-bold">Endereço:</label>
+                                                        <input class="form-control" @bind="rf.Endereco"
+                                                               disabled="@(rf.EhExistente || rf.Confirmado)" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-md-9">
+                                                        <label class="fw-bold">E-mail:</label>
+                                                        <input class="form-control" @bind="rf.Email" type="email"
+                                                               disabled="@(rf.EhExistente || rf.Confirmado)" />
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="fw-bold">Data de Nascimento:</label>
+                                                        <input type="date" class="form-control" @bind="rf.DataNascimento"
+                                                               disabled="@(rf.EhExistente || rf.Confirmado)" />
+                                                    </div>
+                                                </div>
+
+                                                @if (!string.IsNullOrEmpty(rf.ErroCampo))
+                                                {
+                                                    <div class="alert alert-danger py-2">@rf.ErroCampo</div>
+                                                }
+
+                                                @if (!rf.EhExistente && !rf.Confirmado)
+                                                {
+                                                    <button type="button" class="btn fw-bold"
+                                                            style="background-color:#3650a1; color:white;"
+                                                            @onclick="() => ConfirmarResponsavelRascunho(idx)">
+                                                        Confirmar Responsável
                                                     </button>
                                                 }
-                                            </div>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <input value="@responsavelCpf" readonly />
+                                                else if (!rf.EhExistente && rf.Confirmado)
+                                                {
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                            @onclick="() => rf.Confirmado = false">
+                                                        Editar
+                                                    </button>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <!-- Visualização resumida -->
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">CPF</small>
+                                                        <p class="mb-1">@Mask.FormatCpf(rf.CpfFormatado)</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">Parentesco</small>
+                                                        <p class="mb-1">@(Responsavel.TipoParentescoMap.TryGetValue(rf.TipoParentesco, out var grau) ? grau : "—")</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">Telefone</small>
+                                                        <p class="mb-1">@Mask.FormatPhone(rf.TelefoneFormatado)</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">E-mail</small>
+                                                        <p class="mb-1">@(rf.Email ?? "—")</p>
+                                                    </div>
+                                                </div>
+                                            }
 
+                                        </div>
                                     }
-                                    <small>@responsavelNome</small>
-                                </div>
 
-                                <div class="campo metade">
-                                    <label>Grau de Parentesco:</label>
-                                    @if (modoEdicao)
-                                    {
-                                        <select @bind="tipoParentesco">
-                                            <option value="1">Pai / Mãe</option>
-                                            <option value="2">Avô / Avó</option>
-                                            <option value="4">Tio / Tia</option>
-                                            <option value="6">Outro Responsável</option>
-                                        </select>
-                                    }
-                                    else
-                                    {
-                                        <input value="@(GetResponsavelGrau(alunoSelecionado))" readonly />
-                                    }
                                 </div>
-                            </div>
+                            }
                         </div>
 
-                        <!-- Contatos de Emergência -->
-                        <h5 style="color: #9a6500;">Contatos de Emergência</h5>
-                        @if (modoEdicao)
-                        {
-                            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #f0a500;">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 style="color: #9a6500; font-weight: bold; margin: 0;">Contatos de Emergência</h5>
+                        <!--  CONTATOS DE EMERGÊNCIA  -->
+                        <div style="background-color:#ffffff; padding:20px; border-radius:8px; margin-bottom:25px; border-left:5px solid #f0a500;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 style="color:#9a6500; font-weight:bold; margin:0;">Contatos de Emergência</h5>
+                                @if (modoEdicao)
+                                {
                                     <button type="button" class="btn btn-sm fw-bold"
-                                            style="background-color: #f0a500; color: white;"
-                                            @onclick="AdicionarContatoEmergencia">
+                                            style="background-color:#f0a500; color:white; max-width: 280px;"
+                                            @onclick="AdicionarContatoRascunho">
                                         + Adicionar Contato
                                     </button>
-                                </div>
+                                }
+                            </div>
 
-                                @if (!contatosEmergencia.Any())
+                            @if (modoEdicao)
+                            {
+                                @if (!contatosRascunho.Any())
                                 {
                                     <p class="text-muted fst-italic">Nenhum contato de emergência adicionado.</p>
                                 }
 
-                                @for (int i = 0; i < contatosEmergencia.Count; i++)
+                                @for (int i = 0; i < contatosRascunho.Count; i++)
                                 {
                                     var idx = i;
-                                    var contato = contatosEmergencia[idx];
-                                    <div class="row mb-2 align-items-end p-2"
-                                         style="background: white; border-radius: 6px; border: 1px solid #ffe0a0;">
-                                        <div class="col-md-3">
-                                            <label class="fw-bold" style="font-size: 0.85rem;">Nome:</label>
-                                            <input class="form-control form-control-sm" @bind="contato.Nome" placeholder="Nome completo" />
+                                    var c = contatosRascunho[idx];
+
+                                    <div style="border:1px solid #ffe0a0; border-radius:8px; margin-bottom:12px; overflow:hidden;">
+                                        <div style="background-color:#fff4da; padding:10px 15px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;"
+                                             @onclick="() => c.Expandido = !c.Expandido">
+                                            <span style="font-size:0.9rem; font-weight:bold; color:#9a6500;">
+                                                Contato @(idx + 1)
+                                                @if (!string.IsNullOrWhiteSpace(c.Nome))
+                                                {
+                                                    <span style="font-weight:normal; color:#555;"> — @c.Nome</span>
+                                                }
+                                            </span>
+                                            <div style="display:flex; gap:8px; align-items:center;">
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        style="padding:2px 8px; font-size:0.75rem;"
+                                                        @onclick:stopPropagation
+                                                        @onclick="() => RemoverContatoRascunho(idx)">
+                                                    ✕
+                                                </button>
+                                                <h6 class="fw-bold m-0"
+                                                    style="transition:transform 0.25s ease; transform:@(c.Expandido ? "rotate(180deg)" : "rotate(0deg)")">
+                                                    ▾
+                                                </h6>
+                                            </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label class="fw-bold" style="font-size: 0.85rem;">Parentesco:</label>
-                                            <select class="form-select form-select-sm" @bind="contato.GrauParentesco">
-                                                <option value="Mãe">Mãe</option>
-                                                <option value="Pai">Pai</option>
-                                                <option value="Avó">Avó</option>
-                                                <option value="Avô">Avô</option>
-                                                <option value="Tia">Tia</option>
-                                                <option value="Tio">Tio</option>
-                                                <option value="Irmão(ã)">Irmão(ã)</option>
-                                                <option value="Outro">Outro</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="fw-bold" style="font-size: 0.85rem;">Telefone:</label>
-                                            <input class="form-control form-control-sm"
-                                                   value="@telefonesContatos[idx]"
-                                                   @oninput="e => OnTelefoneContatoInput(e, idx)"
-                                                   placeholder="(00) 00000-0000"
-                                                   maxlength="15" />
-                                        </div>
-                                        <div class="col-md-1 d-flex align-items-end">
-                                            <button type="button" class="btn btn-sm btn-outline-danger w-100"
-                                                    @onclick="() => RemoverContatoEmergencia(idx)">
-                                                ✕
-                                            </button>
-                                        </div>
+                                        @if (c.Expandido)
+                                        {
+                                            <div style="padding:15px;">
+                                                <div class="row">
+                                                    <div class="col-md-5">
+                                                        <label class="fw-bold" style="font-size:0.85rem;">Nome:</label>
+                                                        <input class="form-control form-control-sm" @bind="c.Nome" placeholder="Nome completo" />
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="fw-bold" style="font-size:0.85rem;">Telefone:</label>
+                                                        <input class="form-control form-control-sm"
+                                                               value="@telefonesRascunho[idx]"
+                                                               onkeypress="onlyNumbers(event)"
+                                                               @oninput="e => OnTelefoneContatoRascunhoInput(e, idx)"
+                                                               placeholder="(00) 00000-0000"
+                                                               maxlength="15" />
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="fw-bold" style="font-size:0.85rem;">Parentesco:</label>
+                                                        <select class="form-select form-select-sm" @bind="c.GrauParentesco">
+                                                            <option value="">Selecione</option>
+                                                            <option value="Mãe">Mãe</option>
+                                                            <option value="Pai">Pai</option>
+                                                            <option value="Avó">Avó</option>
+                                                            <option value="Avô">Avô</option>
+                                                            <option value="Tia">Tia</option>
+                                                            <option value="Tio">Tio</option>
+                                                            <option value="Irmão(ã)">Irmão(ã)</option>
+                                                            <option value="Outro">Outro</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
                                     </div>
                                 }
-                            </div>
-                        }
-                        else
-                        {
-                            @if (alunoSelecionado.ContatosEmergencia.Any())
-                            {
-                                <table class="table table-sm table-bordered mt-2">
-                                    <thead style="background-color: #f0a500; color: white;">
-                                        <tr>
-                                            <th>Nome</th>
-                                            <th>Parentesco</th>
-                                            <th>Telefone</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var c in alunoSelecionado.ContatosEmergencia)
-                                        {
-                                            <tr>
-                                                <td>@c.Nome</td>
-                                                <td>@c.GrauParentesco</td>
-                                                <td>@Mask.FormatPhone(c.Telefone)</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
                             }
                             else
                             {
-                                <p class="text-muted fst-italic">Nenhum contato de emergência cadastrado.</p>
+                                @if (alunoSelecionado.ContatosEmergencia.Any())
+                                {
+                                    <table class="table table-sm table-bordered mt-2">
+                                        <thead style="background-color:#f0a500; color:white;">
+                                            <tr><th>Nome</th><th>Parentesco</th><th>Telefone</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var c in alunoSelecionado.ContatosEmergencia)
+                                            {
+                                                <tr>
+                                                    <td>@c.Nome</td>
+                                                    <td>@c.GrauParentesco</td>
+                                                    <td>@Mask.FormatPhone(c.Telefone)</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <p class="text-muted fst-italic">Nenhum contato de emergência cadastrado.</p>
+                                }
                             }
-                        }
-                        
-                        
+                        </div>
 
                         <hr />
 
+                        <!--  SAÚDE  -->
                         <div class="bloco saude">
                             <h3>Saúde e Emergência</h3>
-
                             <div class="linha">
                                 <div class="campo metade">
                                     <label>Pediatra do Aluno:</label>
                                     <input @bind="Pediatra" @bind:event="oninput" disabled="@(!modoEdicao)" />
                                 </div>
-
                                 <div class="campo metade">
                                     <label>Orientações de Emergência:</label>
                                     <textarea @bind="Orientacoes" @bind:event="oninput" disabled="@(!modoEdicao)">@Orientacoes</textarea>
                                 </div>
                             </div>
-
                             <div class="linha">
                                 <div class="campo metade">
                                     <label>Alergias @(modoEdicao ? "(Enter para adicionar)" : ""):</label>
-
                                     @if (modoEdicao)
                                     {
                                         <input @bind="addAlergia" @onkeyup="HandleAlergiaKeyUp" placeholder="Digite e pressione Enter" />
                                     }
-
                                     <div class="lista-tags">
-                                        @if (Alergias != null && Alergias.Any())
+                                        @if (Alergias.Any())
                                         {
-                                            @foreach (var alergia in Alergias)
+                                            @foreach (var a in Alergias)
                                             {
-                                                <span class="tag alergia">@alergia</span>
+                                                <span class="tag alergia">@a</span>
                                             }
                                         }
                                         else
@@ -349,21 +495,18 @@
                                         }
                                     </div>
                                 </div>
-
                                 <div class="campo metade">
                                     <label>Condições Especiais @(modoEdicao ? "(Enter para adicionar)" : ""):</label>
-
                                     @if (modoEdicao)
                                     {
                                         <input @bind="addCondicao" @onkeyup="HandleCondicoesKeyUp" placeholder="Digite e pressione Enter" />
                                     }
-
                                     <div class="lista-tags">
-                                        @if (CondicoesEspeciais != null && CondicoesEspeciais.Any())
+                                        @if (CondicoesEspeciais.Any())
                                         {
-                                            @foreach (var condicao in CondicoesEspeciais)
+                                            @foreach (var c in CondicoesEspeciais)
                                             {
-                                                <span class="tag condicao">@condicao</span>
+                                                <span class="tag condicao">@c</span>
                                             }
                                         }
                                         else
@@ -380,45 +523,35 @@
                             <div class="alert alert-danger mt-3">@msgErro</div>
                         }
 
+                        <!-- Botões -->
                         <div class="d-flex gap-3 mt-4">
                             @if (modoEdicao)
                             {
                                 <button class="btn btn-outline-secondary w-25 p-3 fw-bold" @onclick="CancelarEdicao">CANCELAR</button>
-                                <button class="btn w-75 p-3 fw-bold" style="background-color: #3650a1; color: white;" @onclick="SalvarAluno">
-                                    SALVAR
-                                </button>
+                                <button class="btn w-75 p-3 fw-bold" style="background-color:#3650a1; color:white;" @onclick="SalvarAluno">SALVAR</button>
                             }
                             else
                             {
-                                <button class="btn w-100 p-3 fw-bold" style="background-color: #3650a1; color: white;" @onclick="HabilitarEdicao">
-                                    EDITAR
-                                </button>
-                                <button class="btn w-100 p-3 fw-bold" style="background-color: #3650a1; color: white;" @onclick="GerarPdfFicha">
-                                    GERAR PDF
-                                </button>
+                                <button class="btn w-100 p-3 fw-bold" style="background-color:#3650a1; color:white;" @onclick="HabilitarEdicao">EDITAR</button>
+                                <button class="btn w-100 p-3 fw-bold" style="background-color:#3650a1; color:white;" @onclick="GerarPdfFicha">GERAR PDF</button>
                             }
                         </div>
 
                     </div>
                 }
 
+                <!-- ══ ABA FINANCEIRO ═════════════════════════════════════════ -->
                 @if (abaAtiva == "financeiro")
                 {
                     <div class="aba-financeiro">
                         <h2>FINANCEIRO</h2>
-
                         @if (ReceitasAluno.Any())
                         {
                             <div class="row mb-3 g-2 align-items-end">
-
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Pesquisar</label>
-                                    <input class="form-control"
-                                           placeholder="Tipo..."
-                                           @bind="pesquisaFinanceiro"
-                                           @bind:event="oninput" />
+                                    <input class="form-control" placeholder="Tipo..." @bind="pesquisaFinanceiro" @bind:event="oninput" />
                                 </div>
-
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold">Status</label>
                                     <select class="form-select" @bind="statusFinanceiro">
@@ -428,21 +561,14 @@
                                         <option value="EmAtraso">Em Atraso</option>
                                     </select>
                                 </div>
-
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold">Data Inicial</label>
-                                    <input type="date"
-                                           class="form-control"
-                                           @bind="dataInicioFinanceiro" />
+                                    <input type="date" class="form-control" @bind="dataInicioFinanceiro" />
                                 </div>
-
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold">Data Final</label>
-                                    <input type="date"
-                                           class="form-control"
-                                           @bind="dataFimFinanceiro" />
+                                    <input type="date" class="form-control" @bind="dataFimFinanceiro" />
                                 </div>
-
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold">Ordenar Valor</label>
                                     <select class="form-select" @bind="ordemValorFinanceiro">
@@ -451,70 +577,53 @@
                                         <option value="desc">Maior → Menor</option>
                                     </select>
                                 </div>
-
                             </div>
                             <table class="table table-sm table-bordered table-striped mt-3">
                                 <thead style="background-color:#3650a1; color:white;">
-                                    <tr>
-                                        <th>Mês</th>
-                                        <th>Tipo</th>
-                                        <th>Vencimento</th>
-                                        <th>Valor</th>
-                                        <th>Status</th>
-                                    </tr>
+                                    <tr><th>Mês</th><th>Tipo</th><th>Vencimento</th><th>Valor</th><th>Status</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var r in ReceitasFinanceirasPaginadas)
                                     {
-                                        <tr @onclick="() => GoReceita(r.Id)" style="cursor: pointer;">
+                                        <tr @onclick="() => GoReceita(r.Id)" style="cursor:pointer;">
                                             <td>@r.DataReferente.ToString("MM/yyyy")</td>
                                             <td>@r.GetTypeTexto()</td>
                                             <td>@r.DataVencimento.ToString("dd/MM/yyyy")</td>
                                             <td>R$ @r.GetValorTotal().ToString("N2")</td>
-                                            <td>
-                                                <span class="badge @GetStatusBadge(r.Status)">
-                                                    @r.GetStatusTexto()
-                                                </span>
-                                            </td>
+                                            <td><span class="badge @GetStatusBadge(r.Status)">@r.GetStatusTexto()</span></td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
-
                             <div class="d-flex justify-content-center align-items-center mt-3 gap-1">
-                                <button class="btn btn-link p-1"
-                                        style="width: 24px; height: 24px; line-height: 1; text-decoration: none;"
-                                        disabled="@(paginaAtual == 1)"
-                                        @onclick="() => MudarPagina(paginaAtual - 1)">
+                                <button class="btn btn-link p-1" style="width:24px;height:24px;line-height:1;text-decoration:none;"
+                                        disabled="@(paginaAtual == 1)" @onclick="() => MudarPagina(paginaAtual - 1)">
                                     ‹
                                 </button>
-
                                 @foreach (var p in GetPaginasVisiveis())
                                 {
                                     if (p == null)
                                     {
-                                        <span class="px-2" style="font-size: 0.8rem;">...</span>
+                                        <span class="px-2" style="font-size:0.8rem;">...</span>
                                     }
                                     else
                                     {
                                         <button class="btn btn-sm @(paginaAtual == p ? "btn-primary" : "btn-outline-primary") px-2 py-0"
-                                                style="width:32px; height:28px; font-size:0.75rem; display:flex; align-items:center; justify-content:center;"
+                                                style="width:32px;height:28px;font-size:0.75rem;display:flex;align-items:center;justify-content:center;"
                                                 @onclick="() => MudarPagina(p.Value)">
                                             @p
                                         </button>
                                     }
                                 }
-
-                                <button class="btn btn-link p-1"
-                                        style="width: 24px; height: 24px; line-height: 1; text-decoration: none;"
-                                        disabled="@(paginaAtual == totalPaginas)"
-                                        @onclick="() => MudarPagina(paginaAtual + 1)">
+                                <button class="btn btn-link p-1" style="width:24px;height:24px;line-height:1;text-decoration:none;"
+                                        disabled="@(paginaAtual == totalPaginas)" @onclick="() => MudarPagina(paginaAtual + 1)">
                                     ›
                                 </button>
                             </div>
                         }
                         else
                         {
+
                             <div class="alert alert-warning">Nenhuma mensalidade encontrada.</div>
                         }
                     </div>
@@ -525,171 +634,160 @@
     </div>
 }
 
+<!--  MODAL RESPONSÁVEL  -->
+@if (mostrarModalResponsavel && responsavelModal != null)
+{
+    <div class="overlay-modal" style="z-index:99999;">
+        <div style="background:white;border-radius:12px;border:2px solid #3650a1;padding:30px;min-width:380px;max-width:520px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.25);position:relative;">
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid #3650a1;padding-bottom:12px;">
+                <h4 style="color:#3650a1;font-weight:bold;margin:0;">Dados do Responsável</h4>
+                <button class="btn-fechar" @onclick="FecharModalResponsavel">×</button>
+            </div>
+
+            <div style="display:grid;gap:12px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <small class="text-muted">Nome</small>
+                        <p style="font-weight:bold;margin:0;">@responsavelModal.Nome</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">CPF</small>
+                        <p style="font-weight:bold;margin:0;">@Mask.FormatCpf(responsavelModal.CPF ?? "")</p>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <small class="text-muted">Parentesco</small>
+                        <p style="font-weight:bold;margin:0;">@(Responsavel.TipoParentescoMap.TryGetValue(tipoParentescoModal, out var gm) ? gm : "—")</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">Telefone</small>
+                        <p style="font-weight:bold;margin:0;">@Mask.FormatPhone(responsavelModal.Telefone ?? "")</p>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <small class="text-muted">Endereço</small>
+                        <p style="font-weight:bold;margin:0;">@(responsavelModal.Endereco ?? "—")</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">CEP</small>
+                        <p style="font-weight:bold;margin:0;">@(responsavelModal.CEP ?? "—")</p>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                    <small class="text-muted">E-mail</small>
+                    <p style="font-weight:bold;margin:0;">@(responsavelModal.Email ?? "—")</p>
+                </div>
+                    <div>
+                        <small class="text-muted">Data de Nascimento</small>
+                        <p style="font-weight:bold;margin:0;">@(responsavelModal.DataNascimento?.ToString("dd/MM/yyyy") ?? "—")</p>
+                    </div>
+                </div>
+
+                
+               
+                
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <small class="text-muted">Nível de Acesso</small>
+                        <p style="font-weight:bold;margin:0;">@responsavelModal.AccessType.GetAccessName()</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">Cadastrado em</small>
+                        <p style="font-weight:bold;margin:0;">@responsavelModal.DataCriacao?.ToString("dd/MM/yyyy")</p>
+                    </div>
+                </div>
+                @if (responsavelModal.GetParentescos()?.Count > 1)
+                {
+                    <div>
+                        <small class="text-muted">Outros alunos vinculados</small>
+                        <div style="margin-top:4px;">
+                            @foreach (var p in responsavelModal.GetParentescos()!.Where(p => p.Aluno.Id != alunoSelecionado?.Id))
+                            {
+                                <span class="badge bg-secondary me-1">@p.Aluno.Nome</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <button class="btn btn-outline-secondary w-100 mt-4" @onclick="FecharModalResponsavel">Fechar</button>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public Guid? AlunoId { get; set; }
-
     List<Aluno> alunos = new();
-    List<Responsavel> responsaveis = new();
+    List<Responsavel> todosResponsaveis = new();
     List<Turma> listaTurmas = new();
-    List<Responsavel> sugestoesResponsaveis = new();
-
-    private int paginaAtual = 1;
-    private int itensPorPagina = 6;
-
-    private string pesquisaFinanceiro = "";
-    private string statusFinanceiro = "";
-    private string ordemValorFinanceiro = "";
-
-    private DateTime? dataInicioFinanceiro;
-    private DateTime? dataFimFinanceiro;
-
-    private int totalPaginas =>
-    (int)Math.Ceiling(
-        (double)ReceitasFinanceirasFiltradas.Count() / itensPorPagina);
-
-    private List<Receita> ReceitasPaginadas =>
-        ReceitasAluno
-            .Skip((paginaAtual - 1) * itensPorPagina)
-            .Take(itensPorPagina)
-            .ToList();
-    private IEnumerable<Receita> ReceitasFinanceirasFiltradas
-    {
-        get
-        {
-            var query = ReceitasAluno.AsEnumerable();
-
-            // PESQUISA
-            if (!string.IsNullOrWhiteSpace(pesquisaFinanceiro))
-            {
-                query = query.Where(r =>
-                    r.GetTypeTexto()
-                        .Contains(pesquisaFinanceiro,
-                            StringComparison.OrdinalIgnoreCase));
-            }
-
-            // STATUS
-            if (statusFinanceiro == "Pago")
-            {
-                query = query.Where(r => r.IsPago());
-            }
-            else if (statusFinanceiro == "EmAndamento")
-            {
-                query = query.Where(r =>
-                    r.Status == Receita.FinanceStatus.EmAndamento);
-            }
-            else if (statusFinanceiro == "EmAtraso")
-            {
-                query = query.Where(r =>
-                    r.Status == Receita.FinanceStatus.EmAtraso);
-            }
-
-            // DATA INICIAL
-            if (dataInicioFinanceiro.HasValue)
-            {
-                query = query.Where(r =>
-                    r.DataVencimento.Date >=
-                    dataInicioFinanceiro.Value.Date);
-            }
-
-            // DATA FINAL
-            if (dataFimFinanceiro.HasValue)
-            {
-                query = query.Where(r =>
-                    r.DataVencimento.Date <=
-                    dataFimFinanceiro.Value.Date);
-            }
-
-            // ORDENAÇÃO
-            query = ordemValorFinanceiro switch
-            {
-                "asc" => query.OrderBy(r => r.GetValorTotal()),
-                "desc" => query.OrderByDescending(r => r.GetValorTotal()),
-                _ => query.OrderBy(r => r.DataVencimento)
-            };
-
-            return query;
-        }
-    }
-
-    private List<Receita> ReceitasFinanceirasPaginadas =>
-    ReceitasFinanceirasFiltradas
-        .Skip((paginaAtual - 1) * itensPorPagina)
-        .Take(itensPorPagina)
-        .ToList();
-
-    private List<Receita> ReceitasAluno = new();
     string search = "";
 
-    IEnumerable<Aluno> alunosFiltrados =>
-        alunos.Where(a => string.IsNullOrEmpty(search) ||
-        (a.Nome?.ToLower().Contains(search.ToLower()) ?? false));
+    bool mostrarModalAluno = false;
+    bool animarModal = false;
+    string abaAtiva = "ficha";
+    Aluno? alunoSelecionado;
+    bool modoEdicao = false;
 
-    private List<int?> GetPaginasVisiveis()
+    string Nome = "", RA = "", Religiao = "", turmaId = "";
+    string Pediatra = "", Orientacoes = "";
+    string addAlergia = "", addCondicao = "", idadeExtenso = "", msgErro = "";
+    DateTime? dataNascimento;
+    List<string> Alergias = new();
+    List<string> CondicoesEspeciais = new();
+
+    private class ResponsavelCard
     {
-        var paginas = new List<int?>();
+        public string CpfFormatado { get; set; } = "";
+        public string Nome { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string CEP { get; set; } = "";
+        public string TelefoneFormatado { get; set; } = "";
+        public string Endereco { get; set; } = "";
+        public DateTime DataNascimento { get; set; } = DateTime.Today;
+        public int TipoParentesco { get; set; } = 6;
+        public bool Expandido { get; set; } = true;
+        public bool Confirmado { get; set; } = false;
+        public bool EhExistente { get; set; } = false;
+        public Responsavel? ResponsavelObj { get; set; } = null;
+        public List<Responsavel> Sugestoes { get; set; } = new();
+        public string ErroCampo { get; set; } = "";
+        public string NomeExibicao => ResponsavelObj?.Nome ?? Nome;
+    }
+    List<ResponsavelCard> responsaveisEdicao = new();
 
-        if (totalPaginas <= 7)
-        {
-            for (int i = 1; i <= totalPaginas; i++)
-                paginas.Add(i);
+    List<ResponsavelCard> responsaveisRascunho = new();
 
-            return paginas;
-        }
-
-        paginas.Add(1);
-
-        if (paginaAtual > 4)
-            paginas.Add(null);
-
-        int inicio = Math.Max(2, paginaAtual - 2);
-        int fim = Math.Min(totalPaginas - 1, paginaAtual + 2);
-
-        for (int i = inicio; i <= fim; i++)
-            paginas.Add(i);
-
-        if (paginaAtual < totalPaginas - 3)
-            paginas.Add(null);
-
-        paginas.Add(totalPaginas);
-
-        return paginas;
+    private class ContatoCard
+    {
+        public string Nome { get; set; } = "";
+        public string GrauParentesco { get; set; } = "";
+        public string Telefone { get; set; } = "";
+        public bool Expandido { get; set; } = true;
     }
 
-    private void MudarPagina(int p)
-    {
-        if (p >= 1 && p <= totalPaginas)
-            paginaAtual = p;
-    }
+    List<ContatoCard> contatosRascunho = new();
+    List<string> telefonesRascunho = new();
 
-    private void ConfirmarPagamentoReceita(Receita Receita)
-    {
-        if (Receita == null) return;
+    List<Receita> ReceitasAluno = new();
+    int paginaAtual = 1, itensPorPagina = 6;
+    string pesquisaFinanceiro = "", statusFinanceiro = "", ordemValorFinanceiro = "";
+    DateTime? dataInicioFinanceiro, dataFimFinanceiro;
+    int totalPaginas => (int)Math.Ceiling((double)ReceitasFinanceirasFiltradas.Count() / itensPorPagina);
 
-        Receita.Status = Receita.FinanceStatus.Pago;
-        Receita.DataPagamento = DateTime.Now;
-
-        CarregarReceitas();
-    }
-
-    private void CarregarReceitas()
-    {
-        if (alunoSelecionado == null) return;
-
-        ReceitasAluno = ReceitaController
-            .GetAll()
-            .Where(r => r.Aluno != null && r.Aluno.Id == alunoSelecionado.Id)
-            .OrderBy(r => r.DataVencimento)
-            .ToList();
-
-        paginaAtual = 1;
-    }
+    bool mostrarModalResponsavel = false;
+    Responsavel? responsavelModal = null;
+    int tipoParentescoModal = 6;
 
     protected override void OnInitialized() => LoadData();
 
     void LoadData()
     {
         alunos = AlunoController.GetAll();
-        responsaveis = ResponsavelController.GetAll();
+        todosResponsaveis = ResponsavelController.GetAll();
         listaTurmas = TurmaController.GetAll();
 
         if (AlunoId != null)
@@ -697,7 +795,6 @@
             alunoSelecionado = AlunoController.Get(AlunoId.ToString(), null);
             CarregarDadosAluno();
         }
-
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -705,68 +802,51 @@
         if (firstRender && AlunoId != null)
         {
             var aluno = AlunoController.Get(AlunoId.ToString(), null);
-
-            if (aluno != null)
-            {
-                await AbrirModal(aluno);
-            }
+            if (aluno != null) await AbrirModal(aluno);
         }
     }
 
-    string GetResponsavelCPF(Aluno aluno)
+    async Task AbrirModal(Aluno aluno)
     {
-        var resp = responsaveis.FirstOrDefault(r =>
-            r.GetParentescos()?.Any(p => p.Aluno.Id == aluno.Id) == true);
-        return resp?.CPF ?? "-";
+        alunoSelecionado = aluno;
+        abaAtiva = "ficha";
+        mostrarModalAluno = true;
+        animarModal = false;
+        CarregarDadosAluno();
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(50);
+        animarModal = true;
+        await InvokeAsync(StateHasChanged);
     }
 
-    string GetResponsavelNome(Aluno aluno)
+    async Task FecharModal()
     {
-        var resp = responsaveis.FirstOrDefault(r =>
-            r.GetParentescos()?.Any(p => p.Aluno.Id == aluno.Id) == true);
-        return resp?.Nome ?? "-";
+        animarModal = false;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(200);
+        mostrarModalAluno = false;
+        alunoSelecionado = null;
+        modoEdicao = false;
     }
 
-    string GetResponsavelGrau(Aluno aluno)
+    // Constrói um ResponsavelCard a partir de um Responsavel + tipo de parentesco
+    ResponsavelCard CardFromResponsavel(Responsavel r, int tipo) => new ResponsavelCard
     {
-        var resp = responsaveis.FirstOrDefault(r =>
-            r.GetParentescos()?.Any(p => p.Aluno.Id == aluno.Id) == true);
-        return resp?.GetAlunoParentesco(aluno).GetParentesco() ?? "-";
-    }
+        ResponsavelObj = r,
+        CpfFormatado = r.CPF ?? "",
+        Nome = r.Nome ?? "",
+        Email = r.Email ?? "",
+        TelefoneFormatado = r.Telefone ?? "",
+        Endereco = r.Endereco ?? "",
+        CEP = r.CEP ?? "",
+        DataNascimento = r.DataNascimento ?? DateTime.Today,
+        TipoParentesco = tipo,
+        EhExistente = true,
+        Confirmado = true,
+        Expandido = false
+    };
 
-    void GoAluno(Guid id) => Navigation.NavigateTo($"/aluno-details/{id}");
-
-    private bool mostrarModalAluno = false;
-    private string abaAtiva = "ficha";
-    private Aluno? alunoSelecionado;
-    private bool modoEdicao = false;
-
-    private string Nome = "";
-    private DateTime? dataNascimento;
-    private string RA = "";
-    private string Religiao = "";
-    private string turmaId = "";
-    private string responsavelCpf = "";
-    private string responsavelNome = "";
-    private int tipoParentesco = 6;
-    private string Pediatra = "";
-    private string Orientacoes = "";
-    private List<string> Alergias = new();
-    private List<string> CondicoesEspeciais = new();
-    private string idadeExtenso = "";
-    private string addAlergia = "";
-    private string addCondicao = "";
-    private string msgErro = "";
-    private List<ContatoEmergencia> contatosEmergencia = new();
-    private List<string> cpfsContatos = new();
-    private List<string> telefonesContatos = new();
-
-    private bool animarModal = false;
-
-    private Responsavel? responsavelSelecionado;
-    private Responsavel? responsavelAluno;
-
-    private void CarregarDadosAluno()
+    void CarregarDadosAluno()
     {
         if (alunoSelecionado == null) return;
 
@@ -777,190 +857,150 @@
         turmaId = alunoSelecionado.Turma?.Id.ToString() ?? "";
         Pediatra = alunoSelecionado.NomePediatra ?? "";
         Orientacoes = alunoSelecionado.OrientacoesEmergencia ?? "";
-        Alergias = new List<string>(alunoSelecionado.Alergias ?? new List<string>());
-        CondicoesEspeciais = new List<string>(alunoSelecionado.CondicoesEspeciais ?? new List<string>());
+        Alergias = new List<string>(alunoSelecionado.Alergias ?? new());
+        CondicoesEspeciais = new List<string>(alunoSelecionado.CondicoesEspeciais ?? new());
 
-        responsavelAluno = responsaveis.FirstOrDefault(r =>
-            r.GetParentescos()?.Any(p => p.Aluno.Id == alunoSelecionado.Id) == true);
+        // Monta a lista de visualização a partir dos responsáveis vinculados ao aluno
+        var resps = alunoSelecionado.Responsaveis.Any()
+            ? alunoSelecionado.Responsaveis
+            : todosResponsaveis.Where(r => r.GetParentescos()?.Any(p => p.Aluno.Id == alunoSelecionado.Id) == true).ToList();
 
-        if (responsavelAluno != null)
+        responsaveisEdicao = resps.Select(r =>
         {
-            responsavelCpf = Mask.FormatCpf(responsavelAluno.CPF ?? "");
-            responsavelNome = responsavelAluno.Nome;
-            var parentesco = responsavelAluno.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == alunoSelecionado.Id);
-            tipoParentesco = parentesco?.Tipo ?? 6;
-        }
-        if (alunoSelecionado.ContatosEmergencia != null || alunoSelecionado.ContatosEmergencia.Any())
-        {
-            contatosEmergencia = new List<ContatoEmergencia>(alunoSelecionado.ContatosEmergencia ?? new List<ContatoEmergencia>());
-            telefonesContatos = contatosEmergencia.Select(c => Mask.FormatPhone(c.Telefone)).ToList();
-        }
+            var tipo = r.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == alunoSelecionado.Id)?.Tipo ?? 6;
+            return CardFromResponsavel(r, tipo);
+        }).ToList();
 
         CarregarReceitas();
         CalcularIdade();
     }
 
-    private void HabilitarEdicao()
+    void HabilitarEdicao()
     {
+        // Cria o rascunho como cópia profunda da lista de visualização
+        responsaveisRascunho = responsaveisEdicao
+            .Select(rf => new ResponsavelCard
+            {
+                ResponsavelObj = rf.ResponsavelObj,
+                CpfFormatado = rf.CpfFormatado,
+                Nome = rf.Nome,
+                Email = rf.Email,
+                TelefoneFormatado = rf.TelefoneFormatado,
+                Endereco = rf.Endereco,
+                CEP = rf.CEP,
+                DataNascimento = rf.DataNascimento,
+                TipoParentesco = rf.TipoParentesco,
+                EhExistente = rf.EhExistente,
+                Confirmado = rf.Confirmado,
+                Expandido = rf.Expandido
+            })
+            .ToList();
+
+        // Cópia dos contatos
+        contatosRascunho = (alunoSelecionado?.ContatosEmergencia ?? new())
+            .Select(c => new ContatoCard { Nome = c.Nome ?? "", GrauParentesco = c.GrauParentesco ?? "", Telefone = c.Telefone ?? "", Expandido = false })
+            .ToList();
+        telefonesRascunho = contatosRascunho.Select(c => Mask.FormatPhone(c.Telefone)).ToList();
+
         modoEdicao = true;
     }
 
-    private void CancelarEdicao()
+    void CancelarEdicao()
     {
+        // Descarta o rascunho; a lista de visualização não foi tocada
+        responsaveisRascunho.Clear();
+        contatosRascunho.Clear();
+        telefonesRascunho.Clear();
         modoEdicao = false;
-        CarregarDadosAluno();
+        CarregarDadosAluno(); // restaura campos de texto também
         msgErro = "";
     }
 
-    private bool fechandoModal = false;
-
-    private async Task AbrirModal(Aluno aluno)
-    {
-        alunoSelecionado = aluno;
-
-        abaAtiva = "ficha";
-
-        mostrarModalAluno = true;
-
-        animarModal = false;
-
-        CarregarDadosAluno();
-
-        await InvokeAsync(StateHasChanged);
-
-        await Task.Delay(50);
-
-        animarModal = true;
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task FecharModal()
-    {
-        animarModal = false;
-
-        await InvokeAsync(StateHasChanged);
-
-        await Task.Delay(200);
-
-        mostrarModalAluno = false;
-
-        alunoSelecionado = null;
-    }
-
-    private void CalcularIdade()
-    {
-        DateTime data = dataNascimento ?? DateTime.Today;
-        DateTime hoje = DateTime.Today;
-        int anos = hoje.Year - data.Year;
-        if (hoje < data.AddYears(anos)) anos--;
-
-        int meses = hoje.Month - data.Month;
-        if (hoje.Day < data.Day) meses--;
-        if (meses < 0) meses += 12;
-
-        idadeExtenso = $"{anos} anos e {meses} meses";
-    }
-    void GoReceita(Guid id) => Navigation.NavigateTo($"/receitas/{id}");
-    void OnCpfInput(ChangeEventArgs e)
-    {
-        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
-        if (digits.Length > 11) digits = digits[..11];
-
-        responsavelCpf = Mask.FormatCpf(digits);
-
-        sugestoesResponsaveis = responsaveis
-            .Where(r => !string.IsNullOrEmpty(r.CPF) && r.CPF.Contains(digits))
-            .Take(5)
-            .ToList();
-
-        responsavelSelecionado = null;
-    }
-
-    void SelecionarResponsavel(Responsavel r)
-    {
-        responsavelSelecionado = r;
-        responsavelCpf = Mask.FormatCpf(r.CPF);
-        responsavelNome = r.Nome;
-        sugestoesResponsaveis.Clear();
-    }
-
-    private void HandleAlergiaKeyUp(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia))
-        {
-            Alergias.Add(addAlergia);
-            addAlergia = "";
-        }
-    }
-
-    private void HandleCondicoesKeyUp(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao))
-        {
-            CondicoesEspeciais.Add(addCondicao);
-            addCondicao = "";
-        }
-    }
-
-    private async Task SalvarAluno()
+    async Task SalvarAluno()
     {
         if (alunoSelecionado == null) return;
+        msgErro = "";
 
-        var cpfSemMascara = Mask.RemoveMask(responsavelCpf);
-
-        if (string.IsNullOrWhiteSpace(Nome) || string.IsNullOrWhiteSpace(cpfSemMascara))
+        if (string.IsNullOrWhiteSpace(Nome))
         {
-            msgErro = "Nome e CPF do responsável são obrigatórios.";
+            msgErro = "Nome do aluno é obrigatório.";
+            return;
+        }
+
+        var confirmados = responsaveisRascunho.Where(rf => rf.EhExistente || rf.Confirmado).ToList();
+        if (!confirmados.Any())
+        {
+            msgErro = "O aluno precisa de ao menos um responsável.";
             return;
         }
 
         try
         {
-            var resp = responsavelSelecionado ?? ResponsavelController.Get("CPF", cpfSemMascara);
-
-            if (resp == null)
-            {
-                msgErro = "Responsável não encontrado no sistema.";
-                return;
-            }
-
             alunoSelecionado.Nome = Nome;
             alunoSelecionado.DataNascimento = dataNascimento;
             alunoSelecionado.Religiao = Religiao;
-
-            if (!string.IsNullOrEmpty(turmaId))
-            {
-                Turma newTurma = TurmaController.Get(turmaId, null);
-                if (newTurma != null)
-                {
-                    // Assuming there's a method to move students between classes
-                    if (alunoSelecionado.Turma != null && alunoSelecionado.Turma.Id != newTurma.Id)
-                    {
-                        alunoSelecionado.Turma.Alunos.Remove(alunoSelecionado);
-                        newTurma.Alunos.Add(alunoSelecionado);
-                    }
-                    alunoSelecionado.Turma = newTurma;
-                }
-            }
-
             alunoSelecionado.NomePediatra = Pediatra;
             alunoSelecionado.OrientacoesEmergencia = Orientacoes;
             alunoSelecionado.Alergias = Alergias;
             alunoSelecionado.CondicoesEspeciais = CondicoesEspeciais;
-            alunoSelecionado.ContatosEmergencia = contatosEmergencia;
 
-            if (responsavelAluno != null)
+            // Aplica contatos do rascunho
+            alunoSelecionado.ContatosEmergencia = contatosRascunho
+                .Select(c => new ContatoEmergencia { Nome = c.Nome, GrauParentesco = c.GrauParentesco, Telefone = c.Telefone })
+                .ToList();
+
+            // Turma
+            if (!string.IsNullOrEmpty(turmaId))
             {
-                var parentesco = responsavelAluno.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == alunoSelecionado.Id);
-                if (parentesco != null)
+                var newTurma = TurmaController.Get(turmaId, null);
+                if (newTurma != null && (alunoSelecionado.Turma == null || alunoSelecionado.Turma.Id != newTurma.Id))
                 {
-                    parentesco.Tipo = tipoParentesco;
+                    alunoSelecionado.Turma?.Alunos.Remove(alunoSelecionado);
+                    newTurma.Alunos.Add(alunoSelecionado);
+                    alunoSelecionado.Turma = newTurma;
                 }
             }
 
+            // Determina responsáveis removidos (estavam no original, não estão no rascunho)
+            var idsRascunho = responsaveisRascunho
+                .Where(rf => rf.EhExistente && rf.ResponsavelObj != null)
+                .Select(rf => rf.ResponsavelObj!.Id)
+                .ToHashSet();
+
+            foreach (var rf in responsaveisEdicao.Where(rf => rf.EhExistente && rf.ResponsavelObj != null))
+            {
+                if (!idsRascunho.Contains(rf.ResponsavelObj!.Id))
+                {
+                    // Remove o vínculo
+                    var p = rf.ResponsavelObj.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == alunoSelecionado.Id);
+                    if (p != null) rf.ResponsavelObj.GetParentescos()!.Remove(p);
+                    alunoSelecionado.Responsaveis.Remove(rf.ResponsavelObj);
+                }
+            }
+
+            // Atualiza parentesco dos existentes que permaneceram
+            foreach (var rf in responsaveisRascunho.Where(rf => rf.EhExistente && rf.ResponsavelObj != null))
+            {
+                var p = rf.ResponsavelObj!.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == alunoSelecionado.Id);
+                if (p != null) p.Tipo = rf.TipoParentesco;
+            }
+
+            // Cadastra e vincula novos responsáveis do rascunho
+            foreach (var rf in responsaveisRascunho.Where(rf => !rf.EhExistente && rf.Confirmado))
+            {
+                var cpfLimpo = Mask.RemoveMask(rf.CpfFormatado);
+                var resp = ResponsavelController.Get("CPF", cpfLimpo) ?? CriarNovoResponsavel(rf, cpfLimpo);
+                ResponsavelController.AddParentesco(resp, alunoSelecionado, rf.TipoParentesco);
+            }
+
             modoEdicao = false;
+            responsaveisRascunho.Clear();
+            contatosRascunho.Clear();
+            telefonesRascunho.Clear();
+
             LoadData();
+            alunoSelecionado = AlunoController.Get(alunoSelecionado.Id.ToString(), null);
+            if (alunoSelecionado != null) CarregarDadosAluno();
             msgErro = "";
         }
         catch (Exception ex)
@@ -969,53 +1009,210 @@
         }
     }
 
-    private string GetStatusBadge(Receita.FinanceStatus status) => status switch
+    void AdicionarResponsavelRascunho() =>
+        responsaveisRascunho.Add(new ResponsavelCard { Expandido = true, EhExistente = false });
+
+    void RemoverResponsavelRascunho(int idx)
+    {
+        if (responsaveisRascunho.Count <= 1) return;
+        // Remove só do rascunho; o objeto real não é tocado aqui
+        responsaveisRascunho.RemoveAt(idx);
+    }
+
+    void OnCpfRascunhoInput(ChangeEventArgs e, int idx)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        responsaveisRascunho[idx].CpfFormatado = Mask.FormatCpf(digits);
+        responsaveisRascunho[idx].ResponsavelObj = null;
+        responsaveisRascunho[idx].EhExistente = false;
+        responsaveisRascunho[idx].Sugestoes = todosResponsaveis
+            .Where(r => !string.IsNullOrEmpty(r.CPF) && r.CPF.Contains(digits))
+            .Take(5).ToList();
+    }
+
+    void SelecionarResponsavelRascunho(int idx, Responsavel r)
+    {
+        var rf = responsaveisRascunho[idx];
+        rf.ResponsavelObj = r;
+        rf.EhExistente = true;
+        rf.Confirmado = true;
+        rf.CpfFormatado = r.CPF ?? "";
+        rf.Nome = r.Nome ?? "";
+        rf.Email = r.Email ?? "";
+        rf.TelefoneFormatado = r.Telefone ?? "";
+        rf.Endereco = r.Endereco ?? "";
+        rf.CEP = r.CEP ?? "";
+        rf.DataNascimento = r.DataNascimento ?? DateTime.Today;
+        rf.Sugestoes.Clear();
+        rf.ErroCampo = "";
+    }
+
+    void OnTelefoneRascunhoInput(ChangeEventArgs e, int idx)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        responsaveisRascunho[idx].TelefoneFormatado = Mask.FormatPhone(digits);
+    }
+
+    void OnCEPRascunhoInput(ChangeEventArgs e, int idx)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 8) digits = digits[..8];
+        responsaveisRascunho[idx].CEP = Mask.FormatCEP(digits);
+    }
+
+    void ConfirmarResponsavelRascunho(int idx)
+    {
+        var rf = responsaveisRascunho[idx];
+        rf.ErroCampo = "";
+        var cpfLimpo = Mask.RemoveMask(rf.CpfFormatado);
+        if (string.IsNullOrWhiteSpace(cpfLimpo) || cpfLimpo.Length != 11) { rf.ErroCampo = "CPF inválido."; return; }
+        if (string.IsNullOrWhiteSpace(rf.Nome)) { rf.ErroCampo = "Nome é obrigatório."; return; }
+        rf.Confirmado = true;
+        rf.Expandido = false;
+    }
+
+    Responsavel CriarNovoResponsavel(ResponsavelCard rf, string cpfLimpo)
+    {
+        var user = new User { Nome = rf.Nome, CPF = cpfLimpo, Email = rf.Email, AccessType = new AccessType { Level = 0 } };
+        user.Senha = PasswordHandler.HashPassword(rf.DataNascimento.ToString("yyyyMMdd"), user.Salt);
+        UserController.Register(user);
+
+        var resp = ResponsavelController.CreateByUser(user);
+        resp.Telefone = Mask.RemoveMask(rf.TelefoneFormatado);
+        resp.Endereco = rf.Endereco;
+        resp.CEP = rf.CEP;
+        resp.DataNascimento = rf.DataNascimento;
+        ResponsavelController.Register(resp);
+        return resp;
+    }
+
+    void AdicionarContatoRascunho()
+    {
+        contatosRascunho.Add(new ContatoCard());
+        telefonesRascunho.Add("");
+    }
+
+    void RemoverContatoRascunho(int idx)
+    {
+        contatosRascunho.RemoveAt(idx);
+        telefonesRascunho.RemoveAt(idx);
+    }
+
+    void OnTelefoneContatoRascunhoInput(ChangeEventArgs e, int idx)
+    {
+        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length > 11) digits = digits[..11];
+        telefonesRascunho[idx] = Mask.FormatPhone(digits);
+        contatosRascunho[idx].Telefone = Mask.RemoveMask(telefonesRascunho[idx]);
+    }
+
+    void AbrirModalResponsavel(Responsavel r, int tipo) { responsavelModal = r; tipoParentescoModal = tipo; mostrarModalResponsavel = true; }
+    void FecharModalResponsavel() { mostrarModalResponsavel = false; responsavelModal = null; }
+
+    string GetResponsavelNome(Aluno aluno)
+    {
+        if (aluno.Responsaveis.Any()) return aluno.Responsaveis[0].Nome ?? "-";
+        var resp = todosResponsaveis.FirstOrDefault(r => r.GetParentescos()?.Any(p => p.Aluno.Id == aluno.Id) == true);
+        return resp?.Nome ?? "-";
+    }
+
+    void CalcularIdade()
+    {
+        DateTime data = dataNascimento ?? DateTime.Today;
+        DateTime hoje = DateTime.Today;
+        int anos = hoje.Year - data.Year;
+        if (hoje < data.AddYears(anos)) anos--;
+        int meses = hoje.Month - data.Month;
+        if (hoje.Day < data.Day) meses--;
+        if (meses < 0) meses += 12;
+        idadeExtenso = $"{anos} anos e {meses} meses";
+    }
+
+    void HandleAlergiaKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addAlergia)) { Alergias.Add(addAlergia.Trim()); addAlergia = ""; }
+    }
+
+    void HandleCondicoesKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao)) { CondicoesEspeciais.Add(addCondicao.Trim()); addCondicao = ""; }
+    }
+
+    void GoReceita(Guid id) => Navigation.NavigateTo($"/receitas/{id}");
+
+    async Task GerarPdfFicha()
+    {
+        if (alunoSelecionado == null) return;
+        try
+        {
+            byte[] pdf = PdfService.GerarFichaAluno(alunoSelecionado);
+            string base64 = Convert.ToBase64String(pdf);
+            string nome = $"Ficha_{alunoSelecionado.Nome?.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd}.pdf";
+            await JS.InvokeVoidAsync("downloadPdf", base64, nome);
+        }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
+    }
+
+    IEnumerable<Aluno> alunosFiltrados =>
+        alunos.Where(a => string.IsNullOrEmpty(search) || (a.Nome?.ToLower().Contains(search.ToLower()) ?? false));
+
+    void CarregarReceitas()
+    {
+        if (alunoSelecionado == null) return;
+        ReceitasAluno = ReceitaController.GetAll()
+            .Where(r => r.Aluno != null && r.Aluno.Id == alunoSelecionado.Id)
+            .OrderBy(r => r.DataVencimento).ToList();
+        paginaAtual = 1;
+    }
+
+    IEnumerable<Receita> ReceitasFinanceirasFiltradas
+    {
+        get
+        {
+            var q = ReceitasAluno.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(pesquisaFinanceiro))
+                q = q.Where(r => r.GetTypeTexto().Contains(pesquisaFinanceiro, StringComparison.OrdinalIgnoreCase));
+            if (statusFinanceiro == "Pago") q = q.Where(r => r.IsPago());
+            else if (statusFinanceiro == "EmAndamento") q = q.Where(r => r.Status == Receita.FinanceStatus.EmAndamento);
+            else if (statusFinanceiro == "EmAtraso") q = q.Where(r => r.Status == Receita.FinanceStatus.EmAtraso);
+            if (dataInicioFinanceiro.HasValue) q = q.Where(r => r.DataVencimento.Date >= dataInicioFinanceiro.Value.Date);
+            if (dataFimFinanceiro.HasValue) q = q.Where(r => r.DataVencimento.Date <= dataFimFinanceiro.Value.Date);
+            q = ordemValorFinanceiro switch
+            {
+                "asc" => q.OrderBy(r => r.GetValorTotal()),
+                "desc" => q.OrderByDescending(r => r.GetValorTotal()),
+                _ => q.OrderBy(r => r.DataVencimento)
+            };
+            return q;
+        }
+    }
+
+    List<Receita> ReceitasFinanceirasPaginadas =>
+        ReceitasFinanceirasFiltradas.Skip((paginaAtual - 1) * itensPorPagina).Take(itensPorPagina).ToList();
+
+    void MudarPagina(int p) { if (p >= 1 && p <= totalPaginas) paginaAtual = p; }
+
+    List<int?> GetPaginasVisiveis()
+    {
+        var paginas = new List<int?>();
+        if (totalPaginas <= 7) { for (int i = 1; i <= totalPaginas; i++) paginas.Add(i); return paginas; }
+        paginas.Add(1);
+        if (paginaAtual > 4) paginas.Add(null);
+        int inicio = Math.Max(2, paginaAtual - 2);
+        int fim = Math.Min(totalPaginas - 1, paginaAtual + 2);
+        for (int i = inicio; i <= fim; i++) paginas.Add(i);
+        if (paginaAtual < totalPaginas - 3) paginas.Add(null);
+        paginas.Add(totalPaginas);
+        return paginas;
+    }
+
+    string GetStatusBadge(Receita.FinanceStatus s) => s switch
     {
         Receita.FinanceStatus.Pago => "bg-success",
         Receita.FinanceStatus.EmAtraso => "bg-danger",
         Receita.FinanceStatus.EmAndamento => "bg-warning text-dark",
         _ => "bg-secondary"
     };
-
-    private async Task GerarPdfFicha()
-    {
-        if (alunoSelecionado == null) return;
-
-        try
-        {
-            byte[] pdf = PdfService.GerarFichaAluno(alunoSelecionado);
-            string base64 = Convert.ToBase64String(pdf);
-            string nomeArquivo = $"Ficha_{alunoSelecionado.Nome?.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd}.pdf";
-
-            // Dispara download via JS
-            await JS.InvokeVoidAsync("downloadPdf", base64, nomeArquivo);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(ex.Message);
-            //msgFeedback = "Erro ao gerar PDF: " + ex.Message;
-        }
-    }
-
-    void AdicionarContatoEmergencia()
-    {
-        contatosEmergencia.Add(new ContatoEmergencia());
-        cpfsContatos.Add("");
-        telefonesContatos.Add("");
-    }
-
-    void RemoverContatoEmergencia(int idx)
-    {
-        contatosEmergencia.RemoveAt(idx);
-        cpfsContatos.RemoveAt(idx);
-        telefonesContatos.RemoveAt(idx);
-    }
-
-    void OnTelefoneContatoInput(ChangeEventArgs e, int idx)
-    {
-        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
-        if (digits.Length > 11) digits = digits[..11];
-        telefonesContatos[idx] = Mask.FormatPhone(digits);
-        contatosEmergencia[idx].Telefone = Mask.RemoveMask(telefonesContatos[idx]);
-    }
 }
