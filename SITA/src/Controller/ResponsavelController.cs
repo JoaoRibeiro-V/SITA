@@ -46,6 +46,7 @@ namespace SITA.src.Controller
         {
             responsavel.AddParentesco(aluno, tipoParentesco);
             aluno.Responsaveis.Add(responsavel);
+            aluno.ContatosEmergencia.Add(new ContatoEmergencia { Nome = responsavel.Nome, Telefone = responsavel.Telefone ?? "", GrauParentesco = responsavel.GetAlunoParentesco(aluno)?.GetParentesco() ?? "Outro" });
         }
     }
 }

@@ -40,6 +40,12 @@ namespace SITA.src.Model
         {
             Parentescos?.Add(new Parentesco { Aluno = aluno, Tipo = tipo });
         }
+        public void RemoveParentesco(Aluno aluno)
+        {
+            var parentesco = Parentescos?.FirstOrDefault(p => p.Aluno.Id == aluno.Id);
+            if (parentesco != null)
+                Parentescos.Remove(parentesco);
+        }
         public Aluno? GetAlunoByField(string field, string value)
         {
             foreach (var parentesco in Parentescos)
