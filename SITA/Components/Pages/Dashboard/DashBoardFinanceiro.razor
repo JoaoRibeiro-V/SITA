@@ -16,6 +16,29 @@
     <!-- HEADER -->
     <div class="fin-header">
         <h1>Dashboard Financeiro</h1>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn fw-bold" style="background:#3650a1; color:white; border:none; border-radius:8px; padding:10px 16px; cursor:pointer;"
+                    @onclick="GerarRelatorioGeral">
+                @if (modoAtivo == Modo.Receitas && r_dataInicio.HasValue && r_dataFim.HasValue)
+                {
+                    <span>📄 Relatório (PDF) | @r_dataInicio?.ToString("dd/MM/yy") – @r_dataFim?.ToString("dd/MM/yy")</span>
+                }
+                else if (modoAtivo == Modo.Despesas && d_dataInicio.HasValue && d_dataFim.HasValue)
+                {
+                    <span>📄 Relatório (PDF) | @d_dataInicio?.ToString("dd/MM/yy") – @d_dataFim?.ToString("dd/MM/yy")</span>
+                }
+                else
+                {
+                    <span>📄 Relatório Geral (PDF)</span>
+                }
+            </button>
+            @if (modoAtivo == Modo.Despesas)
+            {
+                <button class="btn-nova-despesa" @onclick='() => Navigation.NavigateTo("/nova-despesa")'>
+                    + Cadastrar Nova Despesa
+                </button>
+            }
+        </div>
     </div>
 
     <!-- SUMMARY CARDS (level 4+) -->
@@ -53,46 +76,8 @@
         @(modoAtivo == Modo.Receitas ? "Gestão de Receitas" : "Gestão de Despesas")
     </h1>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold" style="color:#3650a1;">📊 Dashboard Financeiro</h2>
-        <button class="btn fw-bold" style="background:#3650a1; color:white;"
-                @onclick="GerarRelatorioGeral">
-            @if (d_dataInicio.HasValue && d_dataFim.HasValue && modoAtivo == Modo.Despesas)
-            {
-                <span>
-                    📄 Relatório Geral(PDF) |
-                    @d_dataInicio?.ToString("yyyy/MM/dd") -
-                    @d_dataFim?.ToString("yyyy/MM/dd")
-                </span>
-            }
-            else if (r_dataInicio.HasValue && r_dataFim.HasValue && modoAtivo == Modo.Receitas)
-            {
-                <span>
-                    📄 Relatório Geral(PDF) |
-                    @r_dataInicio?.ToString("yyyy/MM/dd") -
-                    @r_dataFim?.ToString("yyyy/MM/dd")
-                </span>
-
-            }
-            else
-            {
-                <span>📄 Relatório Geral(PDF)</span>
-            }
-        </button>
-    </div>
-
-    @if (modoAtivo == Modo.Despesas)
-    {
-        <div class="abas-modo">
-            <button class="aba-modo btn-nova-despesa" @onclick='() => Navigation.NavigateTo("/nova-despesa")'>
-            + Cadastrar Nova Despesa
-        </button>
-        </div>
-    }
     <!-- FILTERS + TABLE -->
     <section class="area-Receitas">
-
-        
 
         <!-- SIDEBAR FILTERS -->
         <aside class="filtros">
@@ -221,7 +206,13 @@
                                         </span>
                                     </td>
                                     <td class="descricao">
-                                        <strong>@item.Descricao</strong>
+                                        <strong>
+                                            @item.Descricao
+                                            @if (string.IsNullOrWhiteSpace(item.AnexoCaminho))
+                                            {
+                                                <span class="badge-alerta">!</span>
+                                            }
+                                        </strong>
                                         <small>@(item.Aluno?.Nome ?? item.Responsavel?.Nome ?? item.Origem)</small>
                                     </td>
                                     <td class="valor">
@@ -274,7 +265,13 @@
                                         <span class="badge bg-secondary">@item.Categoria</span>
                                     </td>
                                     <td class="descricao">
-                                        <strong>@item.Descricao</strong>
+                                        <strong>
+                                            @item.Descricao
+                                            @if (string.IsNullOrWhiteSpace(item.AnexoCaminho))
+                                            {
+                                                <span class="badge-alerta">!</span>
+                                            }
+                                        </strong>
                                         <small>@item.Fornecedor</small>
                                     </td>
                                     <td class="valor">
@@ -327,6 +324,11 @@
         </div>
 
     </section>
+
+    @if (!string.IsNullOrWhiteSpace(msgFeedback))
+    {
+        <div class="alert alert-danger mt-3 mx-3">@msgFeedback</div>
+    }
 
 </div>
 
@@ -453,7 +455,13 @@
 
                     <hr />
 
-                    <h5 style="font-weight:bold; margin:0 0 8px 0;">Comprovante</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 style="font-weight:bold; margin:0;">Comprovante</h5>
+                        <button class="btn btn-sm btn-outline-secondary" style="max-width: 280px"
+                                @onclick="() => GerarPdfReceita(receitaSelecionada)">
+                            📄 Gerar PDF
+                        </button>
+                    </div>
                     @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
                     {
                         <button class="btn btn-sm btn-outline-primary" @onclick="() => mostrarComprovante = true">Ver Comprovante</button>
@@ -762,7 +770,13 @@
                     }
 
                     <hr />
-                    <h5 class="fw-bold mb-3">Comprovante</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold m-0">Comprovante</h5>
+                        <button class="btn btn-sm btn-outline-secondary" style="max-width: 280px"
+                                @onclick="() => GerarPdfDespesa(despesaSelecionada)">
+                            📄 Gerar PDF
+                        </button>
+                    </div>
                     @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
                     {
                         <button class="btn btn-sm btn-outline-primary" @onclick="() => mostrarComprovante = true">Ver Comprovante</button>
@@ -1195,6 +1209,62 @@
         font-weight: bold;
     }
 
+    /* Sem comprovante indicator */
+    .badge-alerta {
+        position: relative;
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        border-radius: 50%;
+        background: #facc15;
+        color: #111;
+        font-size: 10px;
+        font-weight: bold;
+        text-align: center;
+        margin-left: 5px;
+        vertical-align: middle;
+        cursor: default;
+    }
+
+        .badge-alerta::after {
+            content: "Sem comprovante";
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: #fff;
+            font-size: 11px;
+            font-weight: normal;
+            white-space: nowrap;
+            padding: 4px 8px;
+            border-radius: 5px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            z-index: 9999;
+        }
+
+        .badge-alerta::before {
+            content: "";
+            position: absolute;
+            bottom: calc(100% + 1px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1f2937;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            z-index: 9999;
+        }
+
+        .badge-alerta:hover::after,
+        .badge-alerta:hover::before {
+            opacity: 1;
+        }
+
     .sem-registro {
         height: 50px;
         color: #333;
@@ -1474,6 +1544,7 @@
     private bool mostrarModalDespesa = false;
     private bool animarModalDespesa = false;
 
+    // Receita filters
     private string r_pesquisa = "";
     private string r_tipoFiltro = "";
     private string r_statusFiltro = "";
@@ -1483,6 +1554,7 @@
     private int r_paginaAtual = 1;
     private const int itensPorPagina = 8;
 
+    // Despesa filters
     private string d_pesquisa = "";
     private string d_categoriaFiltro = "";
     private string d_statusFiltroStr = "";
@@ -1490,6 +1562,7 @@
     private DateTime? d_dataInicio;
     private DateTime? d_dataFim;
     private int d_paginaAtual = 1;
+
 
     private List<string> tiposDisponiveisReceita =>
         todasReceitas.Select(r => r.GetTypeTexto()).Distinct().OrderBy(t => t).ToList();
@@ -1548,6 +1621,7 @@
             .Skip((paginaExtras - 1) * itensPorPaginaDetalhes)
             .Take(itensPorPaginaDetalhes)
         ?? Enumerable.Empty<Financeiro.Extras>();
+
 
     private List<string> categoriasDisponiveis =>
         todasDespesas
@@ -1657,6 +1731,8 @@
         valorAtraso = todasReceitas.Where(r => r.Status == Receita.FinanceStatus.EmAtraso).Sum(r => (float)r.GetValorTotal());
     }
 
+    // Receita modal
+
     private async Task AbrirModalReceita(Receita receita)
     {
         receitaSelecionada = receita;
@@ -1681,6 +1757,8 @@
         receitaSelecionada = null;
         mostrarComprovante = false;
     }
+
+    // Despesa modal
 
     private async Task AbrirModalDespesa(Despesa despesa)
     {
@@ -1707,11 +1785,15 @@
         mostrarComprovante = false;
     }
 
+    // Receita gestão actions
+
     private void AdicionarDescontoReceita() => receitaSelecionada?.Descontos.Add(new Financeiro.Desconto());
     private void RemoverDescontoReceita(Financeiro.Desconto d) => receitaSelecionada?.Descontos.Remove(d);
     private void AdicionarExtraReceita() => receitaSelecionada?.Bonus.Add(new Financeiro.Extras());
     private void RemoverExtraReceita(Financeiro.Extras e) => receitaSelecionada?.Bonus.Remove(e);
     private void GoFinanceiro(Guid id) => Navigation.NavigateTo($"/financeiro/pagamento/{id}");
+
+    // Despesa gestão actions
 
     private void AdicionarDescontoDespesa() => despesaSelecionada?.Descontos.Add(new Financeiro.Desconto());
     private void RemoverDescontoDespesa(Financeiro.Desconto d) => despesaSelecionada?.Descontos.Remove(d);
@@ -1755,6 +1837,8 @@
         StateHasChanged();
     }
 
+    // Pagination
+
     private void MudarPagina(int pagina)
     {
         if (modoAtivo == Modo.Receitas)
@@ -1791,6 +1875,8 @@
         return paginas;
     }
 
+    // Badge CSS
+
     private string GetTipoBadgeReceita(Receita.ReceitaTipo tipo) => tipo switch
     {
         Receita.ReceitaTipo.Mensalidade => "bg-primary",
@@ -1816,13 +1902,18 @@
         _ => "bg-secondary"
     };
 
-    private DateTime dataInicio => (modoAtivo == Modo.Receitas) ? 
-        (r_dataInicio.HasValue && r_dataInicio.Value < d_dataInicio.Value ? r_dataInicio.Value : d_dataInicio.Value) :
-        (r_dataInicio ?? d_dataInicio ?? DateTime.Now.AddMonths(-1));
-    private DateTime dataFim => (modoAtivo == Modo.Receitas) ?
-        (r_dataFim.HasValue && r_dataFim.Value < d_dataFim.Value ? r_dataFim.Value : d_dataFim.Value) :
-        (r_dataFim ?? d_dataFim ?? DateTime.Now);
-     private string msgFeedback = "";
+    // PDF
+
+    private string msgFeedback = "";
+    private DateTime dataRelatorioInicio =>
+        modoAtivo == Modo.Receitas
+            ? (r_dataInicio ?? DateTime.Now.AddMonths(-1))
+            : (d_dataInicio ?? DateTime.Now.AddMonths(-1));
+
+    private DateTime dataRelatorioFim =>
+        modoAtivo == Modo.Receitas
+            ? (r_dataFim ?? DateTime.Now)
+            : (d_dataFim ?? DateTime.Now);
 
     private async Task GerarPdfReceita(Receita receita)
     {
@@ -1848,8 +1939,10 @@
     {
         try
         {
-            byte[] pdf = PdfService.GerarRelatorioGeral(todasReceitas, todasDespesas,
-                dataInicio: dataInicio, dataFim: dataFim);
+            byte[] pdf = PdfService.GerarRelatorioGeral(
+                todasReceitas, todasDespesas,
+                dataInicio: dataRelatorioInicio,
+                dataFim: dataRelatorioFim);
             await DownloadPdf(pdf, $"RelatorioGeral_{DateTime.Now:yyyyMMdd}.pdf");
         }
         catch (Exception ex) { msgFeedback = "Erro: " + ex.Message; }
@@ -1860,5 +1953,4 @@
         string base64 = Convert.ToBase64String(pdf);
         await JS.InvokeVoidAsync("downloadPdf", base64, nomeArquivo);
     }
-
 }
