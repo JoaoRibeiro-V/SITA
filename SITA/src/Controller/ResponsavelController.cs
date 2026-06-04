@@ -48,5 +48,17 @@ namespace SITA.src.Controller
             aluno.Responsaveis.Add(responsavel);
             aluno.ContatosEmergencia.Add(new ContatoEmergencia { Nome = responsavel.Nome, Telefone = responsavel.Telefone ?? "", GrauParentesco = responsavel.GetAlunoParentesco(aluno)?.GetParentesco() ?? "Outro" });
         }
+        public static void RemoveParentesco(Responsavel responsavel, Aluno aluno)
+        {
+            var parentesco = responsavel.GetParentescos()?.FirstOrDefault(p => p.Aluno.Id == aluno.Id);
+            if (parentesco != null)
+            {
+                responsavel.RemoveParentesco(aluno);
+                aluno.Responsaveis.Remove(responsavel);
+                var contato = aluno.ContatosEmergencia.FirstOrDefault(c => c.Nome == responsavel.Nome && c.GrauParentesco == responsavel.GetAlunoParentesco(aluno)?.GetParentesco());
+                if (contato != null)
+                    aluno.ContatosEmergencia.Remove(contato);
+            }
+        }
     }
 }
