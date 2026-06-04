@@ -1,24 +1,79 @@
 @page "/dashboard-financeiro"
+@page "/dashboard-financeiro/receita/{ReceitaId:guid}"
+@page "/dashboard-financeiro/despesa/{DespesaId:guid}"
 @using SITA.src.Model
+@using SITA.src.Util
+@using SITA.src.Storage
 @using SITA.src.Controller
 @using SITA.src.Services
-@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Forms
 @inject NavigationManager Navigation
+@inject FileService FileService
 @inject IJSRuntime JS
 
-<div class="container-fluid" style="background-color: #f4f7f6; min-height: 100vh; padding: 20px;">
+<div class="pagina-financeiro">
+
+    <!-- HEADER -->
+    <div class="fin-header">
+        <h1>Dashboard Financeiro</h1>
+    </div>
+
+    <!-- SUMMARY CARDS (level 4+) -->
+    @if (Session.GetInstanceAccess().Level >= 4)
+    {
+        <section class="cards-financeiro">
+            <div class="card-resumo saldo">
+                <h2>Saldo em Caixa</h2>
+                <h3>R$ @saldoCaixa.ToString("N2")</h3>
+            </div>
+            <div class="card-resumo previsao">
+                <h2>Previsão</h2>
+                <h3>R$ @previsaoReceita.ToString("N2")</h3>
+            </div>
+            <div class="card-resumo atraso">
+                <h2>Inadimplência</h2>
+                <h3>R$ @valorAtraso.ToString("N2")</h3>
+            </div>
+        </section>
+    }
+
+    <!-- MODE TABS -->
+    <div class="abas-modo">
+        <button class="aba-modo @(modoAtivo == Modo.Receitas ? "aba-modo-ativa" : "")"
+                @onclick='() => AlterarModo(Modo.Receitas)'>
+            Receitas
+        </button>
+        <button class="aba-modo @(modoAtivo == Modo.Despesas ? "aba-modo-ativa" : "")"
+                @onclick='() => AlterarModo(Modo.Despesas)'>
+            Despesas
+        </button>
+    </div>
+
+    <h1 class="titulo-Receitas">
+        @(modoAtivo == Modo.Receitas ? "Gestão de Receitas" : "Gestão de Despesas")
+    </h1>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold" style="color:#3650a1;">📊 Dashboard Financeiro</h2>
         <button class="btn fw-bold" style="background:#3650a1; color:white;"
                 @onclick="GerarRelatorioGeral">
-            @if (dataInicio.HasValue && dataFim.HasValue)
+            @if (d_dataInicio.HasValue && d_dataFim.HasValue && modoAtivo == Modo.Despesas)
             {
                 <span>
                     📄 Relatório Geral(PDF) |
-                    @dataInicio?.ToString("yyyy/MM/dd") -
-                    @dataFim?.ToString("yyyy/MM/dd")
+                    @d_dataInicio?.ToString("yyyy/MM/dd") -
+                    @d_dataFim?.ToString("yyyy/MM/dd")
                 </span>
-             }
+            }
+            else if (r_dataInicio.HasValue && r_dataFim.HasValue && modoAtivo == Modo.Receitas)
+            {
+                <span>
+                    📄 Relatório Geral(PDF) |
+                    @r_dataInicio?.ToString("yyyy/MM/dd") -
+                    @r_dataFim?.ToString("yyyy/MM/dd")
+                </span>
+
+            }
             else
             {
                 <span>📄 Relatório Geral(PDF)</span>
@@ -26,342 +81,1748 @@
         </button>
     </div>
 
-    <!-- CARDS -->
-    <div class="row text-center mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0" style="border-left: 5px solid #28a745 !important;">
-                <div class="card-body">
-                    <h5 class="text-muted">Saldo em Caixa</h5>
-                    <h2 class="text-success">R$ @saldoCaixa.ToString("N2")</h2>
-                </div>
-            </div>
+    @if (modoAtivo == Modo.Despesas)
+    {
+        <div class="abas-modo">
+            <button class="aba-modo btn-nova-despesa" @onclick='() => Navigation.NavigateTo("/nova-despesa")'>
+            + Cadastrar Nova Despesa
+        </button>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0" style="border-left: 5px solid #007bff !important;">
-                <div class="card-body">
-                    <h5 class="text-muted">Previsão (Em Aberto)</h5>
-                    <h2 class="text-primary">R$ @previsaoReceita.ToString("N2")</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0" style="border-left: 5px solid #dc3545 !important;">
-                <div class="card-body">
-                    <h5 class="text-muted">Inadimplência</h5>
-                    <h2 class="text-danger">R$ @valorAtraso.ToString("N2")</h2>
-                </div>
-            </div>
-        </div>
-    </div>
+    }
+    <!-- FILTERS + TABLE -->
+    <section class="area-Receitas">
 
-    <!-- FILTROS -->
-    <div class="mt-3">
-        <h4 style="color:#3650a1;">Movimentações</h4>
+        
 
-        <!-- Filtro tipo e modo (receita/despesa) -->
-        <div class="d-flex gap-2 mb-3 flex-wrap">
-            <div class="btn-group">
-                <button class="btn @(modoExibicao == "receita" ? "btn-primary" : "btn-outline-primary")"
-                        @onclick='() => SetModo("receita")'>Receitas</button>
-                <button class="btn @(modoExibicao == "despesa" ? "btn-danger" : "btn-outline-danger")"
-                        @onclick='() => SetModo("despesa")'>Despesas</button>
-            </div>
+        <!-- SIDEBAR FILTERS -->
+        <aside class="filtros">
 
-            @if (modoExibicao == "receita")
+            @if (modoAtivo == Modo.Receitas)
             {
-                <div class="btn-group">
-                    <button class="btn @(filtroTipo == null ? "btn-primary" : "btn-outline-primary")"
-                            @onclick="() => SetFiltro(null)">Todos</button>
-                    <button class="btn @(filtroTipo == Receita.ReceitaTipo.Mensalidade ? "btn-primary" : "btn-outline-primary")"
-                            @onclick="() => SetFiltro(Receita.ReceitaTipo.Mensalidade)">Mensalidade</button>
-                    <button class="btn @(filtroTipo == Receita.ReceitaTipo.Aquisicao ? "btn-primary" : "btn-outline-primary")"
-                            @onclick="() => SetFiltro(Receita.ReceitaTipo.Aquisicao)">Aquisição</button>
-                    <button class="btn @(filtroTipo == Receita.ReceitaTipo.Taxas ? "btn-primary" : "btn-outline-primary")"
-                            @onclick="() => SetFiltro(Receita.ReceitaTipo.Taxas)">Taxas</button>
+                <div class="filtro">
+                    <label>Pesquisar</label>
+                    <input placeholder="Aluno, responsável, origem ou descrição..."
+                           @bind="r_pesquisa" @bind:event="oninput" />
+                </div>
+                <div class="filtro">
+                    <label>Tipo</label>
+                    <select @bind="r_tipoFiltro">
+                        <option value="">Todos</option>
+                        @foreach (var tipo in tiposDisponiveisReceita)
+                        {
+                            <option value="@tipo">@tipo</option>
+                        }
+                    </select>
+                </div>
+                <div class="filtro">
+                    <label>Status</label>
+                    <select @bind="r_statusFiltro">
+                        <option value="">Todos</option>
+                        <option value="Pago">Pago</option>
+                        <option value="EmAndamento">Em Andamento</option>
+                        <option value="EmAtraso">Em Atraso</option>
+                    </select>
+                </div>
+                <div class="filtro">
+                    <label>Data Inicial</label>
+                    <input type="date" @bind="r_dataInicio" />
+                </div>
+                <div class="filtro">
+                    <label>Data Final</label>
+                    <input type="date" @bind="r_dataFim" />
+                </div>
+                <div class="filtro">
+                    <label>Ordenar Valor</label>
+                    <select @bind="r_ordemValor">
+                        <option value="">Padrão</option>
+                        <option value="asc">Menor → Maior</option>
+                        <option value="desc">Maior → Menor</option>
+                    </select>
                 </div>
             }
-        </div>
-
-        <!-- Filtro de data -->
-        <div class="row mb-3">
-            <div class="col-md-3">
-                <label>Data Início</label>
-                <input type="date" class="form-control"
-                       value="@dataInicio?.ToString("yyyy-MM-dd")"
-                       @onchange="e => OnDataChanged(e, true)" />
-            </div>
-            <div class="col-md-3">
-                <label>Data Fim</label>
-                <input type="date" class="form-control"
-                       value="@dataFim?.ToString("yyyy-MM-dd")"
-                       @onchange="e => OnDataChanged(e, false)" />
-            </div>
-        </div>
-
-        <!-- TABELA RECEITAS -->
-        @if (modoExibicao == "receita")
-        {
-            <table class="table table-hover bg-white shadow-sm mt-2">
-                <thead style="background-color:#3650a1; color:white;">
-                    <tr>
-                        <th>Tipo</th>
-                        <th>Descrição</th>
-                        <th>Valor</th>
-                        <th>Vencimento</th>
-                        <th>Status</th>
-                        <th>PDF</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in receitasExibidas)
-                    {
-                        <tr class="@(receitaSelecionada == item ? "table-primary" : "")"
-                            style="cursor:pointer"
-                            @onclick="() => SelecionarReceita(item)">
-                            <td><span class="badge @GetTipoBadge(item.Type)">@item.GetTypeTexto()</span></td>
-                            <td>@(item.Descricao ?? "-")</td>
-                            <td>R$ @item.GetValorTotal().ToString("N2")</td>
-                            <td>@item.DataReferente.ToShortDateString()</td>
-                            <td><span class="badge @GetStatusBadge(item.Status)">@item.GetStatusTexto()</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-secondary"
-                                        @onclick:stopPropagation
-                                        @onclick="() => GerarPdfReceita(item)">
-                                    📄
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            @Paginacao(totalPaginasReceita, paginaAtualReceita, p => MudarPaginaReceita(p))
-        }
-
-        <!-- TABELA DESPESAS -->
-        @if (modoExibicao == "despesa")
-        {
-            <table class="table table-hover bg-white shadow-sm mt-2">
-                <thead style="background-color:#c62828; color:white;">
-                    <tr>
-                        <th>Categoria</th>
-                        <th>Descrição</th>
-                        <th>Valor</th>
-                        <th>Vencimento</th>
-                        <th>Status</th>
-                        <th>PDF</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in despesasExibidas)
-                    {
-                        <tr class="@(despesaSelecionada == item ? "table-danger" : "")"
-                            style="cursor:pointer"
-                            @onclick="() => SelecionarDespesa(item)">
-                            <td>@(item.Categoria ?? "-")</td>
-                            <td>@(item.Descricao ?? "-")</td>
-                            <td>R$ @item.GetValorTotal().ToString("N2")</td>
-                            <td>@item.DataReferente.ToShortDateString()</td>
-                            <td><span class="badge @GetStatusBadgeDespesa(item.Status)">@item.GetStatusTexto()</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-secondary"
-                                        @onclick:stopPropagation
-                                        @onclick="() => GerarPdfDespesa(item)">
-                                    📄
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            @Paginacao(totalPaginasDespesa, paginaAtualDespesa, p => MudarPaginaDespesa(p))
-        }
-    </div>
-
-    <!-- DETALHES RECEITA -->
-    @if (receitaSelecionada != null && modoExibicao == "receita")
-    {
-        <div class="card mt-4 shadow-sm">
-            <div class="card-body">
-                <h5 class="text-primary">Detalhes da Receita</h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Tipo:</strong> @receitaSelecionada.GetTypeTexto()</p>
-                        <p><strong>Valor:</strong> R$ @receitaSelecionada.GetValorTotal().ToString("N2")</p>
-                        <p><strong>Status:</strong> @receitaSelecionada.GetStatusTexto()</p>
-                        <p><strong>Vencimento:</strong> @receitaSelecionada.DataVencimento.ToShortDateString()</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Descrição:</strong> @receitaSelecionada.Descricao</p>
-                        <p><strong>Aluno:</strong> @receitaSelecionada.Aluno?.Nome</p>
-                        <p><strong>Responsável:</strong> @receitaSelecionada.Responsavel?.Nome</p>
-                    </div>
+            else
+            {
+                <div class="filtro">
+                    <label>Pesquisar</label>
+                    <input placeholder="Nome, fornecedor ou item..."
+                           @bind="d_pesquisa" @bind:event="oninput" />
                 </div>
-                @if (!receitaSelecionada.IsPago())
+                <div class="filtro">
+                    <label>Categoria</label>
+                    <select @bind="d_categoriaFiltro">
+                        <option value="">Todas</option>
+                        @foreach (var cat in categoriasDisponiveis)
+                        {
+                            <option value="@cat">@cat</option>
+                        }
+                    </select>
+                </div>
+                <div class="filtro">
+                    <label>Status</label>
+                    <select @bind="d_statusFiltroStr">
+                        <option value="">Todos</option>
+                        <option value="Pago">Pago</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="EmAndamento">Em Andamento</option>
+                        <option value="EmAtraso">Em Atraso</option>
+                    </select>
+                </div>
+                <div class="filtro">
+                    <label>Data Inicial</label>
+                    <input type="date" @bind="d_dataInicio" />
+                </div>
+                <div class="filtro">
+                    <label>Data Final</label>
+                    <input type="date" @bind="d_dataFim" />
+                </div>
+                <div class="filtro">
+                    <label>Ordenar Valor</label>
+                    <select @bind="d_ordemValor">
+                        <option value="">Padrão</option>
+                        <option value="asc">Menor → Maior</option>
+                        <option value="desc">Maior → Menor</option>
+                    </select>
+                </div>
+            }
+
+        </aside>
+
+        <!-- TABLE + PAGINATION -->
+        <div class="conteudo-tabela">
+
+            @if (modoAtivo == Modo.Receitas)
+            {
+                <table class="tabela-Receitas">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!ReceitasPaginadas.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="sem-registro">Nenhuma receita encontrada.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in ReceitasPaginadas)
+                            {
+                                <tr class="linha-clicavel" @onclick="() => AbrirModalReceita(item)">
+                                    <td>@item.DataReferente.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <span class="badge @GetTipoBadgeReceita(item.Type)">
+                                            @item.GetTypeTexto()
+                                        </span>
+                                    </td>
+                                    <td class="descricao">
+                                        <strong>@item.Descricao</strong>
+                                        <small>@(item.Aluno?.Nome ?? item.Responsavel?.Nome ?? item.Origem)</small>
+                                    </td>
+                                    <td class="valor">
+                                        @if (Session.GetInstanceAccess().Level >= 4)
+                                        {
+                                            <span>R$ @item.GetValorTotal().ToString("N2")</span>
+                                        }
+                                        else
+                                        {
+                                            <span>R$ XX.XX</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeReceita(item.Status)">
+                                            @item.GetStatusTexto()
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <table class="tabela-Receitas">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Categoria</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!DespesasPaginadas.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="sem-registro">Nenhuma despesa encontrada.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in DespesasPaginadas)
+                            {
+                                <tr class="linha-clicavel" @onclick="() => AbrirModalDespesa(item)">
+                                    <td>@item.DataVencimento.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <span class="badge bg-secondary">@item.Categoria</span>
+                                    </td>
+                                    <td class="descricao">
+                                        <strong>@item.Descricao</strong>
+                                        <small>@item.Fornecedor</small>
+                                    </td>
+                                    <td class="valor">
+                                        <span class="valor-despesa">R$ @item.GetValorTotal().ToString("N2")</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeDespesa(item.Status)">
+                                            @item.GetStatusTexto()
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <!-- PAGINATION (shared, adapts to active mode) -->
+            @{
+                var paginaAtiva = modoAtivo == Modo.Receitas ? r_paginaAtual : d_paginaAtual;
+                var totalPags = modoAtivo == Modo.Receitas ? r_totalPaginas : d_totalPaginas;
+            }
+            <div class="paginacao">
+                <button class="btn-pagina-seta"
+                        disabled="@(paginaAtiva == 1)"
+                        @onclick="() => MudarPagina(paginaAtiva - 1)">
+                    ‹
+                </button>
+                @foreach (var p in GetPaginasVisiveis(paginaAtiva, totalPags))
                 {
-                    <button class="btn btn-success mt-2" @onclick="ConfirmarPagamentoReceita">
-                        Confirmar Pagamento
-                    </button>
+                    if (p == null)
+                    {
+                        <span class="reticencias">...</span>
+                    }
+                    else
+                    {
+                        <button class="btn-pagina @(paginaAtiva == p ? "pagina-ativa" : "")"
+                                @onclick="() => MudarPagina(p.Value)">
+                            @p
+                        </button>
+                    }
                 }
-                <button class="btn btn-sm btn-secondary mt-2 ms-2" @onclick="() => receitaSelecionada = null">
-                    Fechar
+                <button class="btn-pagina-seta"
+                        disabled="@(paginaAtiva >= totalPags)"
+                        @onclick="() => MudarPagina(paginaAtiva + 1)">
+                    ›
                 </button>
             </div>
-        </div>
-    }
 
-    <!-- DETALHES DESPESA -->
-    @if (despesaSelecionada != null && modoExibicao == "despesa")
-    {
-        <div class="card mt-4 shadow-sm">
-            <div class="card-body">
-                <h5 class="text-danger">Detalhes da Despesa</h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Categoria:</strong> @despesaSelecionada.Categoria</p>
-                        <p><strong>Valor:</strong> R$ @despesaSelecionada.GetValorTotal().ToString("N2")</p>
-                        <p><strong>Status:</strong> @despesaSelecionada.GetStatusTexto()</p>
-                        <p><strong>Vencimento:</strong> @despesaSelecionada.DataVencimento.ToShortDateString()</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Descrição:</strong> @despesaSelecionada.Descricao</p>
-                        <p><strong>Fornecedor:</strong> @(despesaSelecionada.Fornecedor ?? "-")</p>
-                        <p><strong>Quem Pagou:</strong> @(despesaSelecionada.QuemPagou ?? "-")</p>
-                        <p><strong>Nº NF:</strong> @(despesaSelecionada.NumeroNotaFiscal ?? "-")</p>
-                    </div>
-                </div>
-                @if (!despesaSelecionada.IsPago())
-                {
-                    <button class="btn btn-success mt-2" @onclick="ConfirmarPagamentoDespesa">
-                        Confirmar Pagamento
-                    </button>
-                }
-                <button class="btn btn-sm btn-secondary mt-2 ms-2" @onclick="() => despesaSelecionada = null">
-                    Fechar
-                </button>
-            </div>
         </div>
-    }
 
-    @if (!string.IsNullOrEmpty(msgFeedback))
-    {
-        <div class="alert alert-info mt-3">@msgFeedback</div>
-    }
+    </section>
+
 </div>
 
+<!-- ═══════════════════════════════════════════════════
+     MODAL — RECEITA
+════════════════════════════════════════════════════ -->
+<div class="overlay-modal @(mostrarModalReceita ? "overlay-aberto" : "overlay-fechado")">
+    <div class="modal-receita @(animarModalReceita ? "modal-aberta" : "")">
+
+        @if (receitaSelecionada != null)
+        {
+            <div class="modal-topo">
+                <h2>@receitaSelecionada.GetTypeTexto()</h2>
+                <button class="btn-fechar" @onclick="FecharModalReceita">×</button>
+            </div>
+
+            <br />
+
+            <div class="abas-modal">
+                <button class="@(abaAtiva == "detalhes" ? "aba-ativa" : "")"
+                        @onclick='() => abaAtiva = "detalhes"'>
+                    Detalhes
+                </button>
+                <button class="@(abaAtiva == "gestao" ? "aba-ativa" : "")"
+                        @onclick='() => abaAtiva = "gestao"'>
+                    Gestão
+                </button>
+            </div>
+
+            <div class="conteudo-modal">
+
+                @if (abaAtiva == "detalhes")
+                {
+                    <h5 style="font-weight:bold; margin:0 0 12px 0;">Detalhes da Receita</h5>
+
+                    <div style="background-color:#f0f0f0; padding:20px; border-radius:8px; margin-bottom:25px; border-left:5px solid #28a745;">
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p><strong>Descrição:</strong> @receitaSelecionada.Descricao</p>
+                                <p><strong>Tipo:</strong> @receitaSelecionada.GetTypeTexto()</p>
+                                <p><strong>Aluno:</strong> @receitaSelecionada.Aluno?.Nome</p>
+                                <p><strong>Responsável:</strong> @receitaSelecionada.Responsavel?.Nome</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Data Referente:</strong> @receitaSelecionada.DataReferente.ToString("dd/MM/yyyy")</p>
+                                @if (receitaSelecionada.IsPago())
+                                {
+                                    <p><strong>Data Pagamento:</strong> @receitaSelecionada.DataPagamento?.ToString("dd/MM/yyyy")</p>
+                                }
+                                <p><strong>Vencimento:</strong> @receitaSelecionada.DataVencimento.ToString("dd/MM/yyyy")</p>
+                                <p>
+                                    <strong>Valor:</strong>
+                                    <span class="text-success fw-bold">R$ @receitaSelecionada.GetValorTotal().ToString("N2")</span>
+                                </p>
+                                <p>
+                                    <strong>Status:</strong>
+                                    <span class="badge @GetStatusBadgeReceita(receitaSelecionada.Status)">
+                                        @receitaSelecionada.GetStatusTexto()
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descontos -->
+                    <div class="mt-2">
+                        <small><strong>Descontos</strong></small><br />
+                        @if (!ReceitaDescontosPaginados.Any())
+                        {
+                            <small class="text-muted">Nenhum desconto encontrado</small>
+                        }
+                        @foreach (var desconto in ReceitaDescontosPaginados)
+                        {
+                            <div class="d-flex justify-content-between align-items-center py-1 px-2 border-bottom" style="font-size:0.85rem;">
+                                <span class="text-truncate" style="max-width:75%;">@desconto.Descricao</span>
+                                <span class="text-danger fw-bold">
+                                    - @(desconto.Tipo == Financeiro.Desconto.TipoValor.Percentual ? $"{desconto.Valor:N0}%" : $"R$ {desconto.Valor:N2}")
+                                </span>
+                            </div>
+                        }
+                    </div>
+                    @if (receitaSelecionada.Descontos.Count > itensPorPaginaDetalhes)
+                    {
+                        <div class="d-flex justify-content-end gap-1 mt-2">
+                            <button class="btn btn-sm btn-light px-2 py-0" disabled="@(paginaDescontos == 1)" @onclick="() => paginaDescontos--">‹</button>
+                            <small class="align-self-center">@paginaDescontos</small>
+                            <button class="btn btn-sm btn-light px-2 py-0"
+                                    disabled="@(paginaDescontos >= Math.Ceiling((double)receitaSelecionada.Descontos.Count / itensPorPaginaDetalhes))"
+                                    @onclick="() => paginaDescontos++">
+                                ›
+                            </button>
+                        </div>
+                    }
+
+                    <!-- Extras -->
+                    <div class="mt-2">
+                        <small><strong>Extras</strong></small><br />
+                        @if (!ReceitaExtrasPaginados.Any())
+                        {
+                            <small class="text-muted">Nenhum extra encontrado</small>
+                        }
+                        @foreach (var extra in ReceitaExtrasPaginados)
+                        {
+                            <div class="d-flex justify-content-between align-items-center py-1 px-2 border-bottom" style="font-size:0.85rem;">
+                                <span class="text-truncate" style="max-width:75%;">@extra.Descricao</span>
+                                <span class="text-success fw-bold">
+                                    + @(extra.Tipo == Financeiro.Extras.TipoValor.Percentual ? $"{extra.Valor:N0}%" : $"R$ {extra.Valor:N2}")
+                                </span>
+                            </div>
+                        }
+                    </div>
+                    @if (receitaSelecionada.Bonus.Count > itensPorPaginaDetalhes)
+                    {
+                        <div class="d-flex justify-content-end gap-1 mt-2">
+                            <button class="btn btn-sm btn-light px-2 py-0" disabled="@(paginaExtras == 1)" @onclick="() => paginaExtras--">‹</button>
+                            <small class="align-self-center">@paginaExtras</small>
+                            <button class="btn btn-sm btn-light px-2 py-0"
+                                    disabled="@(paginaExtras >= Math.Ceiling((double)receitaSelecionada.Bonus.Count / itensPorPaginaDetalhes))"
+                                    @onclick="() => paginaExtras++">
+                                ›
+                            </button>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <h5 style="font-weight:bold; margin:0 0 8px 0;">Comprovante</h5>
+                    @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
+                    {
+                        <button class="btn btn-sm btn-outline-primary" @onclick="() => mostrarComprovante = true">Ver Comprovante</button>
+                    }
+                    else
+                    {
+                        <small class="text-muted">Nenhum comprovante enviado.</small>
+                    }
+                }
+                else if (abaAtiva == "gestao")
+                {
+                    <!-- Descontos gestão -->
+                    <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius:12px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold m-0">Descontos</h6>
+                            <button class="btn btn-success btn-sm" style="width:28px;height:28px;padding:0;border-radius:8px;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;"
+                                    @onclick="AdicionarDescontoReceita">
+                                +
+                            </button>
+                        </div>
+                        @if (receitaSelecionada.Descontos.Count == 0)
+                        {
+                            <small class="text-muted">Nenhum desconto cadastrado.</small>
+                        }
+                        @foreach (var desconto in receitaSelecionada.Descontos)
+                        {
+                            <div class="d-flex gap-2 align-items-center mb-2">
+                                <input class="form-control form-control-sm" placeholder="Descrição" style="font-size:0.82rem;" @bind="desconto.Descricao" />
+                                <select class="form-select form-select-sm" style="width:70px;" @bind="desconto.Tipo">
+                                    <option value="@Financeiro.Desconto.TipoValor.Fixo">R$</option>
+                                    <option value="@Financeiro.Desconto.TipoValor.Percentual">%</option>
+                                </select>
+                                <input class="form-control form-control-sm" type="number" step="0.01" style="width:90px;" @bind="desconto.Valor" />
+                                <button class="btn btn-danger btn-sm" style="width:28px;height:28px;padding:0;border-radius:8px;font-size:0.9rem;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;"
+                                        @onclick="() => RemoverDescontoReceita(desconto)">
+                                    ×
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Extras gestão -->
+                    <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius:12px;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold m-0">Extras</h6>
+                            <button class="btn btn-success btn-sm" style="width:28px;height:28px;padding:0;border-radius:8px;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;"
+                                    @onclick="AdicionarExtraReceita">
+                                +
+                            </button>
+                        </div>
+                        @if (receitaSelecionada.Bonus.Count == 0)
+                        {
+                            <small class="text-muted">Nenhum extra cadastrado.</small>
+                        }
+                        @foreach (var extra in receitaSelecionada.Bonus)
+                        {
+                            <div class="d-flex gap-2 align-items-center mb-2">
+                                <input class="form-control form-control-sm" placeholder="Descrição" style="font-size:0.82rem;" @bind="extra.Descricao" />
+                                <select class="form-select form-select-sm" style="width:70px;" @bind="extra.Tipo">
+                                    <option value="@Financeiro.Extras.TipoValor.Fixo">R$</option>
+                                    <option value="@Financeiro.Extras.TipoValor.Percentual">%</option>
+                                </select>
+                                <input class="form-control form-control-sm" type="number" step="0.01" style="width:90px;" @bind="extra.Valor" />
+                                <button class="btn btn-danger btn-sm" style="width:28px;height:28px;padding:0;border-radius:8px;font-size:0.9rem;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;"
+                                        @onclick="() => RemoverExtraReceita(extra)">
+                                    ×
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Resumo -->
+                    <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius:12px; background:#f8f9fa;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Valor Base:</span>
+                            <strong>R$ @receitaSelecionada.Valor.ToString("N2")</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-danger">
+                            <span>Total Descontos:</span>
+                            <strong>- R$ @receitaSelecionada.Descontos.Sum(d => d.GetValorFinal(receitaSelecionada.Valor)).ToString("N2")</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Total Extras:</span>
+                            <strong>+ R$ @receitaSelecionada.Bonus.Sum(b => b.GetValorFinal(receitaSelecionada.Valor)).ToString("N2")</strong>
+                        </div>
+                        <hr />
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold">Valor Final:</span>
+                            <strong class="text-primary">R$ @receitaSelecionada.GetValorTotal().ToString("N2")</strong>
+                        </div>
+                    </div>
+
+                    @if (receitaSelecionada.Status != Receita.FinanceStatus.Pago)
+                    {
+                        <button class="btn btn-success w-100 p-3 fw-bold"
+                                @onclick="() => GoFinanceiro(receitaSelecionada.Id)">
+                            CONFIRMAR PAGAMENTO
+                        </button>
+                    }
+                    else
+                    {
+                        <!-- Comprovante upload (pago) -->
+                        <div class="card border-0 shadow-sm p-3 mt-4" style="border-radius:12px;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="fw-bold m-0">Comprovante</h6>
+                                    @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
+                                    {
+                                        <small class="text-success">Comprovante enviado</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-warning">Nenhum comprovante enviado</small>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
+                                {
+                                    <button class="btn-ver-comprovante" @onclick="() => mostrarComprovante = true">👁</button>
+                                }
+                            </div>
+                            <InputFile OnChange="SelecionarComprovanteGestao" class="form-control form-control-sm mb-3" />
+                            @if (comprovanteGestao != null)
+                            {
+                                <small class="text-success d-block mb-3">Novo arquivo: @comprovanteGestao.Name</small>
+                            }
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success btn-sm fw-bold"
+                                        disabled="@(comprovanteGestao == null)"
+                                        @onclick="SalvarComprovanteGestao">
+                                    @(string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho) ? "SALVAR COMPROVANTE" : "ALTERAR COMPROVANTE")
+                                </button>
+                                @if (!string.IsNullOrWhiteSpace(receitaSelecionada.AnexoCaminho))
+                                {
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="RemoverComprovante">Remover</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+        }
+
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL — DESPESA
+════════════════════════════════════════════════════ -->
+<div class="overlay-modal @(mostrarModalDespesa ? "overlay-aberto" : "overlay-fechado")">
+    <div class="modal-receita @(animarModalDespesa ? "modal-aberta" : "")">
+
+        @if (despesaSelecionada != null)
+        {
+            <div class="modal-topo">
+                <h2>@despesaSelecionada.Categoria</h2>
+                <button class="btn-fechar" @onclick="FecharModalDespesa">×</button>
+            </div>
+
+            <br />
+
+            <div class="abas-modal">
+                <button class="@(abaAtiva == "detalhes" ? "aba-ativa" : "")"
+                        @onclick='() => abaAtiva = "detalhes"'>
+                    Detalhes
+                </button>
+                <button class="@(abaAtiva == "gestao" ? "aba-ativa" : "")"
+                        @onclick='() => abaAtiva = "gestao"'>
+                    Gestão
+                </button>
+            </div>
+
+            <div class="conteudo-modal">
+
+                @if (abaAtiva == "detalhes")
+                {
+                    @switch (Mask.RemoveAccents(despesaSelecionada.Categoria))
+                    {
+                        case "Salario":
+                            {
+                                Salario despesaSelecionadaSalario = (Salario)despesaSelecionada;
+
+                                <div style="background-color:#f0f0f0; padding:20px; border-radius:8px; margin-bottom:25px; border-left:5px solid #dc2626;">
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <p><strong>Funcionário:</strong> @despesaSelecionadaSalario.Funcionario.Nome</p>
+                                            <p><strong>Descrição:</strong> @despesaSelecionada.Descricao</p>
+                                            <p><strong>Categoria:</strong> @despesaSelecionada.Categoria</p>
+                                            @if (despesaSelecionada.IsPago())
+                                            {
+                                                <p><strong>Quem Pagou:</strong> @despesaSelecionada.QuemPagou</p>
+                                            }
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Vencimento:</strong> @despesaSelecionada.DataVencimento.ToString("dd/MM/yyyy")</p>
+                                            <p>
+                                                <strong>Valor:</strong>
+                                                <span class="text-danger fw-bold">R$ @despesaSelecionada.GetValorTotal().ToString("N2")</span>
+                                            </p>
+                                            <p>
+                                                <strong>Status:</strong>
+                                                <span class="badge @(despesaSelecionada.IsPago() ? "bg-success" : "bg-warning text-dark")">
+                                                    @despesaSelecionada.GetStatusTexto()
+                                                </span>
+                                            </p>
+                                            <p><strong>Chave Pix:</strong> @despesaSelecionadaSalario.Funcionario.ChavePix</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Descontos salário -->
+                                <div class="mt-2">
+                                    <small><strong>Descontos</strong></small><br />
+                                    @if (!DespesaDescontosPaginados.Any())
+                                    {
+                                        <small class="text-muted">Nenhum desconto encontrado</small>
+                                    }
+                                    @foreach (var desconto in DespesaDescontosPaginados)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center py-1 px-2 border-bottom" style="font-size:0.85rem;">
+                                            <span class="text-truncate" style="max-width:75%;">@desconto.Descricao</span>
+                                            <span class="text-danger fw-bold">
+                                                - @(desconto.Tipo == Financeiro.Desconto.TipoValor.Percentual ? $"{desconto.Valor:N0}%" : $"R$ {desconto.Valor:N2}")
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                                @if (despesaSelecionada.Descontos.Count > itensPorPaginaDetalhes)
+                                {
+                                    <div class="d-flex justify-content-end gap-1 mt-2">
+                                        <button class="btn btn-sm btn-light px-2 py-0" disabled="@(paginaDescontos == 1)" @onclick="() => paginaDescontos--">‹</button>
+                                        <small class="align-self-center">@paginaDescontos</small>
+                                        <button class="btn btn-sm btn-light px-2 py-0"
+                                                disabled="@(paginaDescontos >= Math.Ceiling((double)despesaSelecionada.Descontos.Count / itensPorPaginaDetalhes))"
+                                                @onclick="() => paginaDescontos++">
+                                            ›
+                                        </button>
+                                    </div>
+                                }
+
+                                <!-- Extras salário -->
+                                <div class="mt-2">
+                                    <small><strong>Extras</strong></small><br />
+                                    @if (!DespesaExtrasPaginados.Any())
+                                    {
+                                        <small class="text-muted">Nenhum extra encontrado</small>
+                                    }
+                                    @foreach (var extra in DespesaExtrasPaginados)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center py-1 px-2 border-bottom" style="font-size:0.85rem;">
+                                            <span class="text-truncate" style="max-width:75%;">@extra.Descricao</span>
+                                            <span class="text-success fw-bold">
+                                                + @(extra.Tipo == Financeiro.Extras.TipoValor.Percentual ? $"{extra.Valor:N0}%" : $"R$ {extra.Valor:N2}")
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                                @if (despesaSelecionada.Bonus.Count > itensPorPaginaDetalhes)
+                                {
+                                    <div class="d-flex justify-content-end gap-1 mt-2">
+                                        <button class="btn btn-sm btn-light px-2 py-0" disabled="@(paginaExtras == 1)" @onclick="() => paginaExtras--">‹</button>
+                                        <small class="align-self-center">@paginaExtras</small>
+                                        <button class="btn btn-sm btn-light px-2 py-0"
+                                                disabled="@(paginaExtras >= Math.Ceiling((double)despesaSelecionada.Bonus.Count / itensPorPaginaDetalhes))"
+                                                @onclick="() => paginaExtras++">
+                                            ›
+                                        </button>
+                                    </div>
+                                }
+                                break;
+                            }
+                        default:
+                            {
+                                <div style="background-color:#f0f0f0; padding:20px; border-radius:8px; margin-bottom:25px; border-left:5px solid #dc2626;">
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <p><strong>Descrição:</strong> @despesaSelecionada.Descricao</p>
+                                            <p><strong>Fornecedor:</strong> @despesaSelecionada.Fornecedor</p>
+                                            <p><strong>Categoria:</strong> @despesaSelecionada.Categoria</p>
+                                            @if (despesaSelecionada.IsPago())
+                                            {
+                                                <p><strong>Quem Pagou:</strong> @despesaSelecionada.QuemPagou</p>
+                                            }
+                                            <p><strong>CNPJ Escola:</strong> @despesaSelecionada.CnpjEscola</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Vencimento:</strong> @despesaSelecionada.DataVencimento.ToString("dd/MM/yyyy")</p>
+                                            <p><strong>CNPJ Fornecedor:</strong> @despesaSelecionada.CnpjFornecedor</p>
+                                            <p><strong>Nº Nota Fiscal:</strong> @despesaSelecionada.NumeroNotaFiscal</p>
+                                            <p><strong>Chave NF:</strong> @despesaSelecionada.ChaveAcessoNF</p>
+                                            <p>
+                                                <strong>Valor:</strong>
+                                                <span class="text-danger fw-bold">R$ @despesaSelecionada.GetValorTotal().ToString("N2")</span>
+                                            </p>
+                                            <p>
+                                                <strong>Status:</strong>
+                                                <span class="badge @(despesaSelecionada.IsPago() ? "bg-success" : "bg-warning text-dark")">
+                                                    @despesaSelecionada.GetStatusTexto()
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                break;
+                            }
+                    }
+
+                    <hr />
+                    <h5 class="fw-bold mb-3">Comprovante</h5>
+                    @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
+                    {
+                        <button class="btn btn-sm btn-outline-primary" @onclick="() => mostrarComprovante = true">Ver Comprovante</button>
+                    }
+                    else
+                    {
+                        <small class="text-muted">Nenhum comprovante enviado.</small>
+                    }
+                }
+                else if (abaAtiva == "gestao")
+                {
+                    @if (despesaSelecionada is Salario)
+                    {
+                        <!-- Descontos gestão despesa -->
+                        <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius:12px;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold m-0">Descontos</h6>
+                                <button class="btn btn-success btn-sm" style="width:28px;height:28px;padding:0;border-radius:8px;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;"
+                                        @onclick="AdicionarDescontoDespesa">
+                                    +
+                                </button>
+                            </div>
+                            @if (despesaSelecionada.Descontos.Count == 0)
+                            {
+                                <small class="text-muted">Nenhum desconto cadastrado.</small>
+                            }
+                            @foreach (var desconto in despesaSelecionada.Descontos)
+                            {
+                                <div class="d-flex gap-2 align-items-center mb-2">
+                                    <input class="form-control form-control-sm" placeholder="Descrição" style="font-size:0.82rem;" @bind="desconto.Descricao" />
+                                    <select class="form-select form-select-sm" style="width:70px;" @bind="desconto.Tipo">
+                                        <option value="@Financeiro.Desconto.TipoValor.Fixo">R$</option>
+                                        <option value="@Financeiro.Desconto.TipoValor.Percentual">%</option>
+                                    </select>
+                                    <input class="form-control form-control-sm" type="number" step="0.01" style="width:90px;" @bind="desconto.Valor" />
+                                    <button class="btn btn-danger btn-sm" style="width:28px;height:28px;padding:0;border-radius:8px;font-size:0.9rem;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;"
+                                            @onclick="() => RemoverDescontoDespesa(desconto)">
+                                        ×
+                                    </button>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Extras gestão despesa -->
+                        <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius:12px;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold m-0">Extras</h6>
+                                <button class="btn btn-success btn-sm" style="width:28px;height:28px;padding:0;border-radius:8px;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;"
+                                        @onclick="AdicionarExtraDespesa">
+                                    +
+                                </button>
+                            </div>
+                            @if (despesaSelecionada.Bonus.Count == 0)
+                            {
+                                <small class="text-muted">Nenhum extra cadastrado.</small>
+                            }
+                            @foreach (var extra in despesaSelecionada.Bonus)
+                            {
+                                <div class="d-flex gap-2 align-items-center mb-2">
+                                    <input class="form-control form-control-sm" placeholder="Descrição" style="font-size:0.82rem;" @bind="extra.Descricao" />
+                                    <select class="form-select form-select-sm" style="width:70px;" @bind="extra.Tipo">
+                                        <option value="@Financeiro.Extras.TipoValor.Fixo">R$</option>
+                                        <option value="@Financeiro.Extras.TipoValor.Percentual">%</option>
+                                    </select>
+                                    <input class="form-control form-control-sm" type="number" step="0.01" style="width:90px;" @bind="extra.Valor" />
+                                    <button class="btn btn-danger btn-sm" style="width:28px;height:28px;padding:0;border-radius:8px;font-size:0.9rem;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;"
+                                            @onclick="() => RemoverExtraDespesa(extra)">
+                                        ×
+                                    </button>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Resumo despesa -->
+                        <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius:12px; background:#f8f9fa;">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Valor Base:</span>
+                                <strong>R$ @despesaSelecionada.Valor.ToString("N2")</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 text-danger">
+                                <span>Total Descontos:</span>
+                                <strong>- R$ @despesaSelecionada.Descontos.Sum(d => d.GetValorFinal(despesaSelecionada.Valor)).ToString("N2")</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 text-success">
+                                <span>Total Extras:</span>
+                                <strong>+ R$ @despesaSelecionada.Bonus.Sum(b => b.GetValorFinal(despesaSelecionada.Valor)).ToString("N2")</strong>
+                            </div>
+                            <hr />
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Valor Final:</span>
+                                <strong class="text-primary">R$ @despesaSelecionada.GetValorTotal().ToString("N2")</strong>
+                            </div>
+                        </div>
+                    }
+
+                    @if (despesaSelecionada.Status != Receita.FinanceStatus.Pago)
+                    {
+                        <button class="btn btn-success w-100 p-3 fw-bold"
+                                @onclick="() => IrParaFinanceiroDespesa(despesaSelecionada)">
+                            CONFIRMAR PAGAMENTO
+                        </button>
+                    }
+                    else
+                    {
+                        <!-- Comprovante upload despesa (pago) -->
+                        <div class="card border-0 shadow-sm p-3 mt-4" style="border-radius:12px;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="fw-bold m-0">Comprovante</h6>
+                                    @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
+                                    {
+                                        <small class="text-success">Comprovante enviado</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-warning">Nenhum comprovante enviado</small>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
+                                {
+                                    <button class="btn-ver-comprovante" @onclick="() => mostrarComprovante = true">👁</button>
+                                }
+                            </div>
+                            <InputFile OnChange="SelecionarComprovanteGestao" class="form-control form-control-sm mb-3" />
+                            @if (comprovanteGestao != null)
+                            {
+                                <small class="text-success d-block mb-3">Novo arquivo: @comprovanteGestao.Name</small>
+                            }
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success btn-sm fw-bold"
+                                        disabled="@(comprovanteGestao == null)"
+                                        @onclick="SalvarComprovanteGestao">
+                                    @(string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho) ? "SALVAR COMPROVANTE" : "ALTERAR COMPROVANTE")
+                                </button>
+                                @if (!string.IsNullOrWhiteSpace(despesaSelecionada.AnexoCaminho))
+                                {
+                                    <button class="btn btn-outline-danger btn-sm" @onclick="RemoverComprovante">Remover</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+        }
+
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL — COMPROVANTE VIEWER (shared)
+════════════════════════════════════════════════════ -->
+@{
+    var anexoAtivo = receitaSelecionada?.AnexoCaminho ?? despesaSelecionada?.AnexoCaminho;
+}
+@if (mostrarComprovante && !string.IsNullOrWhiteSpace(anexoAtivo))
+{
+    var extensao = Path.GetExtension(anexoAtivo).ToLower();
+
+    <div class="overlay-modal" @onclick="() => mostrarComprovante = false">
+        <div class="modal-comprovante" @onclick:stopPropagation="true">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0">Comprovante</h5>
+                <button class="btn-fechar-comprovante" @onclick="() => mostrarComprovante = false">×</button>
+            </div>
+
+            @if (extensao == ".pdf")
+            {
+                <iframe src="@anexoAtivo" width="100%" height="700px"
+                        style="border:none; border-radius:12px; background:white;" />
+            }
+            else
+            {
+                <div class="text-center">
+                    <img src="@anexoAtivo"
+                         style="max-width:100%; max-height:75vh; border-radius:12px; object-fit:contain;" />
+                </div>
+            }
+
+        </div>
+    </div>
+}
+
+<style>
+    .linha-clicavel {
+        cursor: pointer;
+    }
+
+        .linha-clicavel:hover {
+            background: #f6f8ff;
+        }
+
+    .pagina-financeiro {
+        width: 100%;
+        padding: 8px 16px 30px 16px;
+        box-sizing: border-box;
+    }
+
+    /* Header */
+    .fin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+    }
+
+        .fin-header h1 {
+            margin: 0;
+            color: #3650a1;
+            font-weight: bold;
+        }
+
+    .btn-nova-despesa {
+        height: 44px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #3650a1;
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        .btn-nova-despesa:hover {
+            background-color: #2d4388;
+        }
+
+    /* Summary cards */
+    .cards-financeiro {
+        width: 100%;
+        display: flex;
+        gap: 22px;
+        margin-bottom: 40px;
+    }
+
+    .card-resumo {
+        flex: 1;
+        min-height: 115px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 18px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+    }
+
+        .card-resumo h2 {
+            margin: 0;
+            color: #808080;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .card-resumo h3 {
+            margin: 2px 0 0 0;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+    .saldo {
+        border-left: 2px solid #16a34a;
+    }
+
+        .saldo h3 {
+            color: #16a34a;
+        }
+
+    .previsao {
+        border-left: 2px solid #000080;
+    }
+
+        .previsao h3 {
+            color: #000080;
+        }
+
+    .atraso {
+        border-left: 2px solid #dc2626;
+    }
+
+        .atraso h3 {
+            color: #dc2626;
+        }
+
+    /* Mode tabs */
+    .abas-modo {
+        display: flex;
+        gap: 10px;
+        margin: 16px 8px;
+    }
+
+    .aba-modo {
+        border: 1px solid #3650a1;
+        background: white;
+        color: #3650a1;
+        padding: 10px 28px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .aba-modo:hover {
+            background: #eef3ff;
+        }
+
+    .aba-modo-ativa {
+        background: #3650a1;
+        color: white;
+    }
+
+    /* Section title */
+    .titulo-Receitas {
+        margin: 0 0 12px 8px;
+        color: #000;
+        font-size: 34px;
+        font-weight: bold;
+    }
+
+    /* Layout */
+    .area-Receitas {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    /* Filters sidebar */
+    .filtros {
+        width: 225px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        box-sizing: border-box;
+    }
+
+    .filtro {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+        .filtro label {
+            color: #111;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .filtro input, .filtro select {
+            width: 100%;
+            height: 34px;
+            padding: 0 10px;
+            border: 1px solid #cfcfcf;
+            border-radius: 7px;
+            background: #fff;
+            font-size: 12px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+            .filtro input:focus, .filtro select:focus {
+                border-color: #3650a1;
+            }
+
+    /* Table */
+    .conteudo-tabela {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .tabela-Receitas {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+        .tabela-Receitas thead {
+            background: #000080;
+            color: white;
+        }
+
+        .tabela-Receitas th {
+            height: 32px;
+            padding: 0 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .tabela-Receitas td {
+            min-height: 42px;
+            padding: 8px;
+            text-align: center;
+            font-size: 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e7e7e7;
+        }
+
+        .tabela-Receitas tbody tr:hover {
+            background: #f6f8ff;
+        }
+
+    .descricao {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+        .descricao strong {
+            display: block;
+            font-weight: 600;
+        }
+
+        .descricao small {
+            display: block;
+            margin-top: 3px;
+            color: #666;
+            font-size: 13px;
+        }
+
+    .valor-despesa {
+        color: #dc2626;
+        font-weight: bold;
+    }
+
+    .sem-registro {
+        height: 50px;
+        color: #333;
+        font-size: 17px;
+    }
+
+    /* Badges */
+    .badge {
+        display: inline-block;
+        padding: 4px 7px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .bg-primary {
+        background: #2563eb;
+    }
+
+    .bg-info {
+        background: #0891b2;
+    }
+
+    .bg-secondary {
+        background: #6b7280;
+    }
+
+    .bg-dark {
+        background: #1f2937;
+    }
+
+    .bg-success {
+        background: #16a34a;
+    }
+
+    .bg-danger {
+        background: #dc2626;
+    }
+
+    .bg-warning {
+        background: #facc15;
+    }
+
+    .text-dark {
+        color: #111 !important;
+    }
+
+    /* Pagination */
+    .paginacao {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        margin-top: 16px;
+    }
+
+    .btn-pagina, .btn-pagina-seta {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #3650a1;
+        border-radius: 6px;
+        background: white;
+        color: #3650a1;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .btn-pagina-seta {
+        border: none;
+        font-size: 18px;
+    }
+
+        .btn-pagina-seta:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+    .pagina-ativa {
+        background: #3650a1;
+        color: white;
+    }
+
+    .reticencias {
+        padding: 0 5px;
+        color: #555;
+        font-size: 13px;
+    }
+
+    /* Modal overlay */
+    .overlay-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+        transition: opacity 0.2s;
+    }
+
+    .overlay-aberto {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .overlay-fechado {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Modal box */
+    .modal-receita {
+        width: 90%;
+        max-width: 1050px;
+        max-height: 90vh;
+        overflow-y: auto;
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        opacity: 0;
+        transform: scale(0.96) translateY(15px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.35);
+    }
+
+    .modal-aberta {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-topo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .modal-topo h2 {
+            margin: 0;
+            color: #3650a1;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+    .btn-fechar {
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: #3650a1;
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+        .btn-fechar:hover {
+            background: #2d4388;
+        }
+
+    .abas-modal {
+        display: flex;
+        gap: 10px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 12px;
+    }
+
+        .abas-modal button {
+            border: none;
+            background: #e9edf7;
+            color: #3650a1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .abas-modal .aba-ativa {
+            background: #3650a1;
+            color: white;
+        }
+
+    .conteudo-modal {
+        width: 100%;
+    }
+
+    /* Comprovante modal */
+    .modal-comprovante {
+        width: 95%;
+        max-width: 1100px;
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+
+    .btn-fechar-comprovante {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: #dc3545;
+        color: white;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: bold;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+
+    .btn-ver-comprovante {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #0d6efd;
+        background: white;
+        color: #0d6efd;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        transition: 0.15s ease;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+
+        .btn-ver-comprovante:hover {
+            background: #0d6efd;
+            color: white;
+        }
+
+    @@media (max-width: 900px) {
+        .cards-financeiro {
+            flex-direction: column;
+        }
+
+        .area-Receitas {
+            flex-direction: column;
+        }
+
+        .filtros {
+            width: 100%;
+        }
+    }
+</style>
+
 @code {
-    private string modoExibicao = "receita";
-    private int itensPorPagina = 8;
+    [Parameter] public Guid? ReceitaId { get; set; }
+    [Parameter] public Guid? DespesaId { get; set; }
+
+    private enum Modo { Receitas, Despesas }
+    private Modo modoAtivo = Modo.Receitas;
+
+    private float saldoCaixa, previsaoReceita, valorAtraso;
 
     private List<Receita> todasReceitas = new();
-    private List<Receita> receitasExibidas = new();
-    private Receita? receitaSelecionada = null;
-    private Receita.ReceitaTipo? filtroTipo = null;
-    private int paginaAtualReceita = 1;
-    private int totalPaginasReceita = 1;
-
     private List<Despesa> todasDespesas = new();
-    private List<Despesa> despesasExibidas = new();
-    private Despesa? despesaSelecionada = null;
-    private int paginaAtualDespesa = 1;
-    private int totalPaginasDespesa = 1;
 
-    private float saldoCaixa = 0;
-    private float previsaoReceita = 0;
-    private float valorAtraso = 0;
+    private string abaAtiva = "detalhes";
+    private bool mostrarComprovante = false;
+    private IBrowserFile? comprovanteGestao;
+    private int paginaDescontos = 1;
+    private int paginaExtras = 1;
+    private const int itensPorPaginaDetalhes = 5;
 
-    private DateTime? dataInicio = null;
-    private DateTime? dataFim = null;
+    private Receita? receitaSelecionada;
+    private bool mostrarModalReceita = false;
+    private bool animarModalReceita = false;
 
-    private string msgFeedback = "";
+    private Despesa? despesaSelecionada;
+    private bool mostrarModalDespesa = false;
+    private bool animarModalDespesa = false;
 
-    protected override void OnInitialized() => CarregarDados();
+    private string r_pesquisa = "";
+    private string r_tipoFiltro = "";
+    private string r_statusFiltro = "";
+    private string r_ordemValor = "";
+    private DateTime? r_dataInicio;
+    private DateTime? r_dataFim;
+    private int r_paginaAtual = 1;
+    private const int itensPorPagina = 8;
+
+    private string d_pesquisa = "";
+    private string d_categoriaFiltro = "";
+    private string d_statusFiltroStr = "";
+    private string d_ordemValor = "";
+    private DateTime? d_dataInicio;
+    private DateTime? d_dataFim;
+    private int d_paginaAtual = 1;
+
+    private List<string> tiposDisponiveisReceita =>
+        todasReceitas.Select(r => r.GetTypeTexto()).Distinct().OrderBy(t => t).ToList();
+
+    private IEnumerable<Receita> ReceitasFiltradas
+    {
+        get
+        {
+            var q = todasReceitas.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(r_pesquisa))
+                q = q.Where(r =>
+                    (r.Descricao?.Contains(r_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (r.Origem?.Contains(r_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (r.Aluno?.Nome?.Contains(r_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (r.Responsavel?.Nome?.Contains(r_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false));
+
+            if (!string.IsNullOrWhiteSpace(r_tipoFiltro))
+                q = q.Where(r => r.GetTypeTexto() == r_tipoFiltro);
+
+            if (r_statusFiltro == "Pago") q = q.Where(r => r.IsPago());
+            else if (r_statusFiltro == "EmAndamento") q = q.Where(r => r.Status == Receita.FinanceStatus.EmAndamento);
+            else if (r_statusFiltro == "EmAtraso") q = q.Where(r => r.Status == Receita.FinanceStatus.EmAtraso);
+
+            if (r_dataInicio.HasValue) q = q.Where(r => r.DataReferente.Date >= r_dataInicio.Value.Date);
+            if (r_dataFim.HasValue) q = q.Where(r => r.DataReferente.Date <= r_dataFim.Value.Date);
+
+            q = r_ordemValor switch
+            {
+                "asc" => q.OrderBy(r => r.GetValorTotal()),
+                "desc" => q.OrderByDescending(r => r.GetValorTotal()),
+                _ => q.OrderBy(r => r.DataReferente)
+            };
+
+            return q;
+        }
+    }
+
+    private int r_totalPaginas =>
+        Math.Max(1, (int)Math.Ceiling((double)ReceitasFiltradas.Count() / itensPorPagina));
+
+    private List<Receita> ReceitasPaginadas =>
+        ReceitasFiltradas
+            .Skip((r_paginaAtual - 1) * itensPorPagina)
+            .Take(itensPorPagina)
+            .ToList();
+
+    private IEnumerable<Financeiro.Desconto> ReceitaDescontosPaginados =>
+        receitaSelecionada?.Descontos
+            .Skip((paginaDescontos - 1) * itensPorPaginaDetalhes)
+            .Take(itensPorPaginaDetalhes)
+        ?? Enumerable.Empty<Financeiro.Desconto>();
+
+    private IEnumerable<Financeiro.Extras> ReceitaExtrasPaginados =>
+        receitaSelecionada?.Bonus
+            .Skip((paginaExtras - 1) * itensPorPaginaDetalhes)
+            .Take(itensPorPaginaDetalhes)
+        ?? Enumerable.Empty<Financeiro.Extras>();
+
+    private List<string> categoriasDisponiveis =>
+        todasDespesas
+            .Select(d => d.Categoria)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
+
+    private IEnumerable<Despesa> DespesasFiltradas
+    {
+        get
+        {
+            var q = todasDespesas.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(d_pesquisa))
+                q = q.Where(d =>
+                    (d.Descricao?.Contains(d_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (d.Fornecedor?.Contains(d_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (d.Categoria?.Contains(d_pesquisa, StringComparison.OrdinalIgnoreCase) ?? false));
+
+            if (!string.IsNullOrWhiteSpace(d_categoriaFiltro))
+                q = q.Where(d => d.Categoria == d_categoriaFiltro);
+
+            if (!string.IsNullOrWhiteSpace(d_statusFiltroStr) &&
+                Enum.TryParse<Financeiro.FinanceStatus>(d_statusFiltroStr, out var parsedStatus))
+                q = q.Where(d => d.Status == parsedStatus);
+
+            if (d_dataInicio.HasValue) q = q.Where(d => d.DataVencimento.Date >= d_dataInicio.Value.Date);
+            if (d_dataFim.HasValue) q = q.Where(d => d.DataVencimento.Date <= d_dataFim.Value.Date);
+
+            q = d_ordemValor switch
+            {
+                "asc" => q.OrderBy(d => d.GetValorTotal()),
+                "desc" => q.OrderByDescending(d => d.GetValorTotal()),
+                _ => q.OrderBy(d => d.DataVencimento)
+            };
+
+            return q;
+        }
+    }
+
+    private int d_totalPaginas =>
+        Math.Max(1, (int)Math.Ceiling((double)DespesasFiltradas.Count() / itensPorPagina));
+
+    private List<Despesa> DespesasPaginadas =>
+        DespesasFiltradas
+            .Skip((d_paginaAtual - 1) * itensPorPagina)
+            .Take(itensPorPagina)
+            .ToList();
+
+    private IEnumerable<Financeiro.Desconto> DespesaDescontosPaginados =>
+        despesaSelecionada?.Descontos
+            .Skip((paginaDescontos - 1) * itensPorPaginaDetalhes)
+            .Take(itensPorPaginaDetalhes)
+        ?? Enumerable.Empty<Financeiro.Desconto>();
+
+    private IEnumerable<Financeiro.Extras> DespesaExtrasPaginados =>
+        despesaSelecionada?.Bonus
+            .Skip((paginaExtras - 1) * itensPorPaginaDetalhes)
+            .Take(itensPorPaginaDetalhes)
+        ?? Enumerable.Empty<Financeiro.Extras>();
+
+
+    protected override void OnInitialized()
+    {
+        if (DespesaId != null) modoAtivo = Modo.Despesas;
+        CarregarDados();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        if (ReceitaId != null)
+        {
+            modoAtivo = Modo.Receitas;
+            var r = ReceitaController.Get(ReceitaId.Value.ToString(), null);
+            if (r != null) await AbrirModalReceita(r);
+        }
+        else if (DespesaId != null)
+        {
+            modoAtivo = Modo.Despesas;
+            var d = DespesaController.Get(DespesaId.Value.ToString(), null);
+            if (d != null) await AbrirModalDespesa(d);
+        }
+    }
+
+    private void AlterarModo(Modo modo)
+    {
+        if (modoAtivo == modo) return;
+        modoAtivo = modo;
+        r_paginaAtual = 1;
+        d_paginaAtual = 1;
+    }
 
     private void CarregarDados()
     {
         todasReceitas = ReceitaController.GetAll();
-        todasDespesas = DespesaController.GetAll();
+        todasDespesas = DespesaController.GetAll().OrderBy(d => d.DataVencimento).ToList();
 
-        float receitasPagas = todasReceitas.Where(r => r.IsPago()).Sum(r => r.GetValorTotal());
-        float despesasPagas = todasDespesas.Where(d => d.IsPago()).Sum(d => d.GetValorTotal());
+        float receitasPagas = todasReceitas.Where(r => r.IsPago()).Sum(r => (float)r.GetValorTotal());
+        float despesasPagas = todasDespesas.Where(d => d.IsPago()).Sum(d => (float)d.GetValorTotal());
 
         saldoCaixa = receitasPagas - despesasPagas;
-        previsaoReceita = todasReceitas.Where(r => !r.IsPago()).Sum(r => r.GetValorTotal());
-        valorAtraso = todasReceitas
-            .Where(r => r.Status == Financeiro.FinanceStatus.EmAtraso)
-            .Sum(r => r.GetValorTotal());
-
-        AplicarFiltros();
+        previsaoReceita = todasReceitas.Where(r => r.Status == Receita.FinanceStatus.EmAndamento).Sum(r => (float)r.GetValorTotal());
+        valorAtraso = todasReceitas.Where(r => r.Status == Receita.FinanceStatus.EmAtraso).Sum(r => (float)r.GetValorTotal());
     }
 
-    private void AplicarFiltros()
+    private async Task AbrirModalReceita(Receita receita)
     {
-        // Receitas
-        IEnumerable<Receita> qr = todasReceitas;
-        if (filtroTipo != null) qr = qr.Where(r => r.Type == filtroTipo);
-        if (dataInicio != null) qr = qr.Where(r => r.DataReferente.Date >= dataInicio.Value.Date);
-        if (dataFim != null) qr = qr.Where(r => r.DataReferente.Date <= dataFim.Value.Date);
-        qr = qr.OrderByDescending(r => r.DataReferente);
-        totalPaginasReceita = Math.Max(1, (int)Math.Ceiling(qr.Count() / (double)itensPorPagina));
-        if (paginaAtualReceita > totalPaginasReceita) paginaAtualReceita = totalPaginasReceita;
-        receitasExibidas = qr.Skip((paginaAtualReceita - 1) * itensPorPagina).Take(itensPorPagina).ToList();
-
-        // Despesas
-        IEnumerable<Despesa> qd = todasDespesas;
-        if (dataInicio != null) qd = qd.Where(d => d.DataReferente.Date >= dataInicio.Value.Date);
-        if (dataFim != null) qd = qd.Where(d => d.DataReferente.Date <= dataFim.Value.Date);
-        qd = qd.OrderByDescending(d => d.DataReferente);
-        totalPaginasDespesa = Math.Max(1, (int)Math.Ceiling(qd.Count() / (double)itensPorPagina));
-        if (paginaAtualDespesa > totalPaginasDespesa) paginaAtualDespesa = totalPaginasDespesa;
-        despesasExibidas = qd.Skip((paginaAtualDespesa - 1) * itensPorPagina).Take(itensPorPagina).ToList();
+        receitaSelecionada = receita;
+        abaAtiva = "detalhes";
+        paginaDescontos = 1;
+        paginaExtras = 1;
+        comprovanteGestao = null;
+        mostrarModalReceita = true;
+        animarModalReceita = false;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(50);
+        animarModalReceita = true;
+        await InvokeAsync(StateHasChanged);
     }
 
-    void SelecionarReceita(Receita r) => receitaSelecionada = r;
-    void SelecionarDespesa(Despesa d) => despesaSelecionada = d;
-
-    void ConfirmarPagamentoReceita()
+    private async Task FecharModalReceita()
     {
-        if (receitaSelecionada == null) return;
-        receitaSelecionada.Status = Financeiro.FinanceStatus.Pago;
-        receitaSelecionada.DataPagamento = DateTime.Now;
-        CarregarDados();
-        receitaSelecionada = todasReceitas.FirstOrDefault(r => r.Id == receitaSelecionada?.Id);
-    }
-
-    void ConfirmarPagamentoDespesa()
-    {
-        if (despesaSelecionada == null) return;
-        despesaSelecionada.Status = Financeiro.FinanceStatus.Pago;
-        despesaSelecionada.DataPagamento = DateTime.Now;
-        CarregarDados();
-        despesaSelecionada = todasDespesas.FirstOrDefault(d => d.Id == despesaSelecionada?.Id);
-    }
-
-    void SetModo(string modo) { modoExibicao = modo; receitaSelecionada = null; despesaSelecionada = null; }
-
-    void SetFiltro(Receita.ReceitaTipo? tipo)
-    {
-        filtroTipo = tipo;
-        paginaAtualReceita = 1;
+        animarModalReceita = false;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(200);
+        mostrarModalReceita = false;
         receitaSelecionada = null;
-        AplicarFiltros();
+        mostrarComprovante = false;
     }
 
-    void OnDataChanged(ChangeEventArgs e, bool isInicio)
+    private async Task AbrirModalDespesa(Despesa despesa)
     {
-        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        despesaSelecionada = despesa;
+        abaAtiva = "detalhes";
+        paginaDescontos = 1;
+        paginaExtras = 1;
+        comprovanteGestao = null;
+        mostrarModalDespesa = true;
+        animarModalDespesa = false;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(50);
+        animarModalDespesa = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task FecharModalDespesa()
+    {
+        animarModalDespesa = false;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(200);
+        mostrarModalDespesa = false;
+        despesaSelecionada = null;
+        mostrarComprovante = false;
+    }
+
+    private void AdicionarDescontoReceita() => receitaSelecionada?.Descontos.Add(new Financeiro.Desconto());
+    private void RemoverDescontoReceita(Financeiro.Desconto d) => receitaSelecionada?.Descontos.Remove(d);
+    private void AdicionarExtraReceita() => receitaSelecionada?.Bonus.Add(new Financeiro.Extras());
+    private void RemoverExtraReceita(Financeiro.Extras e) => receitaSelecionada?.Bonus.Remove(e);
+    private void GoFinanceiro(Guid id) => Navigation.NavigateTo($"/financeiro/pagamento/{id}");
+
+    private void AdicionarDescontoDespesa() => despesaSelecionada?.Descontos.Add(new Financeiro.Desconto());
+    private void RemoverDescontoDespesa(Financeiro.Desconto d) => despesaSelecionada?.Descontos.Remove(d);
+    private void AdicionarExtraDespesa() => despesaSelecionada?.Bonus.Add(new Financeiro.Extras());
+    private void RemoverExtraDespesa(Financeiro.Extras e) => despesaSelecionada?.Bonus.Remove(e);
+    private void IrParaFinanceiroDespesa(Despesa d) => Navigation.NavigateTo($"/financeiro/pagamento/{d.Id}");
+
+    // Comprovante
+
+    private void SelecionarComprovanteGestao(InputFileChangeEventArgs e) =>
+        comprovanteGestao = e.File;
+
+    private async Task SalvarComprovanteGestao()
+    {
+        if (comprovanteGestao == null) return;
+
+        var caminho = await FileService.SalvarComprovante(comprovanteGestao);
+        if (string.IsNullOrWhiteSpace(caminho)) return;
+
+        if (modoAtivo == Modo.Receitas && receitaSelecionada != null)
+            receitaSelecionada.AnexoCaminho = caminho;
+        else if (modoAtivo == Modo.Despesas && despesaSelecionada != null)
+            despesaSelecionada.AnexoCaminho = caminho;
+
+        comprovanteGestao = null;
+        StateHasChanged();
+    }
+
+    private void RemoverComprovante()
+    {
+        if (modoAtivo == Modo.Receitas && receitaSelecionada != null)
         {
-            if (isInicio) dataInicio = date;
-            else dataFim = date;
-            paginaAtualReceita = 1;
-            paginaAtualDespesa = 1;
-            AplicarFiltros();
+            FileService.RemoverArquivo(receitaSelecionada.AnexoCaminho);
+            receitaSelecionada.AnexoCaminho = null;
+        }
+        else if (modoAtivo == Modo.Despesas && despesaSelecionada != null)
+        {
+            FileService.RemoverArquivo(despesaSelecionada.AnexoCaminho);
+            despesaSelecionada.AnexoCaminho = null;
+        }
+        StateHasChanged();
+    }
+
+    private void MudarPagina(int pagina)
+    {
+        if (modoAtivo == Modo.Receitas)
+        {
+            if (pagina >= 1 && pagina <= r_totalPaginas) r_paginaAtual = pagina;
+        }
+        else
+        {
+            if (pagina >= 1 && pagina <= d_totalPaginas) d_paginaAtual = pagina;
         }
     }
 
-    void MudarPaginaReceita(int p) { paginaAtualReceita = p; AplicarFiltros(); }
-    void MudarPaginaDespesa(int p) { paginaAtualDespesa = p; AplicarFiltros(); }
+    private List<int?> GetPaginasVisiveis(int paginaAtual, int totalPaginas)
+    {
+        var paginas = new List<int?>();
+
+        if (totalPaginas <= 7)
+        {
+            for (int i = 1; i <= totalPaginas; i++) paginas.Add(i);
+            return paginas;
+        }
+
+        paginas.Add(1);
+        if (paginaAtual > 4) paginas.Add(null);
+
+        int inicio = Math.Max(2, paginaAtual - 2);
+        int fim = Math.Min(totalPaginas - 1, paginaAtual + 2);
+
+        for (int i = inicio; i <= fim; i++) paginas.Add(i);
+
+        if (paginaAtual < totalPaginas - 3) paginas.Add(null);
+
+        paginas.Add(totalPaginas);
+        return paginas;
+    }
+
+    private string GetTipoBadgeReceita(Receita.ReceitaTipo tipo) => tipo switch
+    {
+        Receita.ReceitaTipo.Mensalidade => "bg-primary",
+        Receita.ReceitaTipo.Aquisicao => "bg-info",
+        Receita.ReceitaTipo.Outros => "bg-secondary",
+        _ => "bg-dark"
+    };
+
+    private string GetStatusBadgeReceita(Receita.FinanceStatus status) => status switch
+    {
+        Receita.FinanceStatus.Pago => "bg-success",
+        Receita.FinanceStatus.EmAtraso => "bg-danger",
+        Receita.FinanceStatus.EmAndamento => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+
+    private string GetStatusBadgeDespesa(Financeiro.FinanceStatus status) => status switch
+    {
+        Financeiro.FinanceStatus.Pago => "bg-success",
+        Financeiro.FinanceStatus.EmAtraso => "bg-danger",
+        Financeiro.FinanceStatus.EmAndamento => "bg-warning text-dark",
+        Financeiro.FinanceStatus.Pendente => "bg-secondary",
+        _ => "bg-secondary"
+    };
+
+    private DateTime dataInicio => (modoAtivo == Modo.Receitas) ? 
+        (r_dataInicio.HasValue && r_dataInicio.Value < d_dataInicio.Value ? r_dataInicio.Value : d_dataInicio.Value) :
+        (r_dataInicio ?? d_dataInicio ?? DateTime.Now.AddMonths(-1));
+    private DateTime dataFim => (modoAtivo == Modo.Receitas) ?
+        (r_dataFim.HasValue && r_dataFim.Value < d_dataFim.Value ? r_dataFim.Value : d_dataFim.Value) :
+        (r_dataFim ?? d_dataFim ?? DateTime.Now);
+     private string msgFeedback = "";
 
     private async Task GerarPdfReceita(Receita receita)
     {
@@ -400,38 +1861,4 @@
         await JS.InvokeVoidAsync("downloadPdf", base64, nomeArquivo);
     }
 
-    private string GetTipoBadge(Receita.ReceitaTipo tipo) => tipo switch
-    {
-        Receita.ReceitaTipo.Mensalidade => "bg-primary",
-        Receita.ReceitaTipo.Aquisicao => "bg-info",
-        Receita.ReceitaTipo.Taxas => "bg-secondary",
-        _ => "bg-dark"
-    };
-
-    private string GetStatusBadge(Financeiro.FinanceStatus s) => s switch
-    {
-        Financeiro.FinanceStatus.Pago => "bg-success",
-        Financeiro.FinanceStatus.EmAtraso => "bg-danger",
-        Financeiro.FinanceStatus.Pendente => "bg-warning text-dark",
-        _ => "bg-secondary"
-    };
-
-    private string GetStatusBadgeDespesa(Financeiro.FinanceStatus s) => GetStatusBadge(s);
-
-    private RenderFragment Paginacao(int total, int atual, Action<int> mudar) => builder =>
-    {
-        if (total <= 1) return;
-        builder.OpenElement(0, "div");
-        builder.AddAttribute(1, "class", "d-flex justify-content-center gap-1 mt-2");
-        for (int p = 1; p <= total; p++)
-        {
-            var pg = p;
-            builder.OpenElement(2, "button");
-            builder.AddAttribute(3, "class", $"btn btn-sm {(atual == pg ? "btn-primary" : "btn-outline-primary")}");
-            builder.AddAttribute(4, "onclick", EventCallback.Factory.Create(this, () => mudar(pg)));
-            builder.AddContent(5, pg.ToString());
-            builder.CloseElement();
-        }
-        builder.CloseElement();
-    };
 }

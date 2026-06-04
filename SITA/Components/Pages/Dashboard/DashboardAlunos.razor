@@ -1140,7 +1140,7 @@
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(addCondicao)) { CondicoesEspeciais.Add(addCondicao.Trim()); addCondicao = ""; }
     }
 
-    void GoReceita(Guid id) => Navigation.NavigateTo($"/receitas/{id}");
+    void GoReceita(Guid id) => Navigation.NavigateTo($"/dashboard-financeiro/receita/{id}");
 
     async Task GerarPdfFicha()
     {

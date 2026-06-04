@@ -207,11 +207,11 @@
 
         if (financeiro is Receita)
         {
-            Navigation.NavigateTo($"/receitas/{financeiro.Id}");
+            Navigation.NavigateTo($"/dashboard-financeiro/receita/{financeiro.Id}");
         }
         else
         {
-            Navigation.NavigateTo($"/despesas/{financeiro.Id}");
+            Navigation.NavigateTo($"/dashboard-financeiro/despesa/{financeiro.Id}");
         }
     }
 
@@ -219,11 +219,11 @@
     {
         if (financeiro is Receita)
         {
-            Navigation.NavigateTo($"/receitas/{financeiro?.Id}");
+            Navigation.NavigateTo($"/dashboard-financeiro/receita/{financeiro?.Id}");
         }
         else
         {
-            Navigation.NavigateTo($"/despesas/{financeiro?.Id}");
+            Navigation.NavigateTo($"/dashboard-financeiro/despesa/{financeiro?.Id}");
         }
     }
 

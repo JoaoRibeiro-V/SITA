@@ -38,7 +38,7 @@ namespace SITA.src.Controller
                 DataPagamento = DateTime.Now,
                 Observacao = $"Entrada de estoque — item: {item.Nome}, qtd: {quantidade}"
             };
-            despesa.Status = Financeiro.FinanceStatus.Pago;
+            despesa.Status = Financeiro.FinanceStatus.Pendente;
             DespesaController.Register(despesa);
         }
 
@@ -65,7 +65,7 @@ namespace SITA.src.Controller
                 DataPagamento = DateTime.Now,
             };
             receita.Type = Receita.ReceitaTipo.Aquisicao;
-            receita.Status = Financeiro.FinanceStatus.Pago;
+            receita.Status = Financeiro.FinanceStatus.Pendente;
             ReceitaController.Register(receita);
         }
     }
