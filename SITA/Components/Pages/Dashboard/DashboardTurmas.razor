@@ -4,51 +4,87 @@
 @using SITA.Components.Pages.GUI
 @inject NavigationManager Navigation
 
-@* Cabeçalho padronizado com a tela de Alunos *@
-<div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-    <h1 style="color: #3650a1; font-weight: bold;">Gestão de Turmas</h1>
-    <div style="display: flex; gap: 10px;">
-        <button class="btn-cadastrar" @onclick="AbrirModal"
-                style="background-color: #3650a1; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+@* Cabeçalho Principal e Barra de Ferramentas *@
+<div class="header d-flex justify-content-between align-items-center mb-4" style="padding: 20px 24px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+    <h1 style="color: #20335e; font-weight: 800; margin: 0; font-size: 2.2rem;">Gestão de Turmas</h1>
+    <div class="d-flex gap-3 align-items-center">
+        <div class="position-relative">
+            <input @bind="search" @bind:event="oninput" placeholder="Buscar turma por nome..."
+                   style="padding: 10px 16px; border-radius: 8px; border: 1px solid #cbd5e0; width: 280px; font-size: 0.95rem; outline: none; transition: 0.2s;" />
+        </div>
+        <button class="btn fw-bold text-white shadow-sm" @onclick="AbrirModal"
+                style="background: linear-gradient(135deg, #3650a1 0%, #20335e 100%); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: 0.2s;">
             + Nova Turma
         </button>
-        <input @bind="search" @bind:event="oninput" placeholder="Buscar turma..." style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
     </div>
 </div>
 
-@* Grid de Cards padronizado *@
-<section class="container-card" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px;">
+@* Grid de Cards Avançado *@
+<section class="container-card" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; padding: 0 20px 40px 20px;">
     @foreach (var turma in TurmasFiltradas)
     {
-        <div class="card" @onclick="() => GoToTurma(turma.Id)"
-             style=" height:auto; color:black; background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-top: 4px solid #3650a1; cursor: pointer; transition: 0.3s;">
-            
-            <h4 style="color: #3650a1; font-weight: bold; margin-bottom: 10px;">@turma.Nome</h4>
-            
-            <p style="margin-bottom: 5px;"><strong>Turno:</strong> @turma.Turno</p>
-            <p style="margin-bottom: 5px;"><strong>Professor:</strong> @(turma.Professor?.Nome ?? "A definir")</p>
-            <p style="margin-bottom: 5px;"><strong>Alunos:</strong> @turma.Alunos.Count matriculados</p>
-            
-            <div style="text-align: center; margin-top: 15px; border-top: 1px solid #eee; pt-2">
-                <small class="text-muted">Clique para gerenciar</small>
+        <div class="turma-card" @onclick="() => GoToTurma(turma.Id)"
+             style="background: #ffffff; border-radius: 14px; padding: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.04); border-left: 6px solid #3650a1; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; justify-content: space-between; min-height: 210px;">
+
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+                    <h3 style="color: #2b3e6b; font-weight: 800; margin: 0; font-size: 1.35rem; letter-spacing: -0.5px;">@turma.Nome</h3>
+                    <span style="background: rgba(54, 80, 161, 0.08); color: #3650a1; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">
+                        @turma.Turno
+                    </span>
+                </div>
+
+                <div style="margin: 16px 0;">
+                    <!-- Indicador: Professor Regente -->
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: #4a5568;">
+                        <span style="font-size: 1.2rem;">👨‍🏫</span>
+                        <span style="font-size: 0.95rem;">
+                            <span class="text-muted">Regente:</span>
+                            <strong style="color: @(turma.Professor != null ? "#2d3748" : "#dc2626"); font-weight: 700;">
+                                @(turma.Professor?.Nome ?? "A definir")
+                            </strong>
+                        </span>
+                    </div>
+
+                    <!-- Indicador: Alunos Matriculados -->
+                    <div style="display: flex; align-items: center; gap: 10px; color: #4a5568;">
+                        <span style="font-size: 1.2rem;">👥</span>
+                        <span style="font-size: 0.95rem;">
+                            <span class="text-muted">Matrículas:</span> <strong style="color: #2d3748; font-weight: 700;">@(turma.Alunos?.Count ?? 0)</strong> alunos
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; color: #94a3b8; font-family: monospace;">ID: @turma.Id.ToString().Substring(0, 8).ToUpper()</span>
+                <span style="color: #3650a1; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 4px;">
+                    Gerenciar Sala ➔
+                </span>
             </div>
         </div>
     }
 </section>
 
-@* Modal de Cadastro *@
+@* Modal de Cadastro Totalmente Estilizado *@
 <Modal IsOpen="showModal" OnClose="FecharModal">
-    <div style="padding: 20px;">
-        <h3 style="color: #3650a1; font-weight: bold; margin-bottom: 20px;">Nova Turma</h3>
-        
-        <div class="mb-3">
-            <label class="fw-bold" style="color: #3650a1;">Nome da Turma:</label>
-            <input class="form-control" @bind="nome" placeholder="Ex: Maternal A" style="border: 1px solid #3650a1;" />
+    <div style="padding: 10px 15px;">
+        <div class="text-center mb-4">
+            <h3 style="color: #20335e; font-weight: 800; margin-bottom: 6px; font-size: 1.7rem;">Nova Turma</h3>
+            <p class="text-muted small m-0">Preencha os dados estruturais para abrir uma nova sala de aula.</p>
         </div>
 
-        <div class="mb-4">
-            <label class="fw-bold" style="color: #3650a1;">Período / Turno:</label>
-            <select class="form-select" @bind="turno" style="border: 1px solid #3650a1;">
+        <!-- Input: Nome da Turma -->
+        <div class="mb-3">
+            <label class="fw-bold mb-1" style="color: #20335e; font-size: 0.9rem;">Nome da Turma:</label>
+            <input class="form-control py-2" @bind="nome" placeholder="Ex: Maternal A"
+                   style="border: 1px solid #cbd5e0; border-radius: 8px; font-size: 0.95rem; box-shadow: none;" />
+        </div>
+
+        <!-- Select: Turno -->
+        <div class="mb-3">
+            <label class="fw-bold mb-1" style="color: #20335e; font-size: 0.9rem;">Período / Turno:</label>
+            <select class="form-select py-2" @bind="turno" style="border: 1px solid #cbd5e0; border-radius: 8px; font-size: 0.95rem; box-shadow: none;">
                 @foreach (var t in Turma.Turnos)
                 {
                     <option value="@t">@t</option>
@@ -56,23 +92,75 @@
             </select>
         </div>
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-success w-100 fw-bold" @onclick="Cadastrar">SALVAR</button>
-            <button class="btn btn-outline-secondary w-100" @onclick="FecharModal">CANCELAR</button>
+        <!-- Select: Professor Vinculado pelo Nível de Acesso -->
+        <div class="mb-4">
+            <label class="fw-bold mb-1" style="color: #20335e; font-size: 0.9rem;">Professor Regente Inicial:</label>
+            <select class="form-select py-2" @bind="funcionarioIdSelecionado" style="border: 1px solid #3650a1; border-radius: 8px; font-size: 0.95rem; box-shadow: none; background-color: #f8fafc;">
+                <option value="">-- Deixar regência em aberto --</option>
+                @foreach (var p in listaProfessores)
+                {
+                    <option value="@p.Id.ToString()">@p.Nome</option>
+                }
+            </select>
+        </div>
+
+        <!-- Botões de Ação Unificados -->
+        <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-light border py-2 fw-bold text-muted w-100" @onclick="FecharModal"
+                    style="border-radius: 8px; font-size: 0.95rem;">
+                CANCELAR
+            </button>
+            <button class="btn py-2 fw-bold text-white w-100" @onclick="Cadastrar"
+                    style="background-color: #198754; border-radius: 8px; font-size: 0.95rem; border: none; box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2);">
+                CRIAR SALA
+            </button>
         </div>
     </div>
 </Modal>
 
 @code {
     private List<Turma> turmas = new();
+    private List<Funcionario> listaProfessores = new();
     private string search = "";
     private bool showModal = false;
     private string nome = "";
     private string turno = Turma.Turnos[0];
+    private string funcionarioIdSelecionado = string.Empty;
 
     protected override void OnInitialized()
     {
-        turmas = TurmaController.GetAll(); 
+        CarregarDados();
+    }
+
+    private void CarregarDados()
+    {
+        try
+        {
+            // 1. Carrega todas as turmas
+            turmas = TurmaController.GetAll() ?? new List<Turma>();
+
+            // 2. Busca todos os funcionários cadastrados
+            var todosFuncionarios = FuncionarioController.GetAll();
+
+            // 3. Busca os nomes dos usuários que possuem o Nível de Acesso igual a 2 (Professor)
+            var nomesProfessores = UserController.GetAll()
+                .Where(u => u.AccessType != null && u.AccessType.Level == 2)
+                .Select(u => u.Nome)
+                .ToList();
+
+            if (todosFuncionarios != null)
+            {
+                // 4. Filtra os funcionários cujo nome está na lista de usuários nível 2 e que estão ativos
+                listaProfessores = todosFuncionarios
+                    .Where(f => f.Ativo && nomesProfessores.Contains(f.Nome))
+                    .OrderBy(f => f.Nome)
+                    .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SITA] Erro ao carregar dados na tela de turmas: {ex.Message}");
+        }
     }
 
     IEnumerable<Turma> TurmasFiltradas =>
@@ -80,19 +168,45 @@
             string.IsNullOrWhiteSpace(search) ||
             t.Nome.Contains(search, StringComparison.OrdinalIgnoreCase));
 
-    void AbrirModal() { nome = ""; turno = Turma.Turnos[0]; showModal = true; }
+    void AbrirModal()
+    {
+        nome = "";
+        turno = Turma.Turnos[0];
+        funcionarioIdSelecionado = string.Empty;
+        showModal = true;
+    }
+
     void FecharModal() => showModal = false;
 
     void Cadastrar()
     {
         if (string.IsNullOrWhiteSpace(nome)) return;
 
-        var novaTurma = new Turma { Nome = nome, Turno = turno };
-        TurmaController.Register(novaTurma); 
-        turmas = TurmaController.GetAll();
-        showModal = false;
+        try
+        {
+            var novaTurma = new Turma { Nome = nome, Turno = turno };
+
+            if (!string.IsNullOrEmpty(funcionarioIdSelecionado))
+            {
+                var professorEncontrado = listaProfessores
+                    .FirstOrDefault(p => p.Id.ToString() == funcionarioIdSelecionado);
+
+                if (professorEncontrado != null)
+                {
+                    novaTurma.Professor = professorEncontrado;
+                }
+            }
+
+            TurmaController.Register(novaTurma);
+
+            CarregarDados();
+            showModal = false;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SITA] Erro ao cadastrar turma: {ex.Message}");
+        }
     }
 
     void GoToTurma(Guid id) => Navigation.NavigateTo($"/turma/{id}");
-
 }

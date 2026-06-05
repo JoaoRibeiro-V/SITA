@@ -7,23 +7,23 @@
 
 <div class="container" style="max-width: 950px; margin-top: 20px; padding-bottom: 50px;">
     <div class="card shadow-lg border-0" style="border-radius: 15px; border-top: 8px solid #3650a1;">
-        
+
         <div class="card-header bg-white p-4 text-center">
             <h3 class="fw-bold" style="color: #3650a1;"> Registro de Novo Colaborador</h3>
-            
         </div>
 
         <div class="card-body p-4" style="background-color: #fcfcfc;">
             <div class="row g-3">
                 <div class="col-12"><h5 class="text-primary border-bottom pb-2">Credenciais e Identificação</h5></div>
-                
+
                 <div class="col-md-8">
                     <label class="fw-bold">Nome Completo:</label>
                     <input type="text" class="form-control" @bind="novoFuncionario.Nome" placeholder="Nome Completo" />
                 </div>
                 <div class="col-md-4">
                     <label class="fw-bold">CPF:</label>
-                    <input value="@novoFuncionario.CPF"
+                    <input type="text" class="form-control"
+                           value="@novoFuncionario.CPF"
                            @oninput="OnCpfInput"
                            onkeypress="onlyNumbers(event)"
                            placeholder="CPF"
@@ -80,6 +80,11 @@
                     <input type="text" class="form-control" @bind="chavePix" />
                 </div>
             </div>
+
+            @if (!string.IsNullOrEmpty(mensagemErro))
+            {
+                <div class="alert alert-danger mt-3 fw-bold">@mensagemErro</div>
+            }
         </div>
 
         <div class="card-footer bg-white p-4 d-flex justify-content-end gap-2">
@@ -94,18 +99,20 @@
 @code {
     private User novoFuncionario = new User();
     private Funcionario funcionarioNew = new Funcionario();
-    private string departamento = string.Empty;
+    private string departamento = "Assistente";
     private string chavePix = string.Empty;
     private string cargo = string.Empty;
     private string telefone = string.Empty;
     private DateTime dataAdmissao = DateTime.Now;
     private decimal salarioDigitado = 0;
     private string nivelAcessoDigitado = "1";
+    private string mensagemErro = string.Empty;
 
     protected override void OnInitialized()
     {
         dataAdmissao = DateTime.Today;
     }
+
     void OnCpfInput(ChangeEventArgs e)
     {
         var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
@@ -119,43 +126,59 @@
         if (digits.Length > 11) digits = digits[..11];
         telefone = Mask.FormatPhone(digits);
     }
+
     private void SalvarFuncionario()
     {
-        // Validações de Robustez
-        if ((string.IsNullOrWhiteSpace(novoFuncionario.Nome) || salarioDigitado <= 0 || !Mask.IsValidEmail(novoFuncionario.Email) )) return;
+        mensagemErro = string.Empty;
+
+        // Validações obrigatórias
+        if (string.IsNullOrWhiteSpace(novoFuncionario.Nome) || salarioDigitado <= 0 || !Mask.IsValidEmail(novoFuncionario.Email))
+        {
+            mensagemErro = "Preencha todos os campos obrigatórios e garanta que o salário é maior que zero.";
+            return;
+        }
 
         try
         {
-
             novoFuncionario.AccessType = new SITA.src.Model.AccessType
             {
                 Level = int.Parse(nivelAcessoDigitado)
             };
 
-
+            // CORREÇÃO DO SALT (Gera o formato correto exigido pelo seu PasswordHandler/BCrypt)
+            novoFuncionario.Salt = BCrypt.Net.BCrypt.GenerateSalt();
             novoFuncionario.Senha = PasswordHandler.HashPassword("123456", novoFuncionario.Salt);
+
+            // Remove a máscara do CPF antes de salvar
             novoFuncionario.CPF = Mask.RemoveMask(novoFuncionario.CPF);
+
+            // Registra o Usuário primeiro
             UserController.Register(novoFuncionario);
+
             string jsonString = JsonSerializer.Serialize(novoFuncionario, new JsonSerializerOptions { WriteIndented = true });
             System.Diagnostics.Debug.WriteLine(jsonString);
+
+            // IMPORTANTE: Aqui o controller cria a instância do funcionário baseada no usuário criado
             funcionarioNew = FuncionarioController.CreateByUser(novoFuncionario);
-            funcionarioNew.Telefone = telefone;
+
+            // GARANTIA: Agora mapeamos as variáveis da tela para dentro do objeto recém-criado
+            funcionarioNew.Telefone = Mask.RemoveMask(telefone);
             funcionarioNew.Cargo = cargo;
             funcionarioNew.Departamento = departamento;
             funcionarioNew.ChavePix = chavePix;
             funcionarioNew.SalarioBase = salarioDigitado;
             funcionarioNew.DataAdmissao = dataAdmissao;
 
-            // Salvando através do Controller
+            // Salvando através dos Controllers com os dados protegidos
             FuncionarioController.Register(funcionarioNew);
             SalarioController.GerarSalarioFuncionario(funcionarioNew, salarioDigitado);
 
-            // Redireciona para a lista (que faremos a seguir)
             Navigation.NavigateTo("/lista-funcionarios");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro ao registrar colaborador: {ex.Message}");
+            mensagemErro = $"Erro ao registrar colaborador: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine(mensagemErro);
         }
     }
 
