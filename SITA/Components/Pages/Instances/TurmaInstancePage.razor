@@ -4,65 +4,138 @@
 @using SITA.src.Controller
 @inject NavigationManager Navigation
 
-<div class="container mt-4" style="background-color: white; padding: 25px; border-radius: 12px; border: 2px solid #3650a1;">
+<div class="container mt-4" style="max-width: 1000px; padding-bottom: 60px;">
+    <div class="row mb-3">
+        <div class="col-12 d-flex justify-content-between align-items-center px-3">
+            <button class="btn btn-link p-0 text-decoration-none fw-bold text-start"
+                    @onclick="Voltar"
+                    style="color: #3650a1; font-size: 1.05rem; background: transparent; border: none; box-shadow: none;">
+                ← Voltar para Gestão de Turmas
+            </button>
+            <span class="badge" style="background-color: rgba(54, 80, 161, 0.1); color: #3650a1; font-size: 0.9rem; padding: 6px 12px; border-radius: 6px; font-weight: bold;">
+                Código ID: @TurmaIdGuid.ToString().Substring(0, 8).ToUpper()
+            </span>
+        </div>
+    </div>
+
     @if (turma == null)
     {
-        <div class="alert alert-info">Carregando dados da turma...</div>
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-2">Carregando dados estruturais da turma...</p>
+        </div>
     }
     else
     {
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 style="color: #3650a1; font-weight: bold;">Turma: @turma.Nome</h2>
-            <span class="badge bg-primary">ID: @turma.Id.ToString().Substring(0, 8)</span>
-        </div>
-        <hr />
-
-        <!-- Seção do Professor -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="p-3" style="background-color: #f0f8ff; border-radius: 8px; border-left: 5px solid #3650a1;">
-                    <h5 class="mb-1"><b>Professor Responsável</b></h5>
-                    @if (professor != null)
-                    {
-                        <p class="mb-0">@professor.Nome — <small>@professor.Cargo</small></p>
-                    }
-                    else
-                    {
-                        <p class="mb-0 text-muted">Nenhum professor vinculado a esta turma.</p>
-                    }
-                </div>
+        <div class="p-4 mb-4 text-white d-flex justify-content-between align-items-center shadow-sm"
+             style="background: linear-gradient(135deg, #3650a1 0%, #20335e 100%); border-radius: 14px;">
+            <div>
+                <h1 class="fw-bold m-0 mt-2" style="font-size: 2.2rem;">Sala: @turma.Nome</h1>
+            </div>
+            <div class="text-end">
+                <span class="fs-5 fw-bold bg-white text-dark px-3 py-1 rounded-pill shadow-sm">
+                    ⏱ Turno: @turma.Turno
+                </span>
             </div>
         </div>
 
-        <!-- Lista de Alunos -->
-        <h4 style="color: #3650a1;">Lista de Alunos (@alunosDaTurma.Count)</h4>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover mt-2">
-                <thead style="background-color: #3650a1; color: white;">
-                    <tr>
-                        <th>Nome do Aluno</th>
-                        <th>RA</th>
-                        <th>Idade</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var aluno in alunosDaTurma)
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 14px; background: #ffffff;">
+                    <h5 class="fw-bold mb-3" style="color: #20335e;">Regência Atual</h5>
+
+                    @if (professor != null)
                     {
-                        <tr>
-                            
-                                <td><a href="#" @onclick="() => GoAluno(aluno.Id)">@aluno.Nome</a></td>
-                            <td>@aluno.RA</td>
-                            <td>@aluno.CalcularIdade() anos</td>
-                        </tr>
+                        <div class="d-flex align-items-center gap-3 p-3 rounded" style="background-color: #f0fdf4; border-left: 4px solid #16a34a;">
+                            <span style="font-size: 2rem;">👨‍🏫</span>
+                            <div>
+                                <h6 class="fw-bold m-0 text-success" style="font-size: 1.1rem;">@professor.Nome</h6>
+                                <small class="text-muted">Cargo: @professor.Cargo</small>
+                            </div>
+                        </div>
                     }
-                    @if (!alunosDaTurma.Any())
+                    else
                     {
-                        <tr>
-                            <td colspan="3" class="text-center text-muted">Nenhum aluno matriculado nesta turma.</td>
-                        </tr>
+                        <div class="d-flex align-items-center gap-3 p-3 rounded" style="background-color: #fef2f2; border-left: 4px solid #dc2626;">
+                            <span style="font-size: 2rem;">⚠</span>
+                            <div>
+                                <h6 class="fw-bold m-0 text-danger" style="font-size: 1.1rem;">Sem Professor Regente</h6>
+                                <small class="text-muted">A turma está sem docente alocado.</small>
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
+                </div>
+
+                <div class="card border-0 shadow-sm p-4" style="border-radius: 14px; background: #ffffff; border-top: 4px solid #3650a1;">
+                    <h5 class="fw-bold mb-2" style="color: #20335e;">Alocar Novo Professor</h5>
+                    <p class="text-muted small mb-3">Escolha um docente homologado abaixo para assumir a regência desta sala.</p>
+
+                    <div class="mb-3">
+                        <select class="form-select py-2" value="@professorIdSelecionado" @onchange="OnProfessorChanged" style="border-radius: 8px;">
+                            <option value=""> Remover Professor / Deixar Vazio </option>
+                            @foreach (var prof in listaProfessoresDisponiveis)
+                            {
+                                <option value="@prof.Id.ToString()">@prof.Nome</option>
+                            }
+                        </select>
+                    </div>
+
+                    <button class="btn w-100 fw-bold py-2 text-white"
+                            @onclick="SalvarVinculoDocente"
+                            disabled="@(!houveAlteracao)"
+                            style="background-color: #3650a1; border-radius: 8px; transition: 0.2s; opacity: @(houveAlteracao ? "1" : "0.6");">
+                        SALVAR ALTERAÇÃO
+                    </button>
+
+                    @if (!string.IsNullOrEmpty(feedbackMessage))
+                    {
+                        <div class="alert alert-success mt-3 py-2 text-center small fw-bold" role="alert" style="border-radius: 8px;">
+                            ✔ @feedbackMessage
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm p-4" style="border-radius: 14px; background: #ffffff;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold m-0" style="color: #20335e;">Lista de Alunos</h4>
+                        <span class="badge rounded-pill bg-secondary px-3 py-2">@alunosDaTurma.Count Matriculados</span>
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover align-middle m-0">
+                            <thead style="background-color: #3650a1; color: white; position: sticky; top: 0; z-index: 1;">
+                                <tr>
+                                    <th style="border-top-left-radius: 8px; padding: 12px;">Nome do Aluno</th>
+                                    <th style="padding: 12px;">RA</th>
+                                    <th style="border-top-right-radius: 8px; padding: 12px;">Idade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var aluno in alunosDaTurma)
+                                {
+                                    <tr>
+                                        <td style="padding: 12px;">
+                                            <a href="#" @onclick="() => GoAluno(aluno.Id)" class="fw-bold text-decoration-none" style="color: #3650a1;">
+                                                @aluno.Nome
+                                            </a>
+                                        </td>
+                                        <td style="padding: 12px; color: #64748b; font-family: monospace;">@aluno.RA</td>
+                                        <td style="padding: 12px;">@aluno.CalcularIdade() anos</td>
+                                    </tr>
+                                }
+                                @if (!alunosDaTurma.Any())
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">Nenhum aluno matriculado nesta turma.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     }
 </div>
@@ -74,6 +147,12 @@
     private Funcionario? professor;
     private List<Aluno> alunosDaTurma = new List<Aluno>();
 
+    private List<Funcionario> listaProfessoresDisponiveis = new();
+    private string professorIdSelecionado = string.Empty;
+    private string professorIdOriginal = string.Empty;
+    private bool houveAlteracao = false;
+    private string feedbackMessage = string.Empty;
+
     protected override void OnInitialized()
     {
         CarregarDadosDaTurma();
@@ -81,20 +160,98 @@
 
     private void CarregarDadosDaTurma()
     {
-        // 1. Busca a Turma no Storage
         turma = TurmaController.Get(TurmaIdGuid.ToString(), null);
 
         if (turma != null)
         {
-            // 2. Busca o Professor usando o ProfessorId armazenado na Turma
             if (turma.Professor != null)
             {
                 professor = FuncionarioController.Get(turma.Professor.Id.ToString(), null);
+                if (professor != null)
+                {
+                    professorIdSelecionado = professor.Id.ToString();
+                    professorIdOriginal = professor.Id.ToString();
+                }
+            }
+            else
+            {
+                professor = null;
+                professorIdSelecionado = string.Empty;
+                professorIdOriginal = string.Empty;
             }
 
-            // 3. Busca os Alunos comparando os IDs da lista da Turma com o Storage Global
             alunosDaTurma = turma.Alunos.ToList();
+            houveAlteracao = false;
+            CarregarListaProfessores();
         }
     }
+
+    private void CarregarListaProfessores()
+    {
+        try
+        {
+            var todos = FuncionarioController.GetAll();
+
+            // 🌟 ESTRATÉGIA ATUALIZADA: Cruzamento direto com o UserController filtrando estritamente por Level == 2 (CPF como chave única)
+            var cpfsProfessores = UserController.GetAll()
+                .Where(u => u.AccessType != null && u.AccessType.Level == 2)
+                .Select(u => u.CPF)
+                .ToList();
+
+            if (todos != null)
+            {
+                listaProfessoresDisponiveis = todos
+                    .Where(f => f.Ativo && cpfsProfessores.Contains(f.CPF))
+                    .OrderBy(f => f.Nome)
+                    .ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao listar professores por nível de acesso: {ex.Message}");
+        }
+    }
+
+    private void OnProfessorChanged(ChangeEventArgs e)
+    {
+        professorIdSelecionado = e.Value?.ToString() ?? string.Empty;
+        houveAlteracao = (professorIdSelecionado != professorIdOriginal);
+    }
+
+    private void SalvarVinculoDocente()
+    {
+        if (turma == null || !houveAlteracao) return;
+
+        try
+        {
+            if (string.IsNullOrEmpty(professorIdSelecionado))
+            {
+                turma.Professor = null;
+            }
+            else
+            {
+                var profEscolhido = listaProfessoresDisponiveis
+                    .FirstOrDefault(p => p.Id.ToString() == professorIdSelecionado);
+
+                if (profEscolhido != null)
+                {
+                    turma.Professor = profEscolhido;
+                }
+            }
+
+            TurmaController.Register(turma);
+
+            feedbackMessage = "Vínculo atualizado com sucesso!";
+            CarregarDadosDaTurma();
+
+            Task.Delay(2500).ContinueWith(_ => { feedbackMessage = ""; InvokeAsync(StateHasChanged); });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao salvar vínculo de professor: {ex.Message}");
+        }
+    }
+
     void GoAluno(Guid id) => Navigation.NavigateTo($"/alunos/{id}");
+    void Voltar() => Navigation.NavigateTo("/turmas");
 }
