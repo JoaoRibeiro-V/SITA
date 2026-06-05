@@ -8,91 +8,89 @@
 <div class="container-fluid p-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 style="color: #3650a1; font-weight: bold;">Gestão de Estoque</h2>
+        <h2 style="color: #3650a1; font-weight: bold; letter-spacing: -0.5px;">Gestão de Estoque</h2>
         <div class="d-flex gap-2">
             <input @bind="search" @bind:event="oninput" class="form-control"
-                   placeholder="Buscar item..." style="width: 220px;" />
-            <button class="btn fw-bold" style="background:#3650a1; color:white;"
+                   placeholder="Buscar item..." style="width: 250px; border-radius: 8px;" />
+            <button class="btn fw-bold text-white px-4 shadow-sm" style="background:#3650a1; border: none; border-radius: 8px;"
                     @onclick="AbrirModalNovo">
                 + Novo Item
             </button>
         </div>
     </div>
 
-    <!-- Resumo -->
-    <div class="row mb-4">
+    <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #3650a1 !important;">
-                <small class="text-muted">Total de Itens</small>
-                <h4 class="fw-bold" style="color:#3650a1;">@itensFiltrados.Count()</h4>
+            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #3650a1 !important; border-radius: 8px;">
+                <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Total de Itens</small>
+                <h4 class="fw-bold m-0 mt-1" style="color:#3650a1;">@itensFiltrados.Count()</h4>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #28a745 !important;">
-                <small class="text-muted">Valor em Estoque (Venda)</small>
-                <h4 class="fw-bold text-success">R$ @itensFiltrados.Sum(i => i.GetValorTotalVenda()).ToString("N2")</h4>
+            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #28a745 !important; border-radius: 8px;">
+                <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Valor em Estoque (Venda)</small>
+                <h4 class="fw-bold text-success m-0 mt-1">R$ @itensFiltrados.Sum(i => i.GetValorTotalVenda()).ToString("N2")</h4>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #ffc107 !important;">
-                <small class="text-muted">Valor em Estoque (Custo)</small>
-                <h4 class="fw-bold text-warning">R$ @itensFiltrados.Sum(i => i.GetValorTotalCusto()).ToString("N2")</h4>
+            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #ffc107 !important; border-radius: 8px;">
+                <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Valor em Estoque (Custo)</small>
+                <h4 class="fw-bold text-warning m-0 mt-1">R$ @itensFiltrados.Sum(i => i.GetValorTotalCusto()).ToString("N2")</h4>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #dc3545 !important;">
-                <small class="text-muted">Itens com Estoque Baixo</small>
-                <h4 class="fw-bold text-danger">@itens.Count(i => i.Quantidade < 5)</h4>
+            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #dc3545 !important; border-radius: 8px;">
+                <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Itens com Estoque Baixo</small>
+                <h4 class="fw-bold text-danger m-0 mt-1">@itens.Count(i => i.Quantidade < 5)</h4>
             </div>
         </div>
     </div>
 
-    <!-- Tabela de Itens -->
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
         <div class="card-body p-0">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 align-middle">
                 <thead style="background-color: #3650a1; color: white;">
                     <tr>
-                        <th>Item</th>
-                        <th>Categoria</th>
-                        <th>Qtd</th>
-                        <th>Custo Unit.</th>
-                        <th>Venda Unit.</th>
-                        <th>Margem</th>
-                        <th>Ações</th>
+                        <th class="ps-4 py-3">Item</th>
+                        <th class="py-3">Categoria</th>
+                        <th class="py-3">Qtd</th>
+                        <th class="py-3">Custo Unit.</th>
+                        <th class="py-3">Venda Unit.</th>
+                        <th class="py-3">Margem</th>
+                        <th class="pe-4 py-3 text-end">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in itensFiltrados)
                     {
                         <tr class="@(item.Quantidade < 5 ? "table-warning" : "")">
-                            <td>
-                                <strong>@item.Nome</strong>
+                            <td class="ps-4">
+                                <strong style="color: #2b3e6b;">@item.Nome</strong>
                                 @if (!string.IsNullOrEmpty(item.Descricao))
                                 {
                                     <br /><small class="text-muted">@item.Descricao</small>
                                 }
                             </td>
-                            <td>@(item.Categoria ?? "-")</td>
+                            <td><span class="badge bg-light text-dark border">@(item.Categoria ?? "-")</span></td>
                             <td>
-                                <span class="badge @(item.Quantidade < 5 ? "bg-danger" : "bg-success")">
+                                <span class="badge px-2 py-1 @(item.Quantidade < 5 ? "bg-danger" : "bg-success")" style="font-size: 0.85rem;">
                                     @item.Quantidade
                                 </span>
                             </td>
-                            <td>R$ @item.PrecoCusto.ToString("N2")</td>
-                            <td>R$ @item.PrecoVenda.ToString("N2")</td>
-                            <td>@item.GetMargem().ToString("N1")%</td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <button class="btn btn-sm btn-outline-success"
+                            <td class="fw-semibold text-secondary">R$ @item.PrecoCusto.ToString("N2")</td>
+                            <td class="fw-semibold text-primary">R$ @item.PrecoVenda.ToString("N2")</td>
+                            <td class="fw-bold text-info">@item.GetMargem().ToString("N1")%</td>
+                            <td class="pe-4 text-end">
+                                <div class="d-flex gap-1 justify-content-end">
+                                    <button class="btn btn-sm btn-outline-success fw-bold px-3" style="border-radius: 6px;"
                                             @onclick="() => AbrirModalEntrada(item)">
                                         Entrada
                                     </button>
-                                    <button class="btn btn-sm btn-outline-primary"
+                                    <button class="btn btn-sm btn-outline-primary fw-bold px-3" style="border-radius: 6px;"
                                             @onclick="() => AbrirModalVenda(item)">
                                         Venda
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger"
+                                    <button class="btn btn-sm btn-light border text-danger px-2" style="border-radius: 6px;"
                                             @onclick="() => ExcluirItem(item)">
                                         ✕
                                     </button>
@@ -103,7 +101,7 @@
                     @if (!itensFiltrados.Any())
                     {
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">Nenhum item encontrado.</td>
+                            <td colspan="7" class="text-center text-muted py-5 fs-6">Nenhum item encontrado no almoxarifado.</td>
                         </tr>
                     }
                 </tbody>
@@ -112,123 +110,137 @@
     </div>
 </div>
 
-<!-- MODAL: Novo Item -->
 <Modal IsOpen="showModalNovo" OnClose="() => showModalNovo = false">
-    <div style="padding: 5px;">
-        <h5 style="color:#3650a1; font-weight:bold;">Novo Item de Estoque</h5>
+    <div style="padding: 15px 20px;">
+        <div class="text-center mb-4">
+            <div class="mx-auto mb-2 d-inline-block rounded-circle bg-primary bg-opacity-10 p-3" style="color: #3650a1;">
+                📦
+            </div>
+            <h4 class="fw-bold m-0" style="color:#3650a1;">Novo Item de Estoque</h4>
+            <p class="text-muted small m-0">Insira as propriedades do produto.</p>
+        </div>
 
-        <div class="mb-2">
-            <label class="fw-bold">Nome:</label>
-            <input class="form-control" @bind="novoItem.Nome" />
+        <div class="mb-3">
+            <label class="fw-semibold small text-secondary mb-1">Nome do Item:</label>
+            <input class="form-control py-2" @bind="novoItem.Nome" placeholder="Ex:Uniforme" style="border-radius: 8px;" />
         </div>
-        <div class="mb-2">
-            <label class="fw-bold">Descrição:</label>
-            <input class="form-control" @bind="novoItem.Descricao" />
+        <div class="mb-3">
+            <label class="fw-semibold small text-secondary mb-1">Descrição Detalhada:</label>
+            <input class="form-control py-2" @bind="novoItem.Descricao" placeholder="Ex: Tamanho G" style="border-radius: 8px;" />
         </div>
-        <div class="mb-2">
-            <label class="fw-bold">Categoria:</label>
-            <select class="form-select" @bind="novoItem.Categoria">
+        <div class="mb-3">
+            <label class="fw-semibold small text-secondary mb-1">Categoria Comercial:</label>
+            <select class="form-select py-2" @bind="novoItem.Categoria" style="border-radius: 8px;">
                 <option value="Uniforme">Uniforme</option>
                 <option value="Material">Material Escolar</option>
                 <option value="Outros">Outros</option>
             </select>
         </div>
-        <div class="row mb-2">
+        <div class="row g-3 mb-3">
             <div class="col">
-                <label class="fw-bold">Preço de Custo (R$):</label>
-                <input type="number" class="form-control" @bind="novoItem.PrecoCusto" step="0.01" />
+                <label class="fw-semibold small text-secondary mb-1">Preço de Custo (R$):</label>
+                <input type="number" class="form-control py-2 fw-bold text-warning" @bind="novoItem.PrecoCusto" step="0.01" style="border-radius: 8px;" />
             </div>
             <div class="col">
-                <label class="fw-bold">Preço de Venda (R$):</label>
-                <input type="number" class="form-control" @bind="novoItem.PrecoVenda" step="0.01" />
+                <label class="fw-semibold small text-secondary mb-1">Preço de Venda (R$):</label>
+                <input type="number" class="form-control py-2 fw-bold text-success" @bind="novoItem.PrecoVenda" step="0.01" style="border-radius: 8px;" />
             </div>
         </div>
-        <div class="mb-3">
-            <label class="fw-bold">Fornecedor:</label>
-            <input class="form-control" @bind="novoItem.Fornecedor" />
+        <div class="mb-4">
+            <label class="fw-semibold small text-secondary mb-1">Fornecedor Padrão:</label>
+            <input class="form-control py-2" @bind="novoItem.Fornecedor" placeholder="Nome da empresa" style="border-radius: 8px;" />
         </div>
 
         @if (!string.IsNullOrEmpty(msgModalErro))
         {
-            <div class="alert alert-danger py-2">@msgModalErro</div>
+            <div class="alert alert-danger py-2 fw-semibold small border-0 shadow-sm" style="border-radius: 8px;">⚠ @msgModalErro</div>
         }
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-success w-100 fw-bold" @onclick="SalvarNovoItem">SALVAR</button>
-            <button class="btn btn-outline-secondary w-100" @onclick="() => showModalNovo = false">CANCELAR</button>
+        <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-light border py-2 fw-bold text-muted w-100" style="border-radius: 8px;" @onclick="() => showModalNovo = false">CANCELAR</button>
+            <button class="btn py-2 fw-bold text-white w-100 shadow-sm" style="background-color: #3650a1; border: none; border-radius: 8px;" @onclick="SalvarNovoItem">SALVAR ITEM</button>
         </div>
     </div>
 </Modal>
 
-<!-- MODAL: Entrada de Estoque -->
 <Modal IsOpen="showModalEntrada" OnClose="() => showModalEntrada = false">
-    <div style="padding: 5px;">
-        <h5 style="color:#28a745; font-weight:bold;">Entrada de Estoque — @itemSelecionado?.Nome</h5>
-
-        <div class="mb-2">
-            <label class="fw-bold">Quantidade a Adicionar:</label>
-            <input type="number" class="form-control" @bind="qtdEntrada" min="1" />
+    <div style="padding: 15px 20px;">
+        <div class="text-center mb-4">
+            <div class="mx-auto mb-2 d-inline-block rounded-circle bg-success bg-opacity-10 p-3" style="color: #28a745;">
+                📥
+            </div>
+            <h4 class="fw-bold m-0" style="color:#28a745;">Entrada de Material</h4>
+            <p class="text-muted small m-0">Item selecionado: <strong class="text-dark">@(itemSelecionado?.Nome ?? "")</strong></p>
         </div>
-        <div class="mb-2">
-            <label class="fw-bold">Preço de Custo Unitário (R$):</label>
-            <input type="number" class="form-control" @bind="precoCustoEntrada" step="0.01" />
+
+        <div class="mb-3">
+            <label class="fw-semibold small text-secondary mb-1">Quantidade a Adicionar:</label>
+            <input type="number" class="form-control py-2 fw-bold fs-5 text-center" @bind="qtdEntrada" min="1" style="border-radius: 8px; border: 1px solid #28a745;" />
         </div>
         <div class="mb-3">
-            <label class="fw-bold">Fornecedor:</label>
-            <input class="form-control" @bind="fornecedorEntrada" />
+            <label class="fw-semibold small text-secondary mb-1">Preço de Custo Unitário Atualizado (R$):</label>
+            <input type="number" class="form-control py-2 text-success fw-bold" @bind="precoCustoEntrada" step="0.01" style="border-radius: 8px;" />
         </div>
-        <p class="text-muted">
-            Uma despesa de <strong>R$ @((qtdEntrada * (double)precoCustoEntrada).ToString("N2"))</strong> será gerada automaticamente.
-        </p>
+        <div class="mb-4">
+            <label class="fw-semibold small text-secondary mb-1">Fornecedor do Lote:</label>
+            <input class="form-control py-2" @bind="fornecedorEntrada" style="border-radius: 8px;" />
+        </div>
+
+        <div class="p-3 bg-light rounded-3 text-center border mb-3">
+            <span class="text-muted small d-block">Impacto Patrimonial Automático:</span>
+            <span class="fw-bold text-danger fs-5">Despesa de R$ @((qtdEntrada * (itemSelecionado != null ? precoCustoEntrada : 0)).ToString("N2"))</span>
+        </div>
 
         @if (!string.IsNullOrEmpty(msgModalErro))
         {
-            <div class="alert alert-danger py-2">@msgModalErro</div>
+            <div class="alert alert-danger py-2 fw-semibold small border-0" style="border-radius: 8px;">⚠ @msgModalErro</div>
         }
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-success w-100 fw-bold" @onclick="ConfirmarEntrada">CONFIRMAR ENTRADA</button>
-            <button class="btn btn-outline-secondary w-100" @onclick="() => showModalEntrada = false">CANCELAR</button>
+        <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-light border py-2 fw-bold text-muted w-100" style="border-radius: 8px;" @onclick="() => showModalEntrada = false">CANCELAR</button>
+            <button class="btn btn-success py-2 fw-bold text-white w-100 shadow-sm" style="border-radius: 8px; border: none;" @onclick="ConfirmarEntrada">CONFIRMAR ENTRADA</button>
         </div>
     </div>
 </Modal>
 
-<!-- MODAL: Venda -->
 <Modal IsOpen="showModalVenda" OnClose="() => showModalVenda = false">
-    <div style="padding: 5px;">
-        <h5 style="color:#3650a1; font-weight:bold;">Registrar Venda — @itemSelecionado?.Nome</h5>
-        <p class="text-muted">Estoque disponível: <strong>@itemSelecionado?.Quantidade</strong></p>
-
-        <div class="mb-2">
-            <label class="fw-bold">Quantidade:</label>
-            <input type="number" class="form-control" @bind="qtdVenda" min="1"
-                   max="@itemSelecionado?.Quantidade" />
+    <div style="padding: 15px 20px;">
+        <div class="text-center mb-4">
+            <div class="mx-auto mb-2 d-inline-block rounded-circle bg-info bg-opacity-10 p-3" style="color: #3650a1;">
+                💰
+            </div>
+            <h4 class="fw-bold m-0" style="color:#3650a1;">Registrar Saída / Venda</h4>
+            <p class="text-muted small m-0">Item: <strong class="text-dark">@(itemSelecionado?.Nome ?? "")</strong> | Estoque: <span class="badge bg-secondary">@(itemSelecionado?.Quantidade ?? 0) disp.</span></p>
         </div>
-        <div class="mb-2">
-            <label class="fw-bold">CPF do Responsável (opcional):</label>
-            <input class="form-control"
-                   value="@cpfVenda"
-                   @oninput="OnCpfVendaInput"
-                   placeholder="000.000.000-00"
-                   maxlength="14" />
+
+        <div class="mb-3">
+            <label class="fw-semibold small text-secondary mb-1">Quantidade Solicitada:</label>
+            <input type="number" class="form-control py-2 text-center fw-bold fs-5" @bind="qtdVenda" min="1" max="@(itemSelecionado?.Quantidade ?? 1)" style="border-radius: 8px; border: 1px solid #3650a1;" />
+        </div>
+        <div class="mb-3">
+            <label class="fw-semibold small text-secondary mb-1">CPF do Responsável Financeiro:</label>
+            <input class="form-control py-2 fw-bold" value="@cpfVenda" @oninput="OnCpfVendaInput" placeholder="000.000.000-00" maxlength="14" style="border-radius: 8px; letter-spacing: 0.5px;" />
             @if (responsavelVenda != null)
             {
-                <small class="text-success">✔ @responsavelVenda.Nome</small>
+                <div class="mt-2 text-success small fw-bold">
+                    <span class="me-1">✔</span> Vinculado a: @responsavelVenda.Nome
+                </div>
             }
         </div>
 
-        <p class="text-muted">
-            Receita de <strong>R$ @((qtdVenda * (double)(itemSelecionado?.PrecoVenda ?? 0)).ToString("N2"))</strong> será gerada automaticamente.
-        </p>
+        <div class="p-3 bg-light rounded-3 text-center border mb-3">
+            <span class="text-muted small d-block">Previsão de Caixa Direto:</span>
+            <span class="fw-bold text-success fs-5">Receita de R$ @((qtdVenda * (itemSelecionado != null ? itemSelecionado.PrecoVenda : 0)).ToString("N2"))</span>
+        </div>
 
         @if (!string.IsNullOrEmpty(msgModalErro))
         {
-            <div class="alert alert-danger py-2">@msgModalErro</div>
+            <div class="alert alert-danger py-2 fw-semibold small border-0" style="border-radius: 8px;">⚠ @msgModalErro</div>
         }
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary w-100 fw-bold" @onclick="ConfirmarVenda">CONFIRMAR VENDA</button>
-            <button class="btn btn-outline-secondary w-100" @onclick="() => showModalVenda = false">CANCELAR</button>
+        <div class="d-flex gap-3 mt-4">
+            <button class="btn btn-light border py-2 fw-bold text-muted w-100" style="border-radius: 8px;" @onclick="() => showModalVenda = false">CANCELAR</button>
+            <button class="btn btn-primary py-2 fw-bold text-white w-100 shadow-sm" style="background-color: #3650a1; border: none; border-radius: 8px;" @onclick="ConfirmarVenda">CONFIRMAR VENDA</button>
         </div>
     </div>
 </Modal>
@@ -253,13 +265,20 @@
     private Responsavel? responsavelVenda = null;
 
     IEnumerable<ItemEstoque> itensFiltrados =>
-        itens.Where(i => string.IsNullOrEmpty(search) ||
-                         i.Nome.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                         (i.Categoria?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
+        (itens ?? new List<ItemEstoque>()).Where(i => i != null && (string.IsNullOrEmpty(search) ||
+                         (i.Nome != null && i.Nome.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                         (i.Categoria != null && i.Categoria.Contains(search, StringComparison.OrdinalIgnoreCase))));
 
     protected override void OnInitialized()
     {
-        itens = EstoqueController.GetAll();
+        try
+        {
+            itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
+        }
+        catch (Exception)
+        {
+            itens = new List<ItemEstoque>();
+        }
     }
 
     void AbrirModalNovo()
@@ -277,18 +296,20 @@
             return;
         }
         EstoqueController.Register(novoItem);
-        itens = EstoqueController.GetAll();
+        itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
         showModalNovo = false;
     }
 
     void ExcluirItem(ItemEstoque item)
     {
+        if (item == null) return;
         EstoqueController.Delete(item);
-        itens = EstoqueController.GetAll();
+        itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
     }
 
     void AbrirModalEntrada(ItemEstoque item)
     {
+        if (item == null) return;
         itemSelecionado = item;
         qtdEntrada = 1;
         precoCustoEntrada = item.PrecoCusto;
@@ -305,12 +326,13 @@
             return;
         }
         EstoqueController.EntradaEstoque(itemSelecionado, qtdEntrada, (float)precoCustoEntrada, fornecedorEntrada);
-        itens = EstoqueController.GetAll();
+        itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
         showModalEntrada = false;
     }
 
     void AbrirModalVenda(ItemEstoque item)
     {
+        if (item == null) return;
         itemSelecionado = item;
         qtdVenda = 1;
         cpfVenda = "";
@@ -341,7 +363,7 @@
         {
             Aluno? aluno = responsavelVenda?.GetParentescos()?.FirstOrDefault()?.Aluno;
             EstoqueController.VendaEstoque(itemSelecionado, qtdVenda, aluno, responsavelVenda);
-            itens = EstoqueController.GetAll();
+            itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
             showModalVenda = false;
         }
         catch (Exception ex)

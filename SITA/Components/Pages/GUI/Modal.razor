@@ -1,11 +1,9 @@
 ﻿@if (IsOpen)
 {
-    <div class="modal-overlay" @onclick="OnClose">
+    <div class="modal-overlay" @onclick="TratarCliqueFora">
 
         <div class="modal-box" @onclick:stopPropagation>
-
             @ChildContent
-
         </div>
 
     </div>
@@ -15,4 +13,15 @@
     [Parameter] public bool IsOpen { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    
+    [Parameter] public bool FecharAoClicarFora { get; set; } = false;
+
+    private void TratarCliqueFora()
+    {
+        if (FecharAoClicarFora)
+        {
+            OnClose.InvokeAsync();
+        }
+    }
 }
