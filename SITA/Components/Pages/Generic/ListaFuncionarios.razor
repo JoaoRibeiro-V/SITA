@@ -640,6 +640,8 @@
 
         try
         {
+            bool salarioAlterado = funcionarioSelecionado.SalarioBase != SalarioBase;
+
             funcionarioSelecionado.Nome = Nome;
             funcionarioSelecionado.Email = Email;
             funcionarioSelecionado.Telefone = Telefone;
@@ -650,6 +652,16 @@
             funcionarioSelecionado.DataAdmissao = DataAdmissao;
             funcionarioSelecionado.AccessType = new AccessType { Level = NivelAcesso };
             funcionarioSelecionado.Ativo = Ativo;
+            if (salarioAlterado)
+            {
+                var despesasPendentes = DespesaController.GetAll()
+                    .Where(d => d is Salario s
+                        && s.Funcionario?.Id == funcionarioSelecionado.Id
+                        && !d.IsPago());
+
+                foreach (var despesa in despesasPendentes)
+                    despesa.Valor = (float)SalarioBase;
+            }
 
             modoEdicao = false;
             LoadData();
