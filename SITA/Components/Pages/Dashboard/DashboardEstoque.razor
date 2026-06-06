@@ -12,104 +12,205 @@
         <div class="d-flex gap-2">
             <input @bind="search" @bind:event="oninput" class="form-control"
                    placeholder="Buscar item..." style="width: 250px; border-radius: 8px;" />
-            <button class="btn fw-bold text-white px-4 shadow-sm" style="background:#3650a1; border: none; border-radius: 8px;"
-                    @onclick="AbrirModalNovo">
-                + Novo Item
-            </button>
+            @if (abaAtiva == "estoque")
+            {
+                <button class="btn fw-bold text-white px-4 shadow-sm"
+                        style="background:#3650a1; border: none; border-radius: 8px;"
+                        @onclick="AbrirModalNovo">
+                    + Novo Item
+                </button>
+            }
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #3650a1 !important; border-radius: 8px;">
-                <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Total de Itens</small>
-                <h4 class="fw-bold m-0 mt-1" style="color:#3650a1;">@itensFiltrados.Count()</h4>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #28a745 !important; border-radius: 8px;">
-                <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Valor em Estoque (Venda)</small>
-                <h4 class="fw-bold text-success m-0 mt-1">R$ @itensFiltrados.Sum(i => i.GetValorTotalVenda()).ToString("N2")</h4>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #ffc107 !important; border-radius: 8px;">
-                <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Valor em Estoque (Custo)</small>
-                <h4 class="fw-bold text-warning m-0 mt-1">R$ @itensFiltrados.Sum(i => i.GetValorTotalCusto()).ToString("N2")</h4>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #dc3545 !important; border-radius: 8px;">
-                <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Itens com Estoque Baixo</small>
-                <h4 class="fw-bold text-danger m-0 mt-1">@itens.Count(i => i.Quantidade < 5)</h4>
-            </div>
-        </div>
+    <!-- ABAS -->
+    <div class="d-flex gap-2 mb-4">
+        <button class="btn fw-bold px-4 @(abaAtiva == "estoque" ? "btn-primary" : "btn-outline-primary")"
+                style="border-radius: 8px;"
+                @onclick='() => abaAtiva = "estoque"'>
+            Estoque
+        </button>
+        <button class="btn fw-bold px-4 @(abaAtiva == "logs" ? "btn-primary" : "btn-outline-primary")"
+                style="border-radius: 8px;"
+                @onclick='() => { abaAtiva = "logs"; CarregarLogs(); }'>
+            Logs de Movimentação
+        </button>
     </div>
 
-    <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0 align-middle">
-                <thead style="background-color: #3650a1; color: white;">
-                    <tr>
-                        <th class="ps-4 py-3">Item</th>
-                        <th class="py-3">Categoria</th>
-                        <th class="py-3">Qtd</th>
-                        <th class="py-3">Custo Unit.</th>
-                        <th class="py-3">Venda Unit.</th>
-                        <th class="py-3">Margem</th>
-                        <th class="pe-4 py-3 text-end">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in itensFiltrados)
-                    {
-                        <tr class="@(item.Quantidade < 5 ? "table-warning" : "")">
-                            <td class="ps-4">
-                                <strong style="color: #2b3e6b;">@item.Nome</strong>
-                                @if (!string.IsNullOrEmpty(item.Descricao))
-                                {
-                                    <br /><small class="text-muted">@item.Descricao</small>
-                                }
-                            </td>
-                            <td><span class="badge bg-light text-dark border">@(item.Categoria ?? "-")</span></td>
-                            <td>
-                                <span class="badge px-2 py-1 @(item.Quantidade < 5 ? "bg-danger" : "bg-success")" style="font-size: 0.85rem;">
-                                    @item.Quantidade
-                                </span>
-                            </td>
-                            <td class="fw-semibold text-secondary">R$ @item.PrecoCusto.ToString("N2")</td>
-                            <td class="fw-semibold text-primary">R$ @item.PrecoVenda.ToString("N2")</td>
-                            <td class="fw-bold text-info">@item.GetMargem().ToString("N1")%</td>
-                            <td class="pe-4 text-end">
-                                <div class="d-flex gap-1 justify-content-end">
-                                    <button class="btn btn-sm btn-outline-success fw-bold px-3" style="border-radius: 6px;"
-                                            @onclick="() => AbrirModalEntrada(item)">
-                                        Entrada
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary fw-bold px-3" style="border-radius: 6px;"
-                                            @onclick="() => AbrirModalVenda(item)">
-                                        Venda
-                                    </button>
-                                    <button class="btn btn-sm btn-light border text-danger px-2" style="border-radius: 6px;"
-                                            @onclick="() => ExcluirItem(item)">
-                                        ✕
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                    @if (!itensFiltrados.Any())
-                    {
+    @if (abaAtiva == "estoque")
+    {
+        <!-- KPIs -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #3650a1 !important; border-radius: 8px;">
+                    <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Total de Itens</small>
+                    <h4 class="fw-bold m-0 mt-1" style="color:#3650a1;">@itensFiltrados.Count()</h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #28a745 !important; border-radius: 8px;">
+                    <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Valor em Estoque (Venda)</small>
+                    <h4 class="fw-bold text-success m-0 mt-1">R$ @itensFiltrados.Sum(i => i.GetValorTotalVenda()).ToString("N2")</h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #ffc107 !important; border-radius: 8px;">
+                    <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Valor em Estoque (Custo)</small>
+                    <h4 class="fw-bold text-warning m-0 mt-1">R$ @itensFiltrados.Sum(i => i.GetValorTotalCusto()).ToString("N2")</h4>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 p-3" style="border-left: 5px solid #dc3545 !important; border-radius: 8px;">
+                    <small class="text-uppercase fw-bold text-muted small" style="font-size: 0.75rem;">Itens com Estoque Baixo</small>
+                    <h4 class="fw-bold text-danger m-0 mt-1">@itens.Count(i => i.Quantidade < 5)</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABELA ESTOQUE -->
+        <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead style="background-color: #3650a1; color: white;">
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-5 fs-6">Nenhum item encontrado no almoxarifado.</td>
+                            <th class="ps-4 py-3">Item</th>
+                            <th class="py-3">Categoria</th>
+                            <th class="py-3">Qtd</th>
+                            <th class="py-3">Custo Unit.</th>
+                            <th class="py-3">Venda Unit.</th>
+                            <th class="py-3">Margem</th>
+                            <th class="pe-4 py-3 text-end">Ações</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in itensFiltrados)
+                        {
+                            <tr class="@(item.Quantidade < 5 ? "table-warning" : "")">
+                                <td class="ps-4">
+                                    <strong style="color: #2b3e6b;">@item.Nome</strong>
+                                    @if (!string.IsNullOrEmpty(item.Descricao))
+                                    {
+                                        <br /><small class="text-muted">@item.Descricao</small>
+                                    }
+                                </td>
+                                <td><span class="badge bg-light text-dark border">@(item.Categoria ?? "-")</span></td>
+                                <td>
+                                    <span class="badge px-2 py-1 @(item.Quantidade < 5 ? "bg-danger" : "bg-success")" style="font-size: 0.85rem;">
+                                        @item.Quantidade
+                                    </span>
+                                </td>
+                                <td class="fw-semibold text-secondary">R$ @item.PrecoCusto.ToString("N2")</td>
+                                <td class="fw-semibold text-primary">R$ @item.PrecoVenda.ToString("N2")</td>
+                                <td class="fw-bold text-info">@item.GetMargem().ToString("N1")%</td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <button class="btn btn-sm btn-outline-success fw-bold px-3" style="border-radius: 6px;"
+                                                @onclick="() => AbrirModalEntrada(item)">
+                                            Entrada
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary fw-bold px-3" style="border-radius: 6px;"
+                                                @onclick="() => AbrirModalVenda(item)">
+                                            Venda
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        @if (!itensFiltrados.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5 fs-6">Nenhum item encontrado no almoxarifado.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    }
+
+    @if (abaAtiva == "logs")
+    {
+        <!-- FILTROS LOGS -->
+        <div class="row g-2 mb-3 align-items-end">
+            <div class="col-md-3">
+                <label class="fw-semibold small text-secondary mb-1">Tipo</label>
+                <select class="form-select" @bind="filtroTipoLog">
+                    <option value="">Todos</option>
+                    <option value="Entrada">Entrada</option>
+                    <option value="Venda">Venda</option>
+                    <option value="Cadastro">Cadastro</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="fw-semibold small text-secondary mb-1">Data Inicial</label>
+                <input type="date" class="form-control" @bind="dataInicioLog" />
+            </div>
+            <div class="col-md-2">
+                <label class="fw-semibold small text-secondary mb-1">Data Final</label>
+                <input type="date" class="form-control" @bind="dataFimLog" />
+            </div>
+        </div>
+
+        <!-- TABELA LOGS -->
+        <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead style="background-color: #3650a1; color: white;">
+                        <tr>
+                            <th class="ps-4 py-3">Data/Hora</th>
+                            <th class="py-3">Tipo</th>
+                            <th class="py-3">Item</th>
+                            <th class="py-3">Qtd</th>
+                            <th class="py-3">Valor Total</th>
+                            <th class="py-3">Operador</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in LogsFiltrados)
+                        {
+                            <tr style="cursor: pointer;" @onclick="() => AbrirModalLog(log)">
+                                <td class="ps-4">@log.DataHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <span class="badge @log.GetTipoBadgeClass()">@log.GetTipoTexto()</span>
+                                </td>
+                                <td><strong>@log.NomeItem</strong></td>
+                                <td>
+                                    @if (log.Tipo != LogEstoque.TipoOperacao.CadastroItem)
+                                    {
+                                        <span>@log.Quantidade</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td class="fw-semibold @(log.Tipo == LogEstoque.TipoOperacao.Venda ? "text-success" : log.Tipo == LogEstoque.TipoOperacao.Entrada ? "text-danger" : "text-muted")">
+                                    @if (log.Tipo != LogEstoque.TipoOperacao.CadastroItem)
+                                    {
+                                        @($"R$ {log.ValorTotal:N2}")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>@(log.OperadorNome ?? "—")</td>
+                            </tr>
+                        }
+                        @if (!LogsFiltrados.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5 fs-6">Nenhuma movimentação registrada.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 </div>
 
+<!-- MODAL NOVO ITEM -->
 <Modal IsOpen="showModalNovo" OnClose="() => showModalNovo = false">
     <div style="padding: 15px 20px;">
         <div class="text-center mb-4">
@@ -139,7 +240,7 @@
         <div class="row g-3 mb-3">
             <div class="col">
                 <label class="fw-semibold small text-secondary mb-1">Preço de Custo (R$):</label>
-                <input type="number" class="form-control py-2 fw-bold text-warning" @bind="novoItem.PrecoCusto" step="0.01" style="border-radius: 8px;" />
+                <input type="number" class="form-control py-2 fw-bold" @bind="novoItem.PrecoCusto" step="0.01" style="border-radius: 8px;" />
             </div>
             <div class="col">
                 <label class="fw-semibold small text-secondary mb-1">Preço de Venda (R$):</label>
@@ -163,16 +264,13 @@
     </div>
 </Modal>
 
+<!-- MODAL ENTRADA -->
 <Modal IsOpen="showModalEntrada" OnClose="() => showModalEntrada = false">
     <div style="padding: 15px 20px;">
         <div class="text-center mb-4">
-            <div class="mx-auto mb-2 d-inline-block rounded-circle bg-success bg-opacity-10 p-3" style="color: #28a745;">
-                📥
-            </div>
             <h4 class="fw-bold m-0" style="color:#28a745;">Entrada de Material</h4>
             <p class="text-muted small m-0">Item selecionado: <strong class="text-dark">@(itemSelecionado?.Nome ?? "")</strong></p>
         </div>
-
         <div class="mb-3">
             <label class="fw-semibold small text-secondary mb-1">Quantidade a Adicionar:</label>
             <input type="number" class="form-control py-2 fw-bold fs-5 text-center" @bind="qtdEntrada" min="1" style="border-radius: 8px; border: 1px solid #28a745;" />
@@ -185,17 +283,40 @@
             <label class="fw-semibold small text-secondary mb-1">Fornecedor do Lote:</label>
             <input class="form-control py-2" @bind="fornecedorEntrada" style="border-radius: 8px;" />
         </div>
-
         <div class="p-3 bg-light rounded-3 text-center border mb-3">
             <span class="text-muted small d-block">Impacto Patrimonial Automático:</span>
-            <span class="fw-bold text-danger fs-5">Despesa de R$ @((qtdEntrada * (itemSelecionado != null ? precoCustoEntrada : 0)).ToString("N2"))</span>
+            <span class="fw-bold text-danger fs-5">Despesa de R$ @((qtdEntrada * precoCustoEntrada).ToString("N2"))</span>
         </div>
 
+        <div class="mb-3">
+            <label class="fw-semibold small text-secondary mb-1">CNPJ do Fornecedor:</label>
+            <input class="form-control py-2" @bind="entradaCnpjFornecedor" @oninput="OnCnpjInput"
+                   placeholder="00.000.000/0001-00" maxlength="18" style="border-radius: 8px;" />
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col">
+                <label class="fw-semibold small text-secondary mb-1">Nº Nota Fiscal:</label>
+                <input class="form-control py-2" @bind="entradaNumeroNF"
+                       placeholder="000000" style="border-radius: 8px;" maxlength="9" />
+            </div>
+            <div class="col">
+                <label class="fw-semibold small text-secondary mb-1">Quem Pagou:</label>
+                <input class="form-control py-2" @bind="entradaQuemPagou"
+                       placeholder="Nome do funcionário" style="border-radius: 8px;" />
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="fw-semibold small text-secondary mb-1">Chave de Acesso NF-e:</label>
+            <input class="form-control py-2" @bind="entradaChaveNF"
+                   placeholder="00000000000000000000000000000000000000000000"
+                   style="border-radius: 8px; font-size: 0.8rem;" maxlength="44" />
+        </div>
         @if (!string.IsNullOrEmpty(msgModalErro))
         {
             <div class="alert alert-danger py-2 fw-semibold small border-0" style="border-radius: 8px;">⚠ @msgModalErro</div>
         }
-
         <div class="d-flex gap-3 mt-4">
             <button class="btn btn-light border py-2 fw-bold text-muted w-100" style="border-radius: 8px;" @onclick="() => showModalEntrada = false">CANCELAR</button>
             <button class="btn btn-success py-2 fw-bold text-white w-100 shadow-sm" style="border-radius: 8px; border: none;" @onclick="ConfirmarEntrada">CONFIRMAR ENTRADA</button>
@@ -203,41 +324,37 @@
     </div>
 </Modal>
 
+<!-- MODAL VENDA -->
 <Modal IsOpen="showModalVenda" OnClose="() => showModalVenda = false">
     <div style="padding: 15px 20px;">
         <div class="text-center mb-4">
-            <div class="mx-auto mb-2 d-inline-block rounded-circle bg-info bg-opacity-10 p-3" style="color: #3650a1;">
-                💰
-            </div>
             <h4 class="fw-bold m-0" style="color:#3650a1;">Registrar Saída / Venda</h4>
-            <p class="text-muted small m-0">Item: <strong class="text-dark">@(itemSelecionado?.Nome ?? "")</strong> | Estoque: <span class="badge bg-secondary">@(itemSelecionado?.Quantidade ?? 0) disp.</span></p>
+            <p class="text-muted small m-0">
+                Item: <strong class="text-dark">@(itemSelecionado?.Nome ?? "")</strong> |
+                Estoque: <span class="badge bg-secondary">@(itemSelecionado?.Quantidade ?? 0) disp.</span>
+            </p>
         </div>
-
         <div class="mb-3">
             <label class="fw-semibold small text-secondary mb-1">Quantidade Solicitada:</label>
             <input type="number" class="form-control py-2 text-center fw-bold fs-5" @bind="qtdVenda" min="1" max="@(itemSelecionado?.Quantidade ?? 1)" style="border-radius: 8px; border: 1px solid #3650a1;" />
         </div>
         <div class="mb-3">
             <label class="fw-semibold small text-secondary mb-1">CPF do Responsável Financeiro:</label>
-            <input class="form-control py-2 fw-bold" value="@cpfVenda" @oninput="OnCpfVendaInput" placeholder="000.000.000-00" maxlength="14" style="border-radius: 8px; letter-spacing: 0.5px;" />
+            <input class="form-control py-2 fw-bold" value="@cpfVenda" @oninput="OnCpfVendaInput"
+                   placeholder="000.000.000-00" maxlength="14" style="border-radius: 8px;" />
             @if (responsavelVenda != null)
             {
-                <div class="mt-2 text-success small fw-bold">
-                    <span class="me-1">✔</span> Vinculado a: @responsavelVenda.Nome
-                </div>
+                <div class="mt-2 text-success small fw-bold">✔ Vinculado a: @responsavelVenda.Nome</div>
             }
         </div>
-
         <div class="p-3 bg-light rounded-3 text-center border mb-3">
             <span class="text-muted small d-block">Previsão de Caixa Direto:</span>
-            <span class="fw-bold text-success fs-5">Receita de R$ @((qtdVenda * (itemSelecionado != null ? itemSelecionado.PrecoVenda : 0)).ToString("N2"))</span>
+            <span class="fw-bold text-success fs-5">Receita de R$ @((qtdVenda * (itemSelecionado?.PrecoVenda ?? 0)).ToString("N2"))</span>
         </div>
-
         @if (!string.IsNullOrEmpty(msgModalErro))
         {
             <div class="alert alert-danger py-2 fw-semibold small border-0" style="border-radius: 8px;">⚠ @msgModalErro</div>
         }
-
         <div class="d-flex gap-3 mt-4">
             <button class="btn btn-light border py-2 fw-bold text-muted w-100" style="border-radius: 8px;" @onclick="() => showModalVenda = false">CANCELAR</button>
             <button class="btn btn-primary py-2 fw-bold text-white w-100 shadow-sm" style="background-color: #3650a1; border: none; border-radius: 8px;" @onclick="ConfirmarVenda">CONFIRMAR VENDA</button>
@@ -245,8 +362,93 @@
     </div>
 </Modal>
 
-@code {
+<!-- MODAL DETALHE DO LOG -->
+<Modal IsOpen="showModalLog" OnClose="() => showModalLog = false">
+    @if (logSelecionado != null)
+    {
+        <div style="padding: 15px 20px; min-width: 380px;">
+            <div class="text-center mb-4">
+                <span class="badge @logSelecionado.GetTipoBadgeClass() px-3 py-2 mb-2" style="font-size: 0.95rem;">
+                    @logSelecionado.GetTipoTexto()
+                </span>
+                <h4 class="fw-bold m-0" style="color:#3650a1;">Detalhes da Movimentação</h4>
+                <small class="text-muted">@logSelecionado.DataHora.ToString("dd/MM/yyyy HH:mm:ss")</small>
+            </div>
+
+            <div class="p-3 mb-3" style="background: #f8f9fa; border-radius: 8px; border-left: 4px solid #3650a1;">
+                <p class="mb-1"><strong>Item:</strong> @logSelecionado.NomeItem</p>
+
+                @if (logSelecionado.Tipo != LogEstoque.TipoOperacao.CadastroItem)
+                {
+                    <p class="mb-1"><strong>Quantidade:</strong> @logSelecionado.Quantidade</p>
+                    <p class="mb-1"><strong>Valor Unitário:</strong> R$ @logSelecionado.ValorUnitario.ToString("N2")</p>
+                    <p class="mb-1">
+                        <strong>Valor Total:</strong>
+                        <span class="fw-bold @(logSelecionado.Tipo == LogEstoque.TipoOperacao.Venda ? "text-success" : "text-danger")">
+                            R$ @logSelecionado.ValorTotal.ToString("N2")
+                        </span>
+                    </p>
+                }
+            </div>
+
+            @if (logSelecionado.Tipo == LogEstoque.TipoOperacao.Entrada)
+            {
+                <div class="p-3 mb-3" style="background: #f0fff4; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h6 class="fw-bold text-success mb-2">Dados da Entrada</h6>
+                    <p class="mb-0"><strong>Fornecedor:</strong> @(logSelecionado.Fornecedor ?? "—")</p>
+                </div>
+            }
+
+            @if (logSelecionado.Tipo == LogEstoque.TipoOperacao.Venda)
+            {
+                <div class="p-3 mb-3" style="background: #f0f4ff; border-radius: 8px; border-left: 4px solid #3650a1;">
+                    <h6 class="fw-bold mb-2" style="color:#3650a1;">Dados da Venda</h6>
+                    <p class="mb-1"><strong>Responsável:</strong> @(logSelecionado.ResponsavelNome ?? "—")</p>
+                    <p class="mb-0"><strong>Aluno:</strong> @(logSelecionado.AlunoNome ?? "—")</p>
+                </div>
+            }
+
+            <div class="p-3 mb-3" style="background: #fafafa; border-radius: 8px; border-left: 4px solid #aaa;">
+                <h6 class="fw-bold text-muted mb-2">Operador</h6>
+                <p class="mb-1"><strong>Nome:</strong> @(logSelecionado.OperadorNome ?? "—")</p>
+                <p class="mb-0"><strong>CPF:</strong> @(logSelecionado.OperadorCpf != null ? Mask.FormatCpf(logSelecionado.OperadorCpf) : "—")</p>
+            </div>
+            @if (!string.IsNullOrEmpty(logSelecionado.Observacao))
+            {
+                <div class="p-3 mb-3" style="background: #fffbea; border-radius: 8px; border-left: 4px solid #ffc107;">
+                    <h6 class="fw-bold text-warning mb-1">Observação</h6>
+                    <p class="mb-0 small">@logSelecionado.Observacao</p>
+                </div>
+            }
+
+            @if (logSelecionado.FinanceiroId.HasValue && logSelecionado.Tipo != LogEstoque.TipoOperacao.CadastroItem)
+            {
+                var tipo = logSelecionado.Tipo == LogEstoque.TipoOperacao.Entrada ? "despesa" : "receita";
+                var rota = $"/dashboard-financeiro/{tipo}/{logSelecionado.FinanceiroId}";
+
+                <button class="btn fw-bold w-100 mt-2 text-white"
+                        style="background-color: #3650a1; border: none; border-radius: 8px;"
+                        @onclick="() => Navigation.NavigateTo(rota)">
+                    VER @tipo.ToUpper() NO FINANCEIRO
+                </button>
+            }
+            <button class="btn btn-light border fw-bold w-100 mt-2" style="border-radius: 8px;"
+                    @onclick="() => showModalLog = false">
+                FECHAR
+            </button>
+        </div>
+    }
+</Modal>
+
+    @code {
+    private string abaAtiva = "estoque";
+    private string entradaQuemPagou = "";
+    private string entradaCnpjFornecedor = "";
+    private string entradaNumeroNF = "";
+    private string entradaChaveNF = "";
+
     private List<ItemEstoque> itens = new();
+    private List<LogEstoque> logs = new();
     private string search = "";
     private string msgModalErro = "";
 
@@ -264,21 +466,48 @@
     private string cpfVenda = "";
     private Responsavel? responsavelVenda = null;
 
+    private bool showModalLog = false;
+    private LogEstoque? logSelecionado = null;
+
+    // Filtros de log
+    private string filtroTipoLog = "";
+    private DateTime? dataInicioLog;
+    private DateTime? dataFimLog;
+
     IEnumerable<ItemEstoque> itensFiltrados =>
-        (itens ?? new List<ItemEstoque>()).Where(i => i != null && (string.IsNullOrEmpty(search) ||
-                         (i.Nome != null && i.Nome.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
-                         (i.Categoria != null && i.Categoria.Contains(search, StringComparison.OrdinalIgnoreCase))));
+        (itens ?? new()).Where(i => i != null && (string.IsNullOrEmpty(search) ||
+            (i.Nome?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (i.Categoria?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)));
+
+    IEnumerable<LogEstoque> LogsFiltrados
+    {
+        get
+        {
+            var query = logs.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(filtroTipoLog))
+                query = query.Where(l => l.GetTipoTexto() == filtroTipoLog);
+
+            if (dataInicioLog.HasValue)
+                query = query.Where(l => l.DataHora.Date >= dataInicioLog.Value.Date);
+
+            if (dataFimLog.HasValue)
+                query = query.Where(l => l.DataHora.Date <= dataFimLog.Value.Date);
+
+            return query.OrderByDescending(l => l.DataHora);
+        }
+    }
 
     protected override void OnInitialized()
     {
-        try
-        {
-            itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
-        }
-        catch (Exception)
-        {
-            itens = new List<ItemEstoque>();
-        }
+        try { itens = EstoqueController.GetAll() ?? new(); }
+        catch { itens = new(); }
+    }
+
+    void CarregarLogs()
+    {
+        try { logs = LogEstoqueController.GetAll() ?? new(); }
+        catch { logs = new(); }
     }
 
     void AbrirModalNovo()
@@ -296,24 +525,20 @@
             return;
         }
         EstoqueController.Register(novoItem);
-        itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
+        itens = EstoqueController.GetAll() ?? new();
         showModalNovo = false;
-    }
-
-    void ExcluirItem(ItemEstoque item)
-    {
-        if (item == null) return;
-        EstoqueController.Delete(item);
-        itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
     }
 
     void AbrirModalEntrada(ItemEstoque item)
     {
-        if (item == null) return;
         itemSelecionado = item;
         qtdEntrada = 1;
         precoCustoEntrada = item.PrecoCusto;
         fornecedorEntrada = item.Fornecedor ?? "";
+        entradaQuemPagou = "";
+        entradaCnpjFornecedor = "";
+        entradaNumeroNF = "";
+        entradaChaveNF = "";
         msgModalErro = "";
         showModalEntrada = true;
     }
@@ -325,14 +550,22 @@
             msgModalErro = "Informe quantidade e preço de custo válidos.";
             return;
         }
-        EstoqueController.EntradaEstoque(itemSelecionado, qtdEntrada, (float)precoCustoEntrada, fornecedorEntrada);
-        itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
+        EstoqueController.EntradaEstoque(
+            itemSelecionado,
+            qtdEntrada,
+            (float)precoCustoEntrada,
+            fornecedorEntrada,
+            entradaQuemPagou,
+            entradaCnpjFornecedor,
+            entradaNumeroNF,
+            entradaChaveNF);
+
+        itens = EstoqueController.GetAll() ?? new();
         showModalEntrada = false;
     }
 
     void AbrirModalVenda(ItemEstoque item)
     {
-        if (item == null) return;
         itemSelecionado = item;
         qtdVenda = 1;
         cpfVenda = "";
@@ -346,10 +579,9 @@
         var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
         if (digits.Length > 11) digits = digits[..11];
         cpfVenda = Mask.FormatCpf(digits);
-        if (digits.Length == 11)
-            responsavelVenda = ResponsavelController.Get("CPF", digits);
-        else
-            responsavelVenda = null;
+        responsavelVenda = digits.Length == 11
+            ? ResponsavelController.Get("CPF", digits)
+            : null;
     }
 
     void ConfirmarVenda()
@@ -363,12 +595,34 @@
         {
             Aluno? aluno = responsavelVenda?.GetParentescos()?.FirstOrDefault()?.Aluno;
             EstoqueController.VendaEstoque(itemSelecionado, qtdVenda, aluno, responsavelVenda);
-            itens = EstoqueController.GetAll() ?? new List<ItemEstoque>();
+            itens = EstoqueController.GetAll() ?? new();
             showModalVenda = false;
         }
         catch (Exception ex)
         {
             msgModalErro = ex.Message;
         }
+    }
+
+    void AbrirModalLog(LogEstoque log)
+    {
+        logSelecionado = log;
+        showModalLog = true;
+    }
+
+    private void OnCnpjInput(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString() ?? "";
+        // Remove tudo que não é número
+        string apenasNumeros = new string(input.Where(char.IsDigit).ToArray());
+
+        if (apenasNumeros.Length > 14) apenasNumeros = apenasNumeros.Substring(0, 14);
+
+        
+        entradaCnpjFornecedor = apenasNumeros;
+        if (apenasNumeros.Length > 2) entradaCnpjFornecedor = entradaCnpjFornecedor.Insert(2, ".");
+        if (apenasNumeros.Length > 5) entradaCnpjFornecedor = entradaCnpjFornecedor.Insert(6, ".");
+        if (apenasNumeros.Length > 8) entradaCnpjFornecedor = entradaCnpjFornecedor.Insert(10, "/");
+        if (apenasNumeros.Length > 12) entradaCnpjFornecedor = entradaCnpjFornecedor.Insert(15, "-");
     }
 }

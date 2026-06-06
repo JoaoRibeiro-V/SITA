@@ -15,10 +15,6 @@
                 style="background-color:#3650a1; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold;">
             + Nova Matrícula
         </button>
-        <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-responsavel")'
-                style="background-color:#3650a1; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold;">
-            + Novo Responsável
-        </button>
         <input @bind="search" @bind:event="oninput" placeholder="Pesquisar aluno..."
                style="padding:8px; border-radius:5px; border:1px solid #ccc;" />
     </div>
@@ -1163,7 +1159,7 @@
         if (alunoSelecionado == null) return;
         ReceitasAluno = ReceitaController.GetAll()
             .Where(r => r.Aluno != null && r.Aluno.Id == alunoSelecionado.Id)
-            .OrderBy(r => r.DataVencimento).ToList();
+            .OrderBy(r => r.DataReferente).ToList();
         paginaAtual = 1;
     }
 
@@ -1183,7 +1179,7 @@
             {
                 "asc" => q.OrderBy(r => r.GetValorTotal()),
                 "desc" => q.OrderByDescending(r => r.GetValorTotal()),
-                _ => q.OrderBy(r => r.DataVencimento)
+                _ => q.OrderBy(r => r.DataReferente)
             };
             return q;
         }
