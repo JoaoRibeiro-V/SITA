@@ -17,24 +17,25 @@
     <div class="fin-header">
         <h1>Dashboard Financeiro</h1>
         <div style="display:flex; gap:10px; align-items:center;">
-            <button class="btn fw-bold" style="background:#3650a1; color:white; border:none; border-radius:8px; padding:10px 16px; cursor:pointer;"
+            <button class="btn fw-bold" style="background: linear-gradient(135deg, #3650a1 0%, #20335e 100%); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.95rem; cursor: pointer;color:white;"
                     @onclick="GerarRelatorioGeral">
                 @if (modoAtivo == Modo.Receitas && r_dataInicio.HasValue && r_dataFim.HasValue)
                 {
-                    <span>📄 Relatório (PDF) | @r_dataInicio?.ToString("dd/MM/yy") – @r_dataFim?.ToString("dd/MM/yy")</span>
+                    <span> Relatório | @r_dataInicio?.ToString("dd/MM/yy") – @r_dataFim?.ToString("dd/MM/yy")</span>
                 }
                 else if (modoAtivo == Modo.Despesas && d_dataInicio.HasValue && d_dataFim.HasValue)
                 {
-                    <span>📄 Relatório (PDF) | @d_dataInicio?.ToString("dd/MM/yy") – @d_dataFim?.ToString("dd/MM/yy")</span>
+                    <span> Relatório | @d_dataInicio?.ToString("dd/MM/yy") – @d_dataFim?.ToString("dd/MM/yy")</span>
                 }
                 else
                 {
-                    <span>📄 Relatório Geral (PDF)</span>
+                    <span> Relatório Geral </span>
                 }
             </button>
             @if (modoAtivo == Modo.Despesas)
             {
-                <button class="btn-nova-despesa" @onclick='() => Navigation.NavigateTo("/nova-despesa")'>
+                <button class="btn-nova-despesa" style="background: linear-gradient(135deg, #3650a1 0%, #20335e 100%); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.95rem; cursor: pointer;color:white;"
+                @onclick='() => Navigation.NavigateTo("/nova-despesa")'>
                     + Cadastrar Nova Despesa
                 </button>
             }

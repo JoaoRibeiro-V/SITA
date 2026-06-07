@@ -12,7 +12,7 @@
     <h1 style="color:#3650a1; font-weight:bold;">Alunos Matriculados</h1>
     <div style="display:flex; gap:10px;">
         <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-aluno")'
-                style="background-color:#3650a1; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold;">
+                style="background: linear-gradient(135deg, #3650a1 0%, #20335e 100%); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: 0.2s; color:white;">
             + Nova Matrícula
         </button>
         <input @bind="search" @bind:event="oninput" placeholder="Pesquisar aluno..."

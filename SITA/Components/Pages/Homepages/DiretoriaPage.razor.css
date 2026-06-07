@@ -227,3 +227,13 @@
 .fw-bold {
     font-weight: 700 !important;
 }
+/* Espaçamento mobile */
+@media (max-width: 768px) {
+    .mobile-gap {
+        row-gap: 15px;
+    }
+
+        .mobile-gap > div {
+            width: 100%;
+        }
+}
