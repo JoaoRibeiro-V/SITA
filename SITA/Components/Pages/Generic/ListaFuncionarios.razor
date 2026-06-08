@@ -4,17 +4,87 @@
 @using SITA.src.Util
 @inject NavigationManager Navigation
 
-<div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-    <h1 style="color: #3650a1; font-weight: bold;">Quadro de Colaboradores</h1>
-    <div style="display: flex; gap: 10px;">
-        <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-funcionario")'
-                style="background: linear-gradient(135deg, #3650a1 0%, #20335e 100%); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: 0.2s; color:white;">
+<div class="header-padrao-sita">
+    <h1>Quadro de Colaboradores</h1>
+
+    <div class="header-acoes-sita">
+        <button class="btn-cadastrar-sita" @onclick='() => Navigation.NavigateTo("/cadastro-funcionario")'>
             + Novo Funcionário
         </button>
-        <input @bind="search" @bind:event="oninput" placeholder="Pesquisar funcionário..."
-               style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
+
+        <input class="input-pesquisa-sita"
+               @bind="search"
+               @bind:event="oninput"
+               placeholder="Pesquisar funcionário..." />
     </div>
 </div>
+<style>
+    /* Header padrão SITA */
+    .header-padrao-sita {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+    }
+
+        /* Título padrão */
+        .header-padrao-sita h1 {
+            color: #3650a1;
+            font-weight: bold;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+    /* Área do botão e pesquisa */
+    .header-acoes-sita {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Botão padrão com tamanho fixo */
+    .btn-cadastrar-sita {
+        background: linear-gradient(135deg, #3650a1 0%, #20335e 100%);
+        border: none;
+        width: 190px;
+        height: 44px;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: 0.2s;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+        /* Hover do botão */
+        .btn-cadastrar-sita:hover {
+            opacity: 0.95;
+        }
+
+    /* Campo de pesquisa padrão */
+    .input-pesquisa-sita {
+        width: 180px;
+        height: 44px;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 0.95rem;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+        /* Foco do input */
+        .input-pesquisa-sita:focus {
+            border-color: #3650a1;
+        }
+
+</style>
 
 <section style="padding: 20px; width:100%">
     <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;">
