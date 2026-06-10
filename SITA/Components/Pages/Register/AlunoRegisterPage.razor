@@ -30,8 +30,8 @@
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <label class="fw-bold" style="color: #3650a1;">RA (gerado automaticamente):</label>
-            <input readonly class="form-control bg-light" @bind="novoAluno.RA" />
+            <label class="fw-bold" style="color: #3650a1;">RA:</label>
+            <input class="form-control bg-light" @bind="novoAluno.RA" />
         </div>
         <div class="col-md-4">
             <label class="fw-bold" style="color: #3650a1;">Religião:</label>
@@ -469,7 +469,7 @@
 
     protected override void OnInitialized()
     {
-        novoAluno.GerarRA();
+       
         listaTurmas = TurmaController.GetAll();
         todosResponsaveis = ResponsavelController.GetAll();
 

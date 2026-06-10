@@ -14,52 +14,55 @@
 		</div>
 	</div>
 
-	<!-- Seção de KPIs Principais -->
-	<div class="row mb-4 mobile-gap ">
-		<div class="col-md-3">
-			<div class="card-kpi shadow-sm border-start border-primary border-4">
-				<div class="icon-box" style="background: #e3f2fd;"><i class="oi oi-graph"></i></div>
-				<div>
-					<h6 class="text-muted mb-1">Mensalidades do Mês</h6>
-					<h4 class="fw-bold mb-0" style="color: #3650a1;">R$ @Movimentacoes[Key].Receita.Mensalidades.ToString("N2")</h4>
-					<small class="text-muted">@Movimentacoes[Key].Receita.qtMensalidades alunos - @Movimentacoes[Key].Receita.qtMensalidadesPagas pagas</small>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3">
-			<div class="card-kpi shadow-sm border-start border-success border-4">
-				<div class="icon-box" style="background: #e8f5e9;"><i class="oi oi-dollar"></i></div>
-				<div>
-					<h6 class="text-muted mb-1">Receitas Recebidas</h6>
-					<h4 class="fw-bold mb-0" style="color: #2e7d32;">R$ @Movimentacoes[Key].Receita.Recebido.ToString("N2")<small style="font-size: x-small"> / @Movimentacoes[Key].Receita.Total.ToString("N2")</small></h4>
-					<small class="text-muted">@Movimentacoes[Key].Receita.qtRecebido pagas</small>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3">
-			<div class="card-kpi shadow-sm border-start border-danger border-4">
-				<div class="icon-box" style="background: #ffebee;"><i class="oi oi-cart"></i></div>
-				<div>
-					<h6 class="text-muted mb-1">Despesas Pagas</h6>
-					<h4 class="fw-bold mb-0" style="color: #c62828;">R$ @Movimentacoes[Key].Despesa.Pagas.ToString("N2")<small style="font-size: x-small"> / @Movimentacoes[Key].Despesa.Total.ToString("N2")</small></h4>
-					<small class="text-muted">@Movimentacoes[Key].Despesa.qtPagas lançamentos - @Movimentacoes[Key].Despesa.qtPendentes pendentes</small>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3">
-			<div class="card-kpi shadow-sm border-start border-info border-4">
-				<div class="icon-box" style="background: @(SaldoLiquidoTotal >= 0 ? "#e0f7fa" : "#ffebee");"><i class="oi oi-badge"></i></div>
-				<div>
-					<h6 class="text-muted mb-1">Caixa</h6>
-					<h4 class="fw-bold mb-0" style="color: @(SaldoLiquidoTotal >= 0 ? "#00838f" : "#c62828");">
-						R$ @SaldoLiquidoTotal.ToString("N2")
-					</h4>
-					<small class="text-muted">Receitas - Despesas</small>
-				</div>
+	<div class="row mb-4 mobile-gap">
+	
+	<div class="col-md-3 mb-3 mb-md-0">
+		<div class="card-kpi shadow-sm border-start border-primary border-4 h-100 d-flex align-items-center p-3">
+			<div class="icon-box me-3" style="background: #e3f2fd; flex-shrink: 0;"><i class="oi oi-graph"></i></div>
+			<div>
+				<h6 class="text-muted mb-1" style="font-size: 0.85rem;">Mensalidades do Mês</h6>
+				<h4 class="fw-bold mb-0" style="color: #3650a1; font-size: 1.3rem;">R$ @Movimentacoes[Key].Receita.Mensalidades.ToString("N2")</h4>
+				<small class="text-muted" style="font-size: 0.75rem;">@Movimentacoes[Key].Receita.qtMensalidades alunos - @Movimentacoes[Key].Receita.qtMensalidadesPagas pagas</small>
 			</div>
 		</div>
 	</div>
 
+	<div class="col-md-3 mb-3 mb-md-0">
+		<div class="card-kpi shadow-sm border-start border-success border-4 h-100 d-flex align-items-center p-3">
+			<div class="icon-box me-3" style="background: #e8f5e9; flex-shrink: 0;"><i class="oi oi-dollar"></i></div>
+			<div>
+				<h6 class="text-muted mb-1" style="font-size: 0.85rem;">Receitas Recebidas</h6>
+				<h4 class="fw-bold mb-0" style="color: #2e7d32; font-size: 1.3rem;">R$ @Movimentacoes[Key].Receita.Recebido.ToString("N2")<small style="font-size: x-small"> / @Movimentacoes[Key].Receita.Total.ToString("N2")</small></h4>
+				<small class="text-muted" style="font-size: 0.75rem;">@Movimentacoes[Key].Receita.qtRecebido pagas</small>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-3 mb-3 mb-md-0">
+		<div class="card-kpi shadow-sm border-start border-danger border-4 h-100 d-flex align-items-center p-3">
+			<div class="icon-box me-3" style="background: #ffebee; flex-shrink: 0;"><i class="oi oi-cart"></i></div>
+			<div>
+				<h6 class="text-muted mb-1" style="font-size: 0.85rem;">Despesas Pagas</h6>
+				<h4 class="fw-bold mb-0" style="color: #c62828; font-size: 1.3rem;">R$ @Movimentacoes[Key].Despesa.Pagas.ToString("N2")<small style="font-size: x-small"> / @Movimentacoes[Key].Despesa.Total.ToString("N2")</small></h4>
+				<small class="text-muted" style="font-size: 0.75rem;">@Movimentacoes[Key].Despesa.qtPagas lançamentos - @Movimentacoes[Key].Despesa.qtPendentes pendentes</small>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-3 mb-3 mb-md-0">
+		<div class="card-kpi shadow-sm border-start border-info border-4 h-100 d-flex align-items-center p-3">
+			<div class="icon-box me-3" style="background: @(SaldoLiquidoTotal >= 0 ? "#e0f7fa" : "#ffebee"); flex-shrink: 0;"><i class="oi oi-badge"></i></div>
+			<div>
+				<h6 class="text-muted mb-1" style="font-size: 0.85rem;">Caixa</h6>
+				<h4 class="fw-bold mb-0" style="color: @(SaldoLiquidoTotal >= 0 ? "#00838f" : "#c62828"); font-size: 1.3rem;">
+					R$ @SaldoLiquidoTotal.ToString("N2")
+				</h4>
+				<small class="text-muted" style="font-size: 0.75rem;">Receitas - Despesas</small>
+			</div>
+		</div>
+	</div>
+
+</div>
 	<!-- Linha de Cards Secundários -->
 	<div class="row mb-4 align-items-stretch">
 		<div class="col-md-4 d-flex">

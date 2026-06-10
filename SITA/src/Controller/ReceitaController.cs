@@ -41,7 +41,7 @@ namespace SITA.src.Controller
             if (fimMatricula <= DateTime.Now)
                 throw new ArgumentOutOfRangeException(nameof(fimMatricula), "A data de término da matrícula deve ser futura.");
             DateTime dataAtual = DateTime.Now;
-            int qtdMeses = ((fimMatricula.Year - dataAtual.Year) * 12) + fimMatricula.Month - dataAtual.Month;
+            int qtdMeses = ((fimMatricula.Year - dataAtual.Year) * 12) + fimMatricula.Month - dataAtual.Month + 1;
             for (int i = 0; i < qtdMeses; i++)
             {
                 DateTime dataVencimento = dataAtual.AddMonths(i);

@@ -6,19 +6,19 @@
 @inject NavigationManager Navigation
 
 <div class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-    <h1 style="color: #3650a1; font-weight: bold;">Funcionários Cadastrados</h1>
+    <h1 style="color: #3650a1; font-weight: bold;">Colaboradores Cadastrados</h1>
 
     <div style="display: flex; gap: 10px;">
 
         <button class="btn-cadastrar"
                 @onclick='() => Navigation.NavigateTo("/cadastro-funcionario")'
                 style="background-color: #3650a1; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
-            + Novo Funcionário
+            + Novo Colaborador
         </button>
 
         <input @bind="search"
                @bind:event="oninput"
-               placeholder="Pesquisar funcionário..."
+               placeholder="Pesquisar colaborador..."
                style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;" />
     </div>
 </div>
@@ -94,7 +94,7 @@
             <div class="abas-modal">
                 <button class="@(abaAtiva == "ficha" ? "aba-ativa" : "")"
                         @onclick='() => abaAtiva = "ficha"'>
-                    Ficha do Funcionário
+                    Ficha do Colaborador
                 </button>
 
                 <button class="@(abaAtiva == "pagamento" ? "aba-ativa" : "")"
@@ -110,7 +110,7 @@
                     <div class="ficha-container">
 
                         <div class="ficha-titulo">
-                            <h2>FICHA DO FUNCIONÁRIO</h2>
+                            <h2>FICHA DO COLABORADOR</h2>
                         </div>
 
                         <div class="linha">
@@ -755,7 +755,7 @@
         var salario = new Salario
         {
             Funcionario = funcionarioSelecionado,
-            MesReferencia = mesReferencia.ToString("MM/yyyy"),
+            DataReferente = mesReferencia,
             Valor = (float)CalcularTotal(),
             DataEmissao = DateTime.Now
         };

@@ -20,7 +20,7 @@ namespace SITA.src.Controller
         // Registra um novo aluno no armazenamento
         public static void Register(Aluno obj)
         {
-            obj.GerarRA(); // Gera o RA do aluno antes de registrá-lo
+            
             ClassStorage.AddData(obj.Id.ToString(), obj);
         }
 

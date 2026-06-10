@@ -35,10 +35,5 @@ namespace SITA.src.Model
             if (DataNascimento.Value.Date > hoje.AddYears(-idade)) idade--;
             return idade;
         }
-
-        public void GerarRA()
-        {
-            RA = "201" + (AlunoController.GetAll().Count + 1).ToString("D4");
-        }
     }
 }
