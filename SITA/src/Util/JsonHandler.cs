@@ -208,7 +208,8 @@ public static class JsonHandler
                 };
 
                 aluno.Idade = aluno.CalcularIdade();
-                
+                aluno.RA = (Random.Shared.Next(1, 9999)).ToString();
+
 
                 AlunoController.Register(aluno);
 
@@ -224,7 +225,7 @@ public static class JsonHandler
                 decimal taxaAleatoria = 0;
                 taxaAleatoria += new Random().Next(100, 500);
 
-                ReceitaController.GerarTaxaMatricula(aluno, responsavel, taxaAleatoria);
+                ReceitaController.GerarParcelaInicial(aluno, responsavel, taxaAleatoria);
                 var matriculas = ReceitaController.GetAll()
                     .Where(r => r.Aluno.Id == aluno.Id && r.Type == Receita.ReceitaTipo.Mensalidade)
                     .ToList().FirstOrDefault();

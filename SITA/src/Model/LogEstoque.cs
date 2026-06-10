@@ -17,7 +17,6 @@ namespace SITA.src.Model
         public string? OperadorNome { get; set; }
         public string? OperadorCpf { get; set; }
         public string? Fornecedor { get; set; } // Entrada
-        public string? ResponsavelNome { get; set; } // Venda
         public string? AlunoNome { get; set; } // Venda
         public string? Observacao { get; set; }
         public LogEstoque()

@@ -85,7 +85,7 @@ namespace SITA.src.Controller
             });
         }
 
-        public static void VendaEstoque(ItemEstoque item, int quantidade, Aluno? aluno, Responsavel? responsavel)
+        public static void VendaEstoque(ItemEstoque item, int quantidade, Aluno? aluno)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (quantidade <= 0) throw new ArgumentException("Quantidade deve ser maior que zero.");
@@ -99,7 +99,6 @@ namespace SITA.src.Controller
                 Descricao = $"Venda de {quantidade}x {item.Nome}",
                 Valor = item.PrecoVenda * quantidade,
                 Aluno = aluno,
-                Responsavel = responsavel,
                 Origem = "Estoque",
                 DataVencimento = DateTime.Now.AddDays(7),
                 DataReferente = DateTime.Now,
@@ -119,7 +118,6 @@ namespace SITA.src.Controller
                 Quantidade = quantidade,
                 ValorUnitario = item.PrecoVenda,
                 ValorTotal = item.PrecoVenda * quantidade,
-                ResponsavelNome = responsavel?.Nome,
                 AlunoNome = aluno?.Nome,
                 OperadorNome = operador?.Nome,
                 OperadorCpf = operador?.CPF,

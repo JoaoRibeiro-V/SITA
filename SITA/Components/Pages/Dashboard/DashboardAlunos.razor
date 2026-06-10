@@ -104,7 +104,14 @@
                             </div>
                             <div class="campo campo-terco">
                                 <label>Religião:</label>
-                                <input @bind="Religiao" @bind:event="oninput" disabled="@(!modoEdicao)" />
+                                <select class="form-select" @bind="Religiao" disabled="@(!modoEdicao)">
+                                    <option value="Católica">Católica</option>
+                                    <option value="Evangélica">Evangélica</option>
+                                    <option value="Espírita">Espírita</option>
+                                    <option value="Umbanda / Candomblé">Umbanda / Candomblé</option>
+                                    <option value="Sem religião">Sem religião</option>
+                                    <option value="Prefiro não informar">Prefiro não informar</option>
+                                </select>
                             </div>
                             <div class="campo campo-terco">
                                 <label>Turma:</label>

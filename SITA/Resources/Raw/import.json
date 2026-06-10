@@ -41,34 +41,53 @@
         "turno": "Manhã"
     },
     "responsaveis": [
-        {
-            "nome": "Fulano de Tal",
-            "cpf": "00000000000",
-            "email": "fulano@email.com",
-            "senha": "responsavel123",
-            "telefone": "999999999",
-            "endereco": "Rua A, 123",
-            "alunos": [
-                {
-                    "nome": "Fulaninho",
-                    "dataNascimento": "2015-05-01",
-                    "religiao": "Católico",
-                    "nomePediatra": "Dr. Ciclano",
-                    "orientacoesEmergencia": "Nenhuma",
-                    "alergias": [ "Leite" ],
-                    "condicoesEspeciais": []
-                },
-                {
-                    "nome": "Fulaninha",
-                    "dataNascimento": "2017-03-10",
-                    "religiao": "Católico",
-                    "nomePediatra": "Dra. Ciclana",
-                    "orientacoesEmergencia": "Asma",
-                    "alergias": [],
-                    "condicoesEspeciais": [ "Asma" ]
-                }
-            ]
-        }
+      {
+        "nome": "Ricardo da Silva",
+        "cpf": "00000000001",
+        "email": "ricardosilva@email.com",
+        "senha": "responsavel123",
+        "telefone": "999999999",
+        "endereco": "Rua A, 123",
+        "alunos": [
+          {
+            "nome": "Davi da Silva",
+            "dataNascimento": "2021-05-01",
+            "religiao": "Católica",
+            "nomePediatra": "Dr. Eduardo",
+            "orientacoesEmergencia": "Nenhuma",
+            "alergias": [ "Leite" ],
+            "condicoesEspeciais": []
+          },
+          {
+            "nome": "Mariana da Silva",
+            "dataNascimento": "2022-03-10",
+            "religiao": "Católica",
+            "nomePediatra": "Dra. Carol",
+            "orientacoesEmergencia": "Asma",
+            "alergias": [],
+            "condicoesEspeciais": [ "Asma" ]
+          }
+        ]
+      },
+      {
+        "nome": "Carlos Oliveira",
+        "cpf": "00000000002",
+        "email": "ricardosilva@email.com",
+        "senha": "responsavel123",
+        "telefone": "999999998",
+        "endereco": "Rua B, 321",
+        "alunos": [
+          {
+            "nome": "João Vitor Oliveira",
+            "dataNascimento": "2022-02-18",
+            "religiao": "Católica",
+            "nomePediatra": "Dr. Eduardo",
+            "orientacoesEmergencia": "Nenhuma",
+            "alergias": [ "Corante" ],
+            "condicoesEspeciais": []
+          }
+        ]
+      }
     ],
     "mensalidade": 500.0,
     "fimMatricula": "2026-12-01",

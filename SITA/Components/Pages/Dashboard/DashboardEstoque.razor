@@ -409,13 +409,35 @@
             <label class="fw-semibold small text-secondary mb-1">Quantidade Solicitada:</label>
             <input type="number" class="form-control py-2 text-center fw-bold fs-5" @bind="qtdVenda" min="1" max="@(itemSelecionado?.Quantidade ?? 1)" style="border-radius: 8px; border: 1px solid #3650a1;" />
         </div>
-        <div class="mb-3">
-            <label class="fw-semibold small text-secondary mb-1">CPF do Responsável Financeiro:</label>
-            <input class="form-control py-2 fw-bold" value="@cpfVenda" @oninput="OnCpfVendaInput"
-                   placeholder="000.000.000-00" maxlength="14" style="border-radius: 8px;" />
-            @if (responsavelVenda != null)
+        <div class="mb-3 position-relative">
+            <label class="fw-semibold small text-secondary mb-1">Nome do Aluno:</label>
+            <input class="form-control py-2 fw-bold @(alunoVenda != null ? "border-success" : "")"
+                   value="@nomeAluno"
+                   @oninput="OnAlunoNomeInput"
+                   maxlength="50"
+                   style="border-radius: 8px;" />
+
+            @if (sugestoesAlunos.Any())
             {
-                <div class="mt-2 text-success small fw-bold">✔ Vinculado a: @responsavelVenda.Nome</div>
+                <div class="list-group position-absolute w-100" style="z-index: 1000;">
+                    @foreach (var a in sugestoesAlunos)
+                    {
+                        <button type="button"
+                                class="list-group-item list-group-item-action"
+                                @onclick="() => SelecionarAluno(a)">
+                            <strong>@a.Nome</strong>
+                            @if (a.Turma != null)
+                            {
+                                <br /><small class="text-muted">@a.Turma.Nome</small>
+                            }
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (alunoVenda != null)
+            {
+                <div class="mt-2 text-success small fw-bold">✔ Vinculado a: @alunoVenda.Nome</div>
             }
         </div>
         <div class="p-3 bg-light rounded-3 text-center border mb-3">
@@ -474,7 +496,6 @@
             {
                 <div class="p-3 mb-3" style="background: #f0f4ff; border-radius: 8px; border-left: 4px solid #3650a1;">
                     <h6 class="fw-bold mb-2" style="color:#3650a1;">Dados da Venda</h6>
-                    <p class="mb-1"><strong>Responsável:</strong> @(logSelecionado.ResponsavelNome ?? "—")</p>
                     <p class="mb-0"><strong>Aluno:</strong> @(logSelecionado.AlunoNome ?? "—")</p>
                 </div>
             }
@@ -511,7 +532,7 @@
     }
 </Modal>
 
-@code {
+    @code {
     private string abaAtiva = "estoque";
     private string entradaQuemPagou = "";
     private string entradaCnpjFornecedor = "";
@@ -534,8 +555,8 @@
 
     private bool showModalVenda = false;
     private int qtdVenda = 1;
-    private string cpfVenda = "";
-    private Responsavel? responsavelVenda = null;
+    private string nomeAluno = "";
+    private Aluno? alunoVenda = null;
 
     private bool showModalLog = false;
     private LogEstoque? logSelecionado = null;
@@ -544,6 +565,8 @@
     private string filtroTipoLog = "";
     private DateTime? dataInicioLog;
     private DateTime? dataFimLog;
+
+    private List<Aluno> sugestoesAlunos = new();
 
     IEnumerable<ItemEstoque> itensFiltrados =>
         (itens ?? new()).Where(i => i != null && (string.IsNullOrEmpty(search) ||
@@ -614,6 +637,26 @@
         showModalEntrada = true;
     }
 
+    void OnAlunoNomeInput(ChangeEventArgs e)
+    {
+        nomeAluno = e.Value?.ToString() ?? "";
+        alunoVenda = null;
+
+        sugestoesAlunos = nomeAluno.Length >= 2
+            ? AlunoController.GetAll()
+                .Where(a => a.Nome?.Contains(nomeAluno, StringComparison.OrdinalIgnoreCase) ?? false)
+                .Take(5)
+                .ToList()
+            : new();
+    }
+
+    void SelecionarAluno(Aluno a)
+    {
+        alunoVenda = a;
+        nomeAluno = a.Nome ?? "";
+        sugestoesAlunos.Clear();
+    }
+
     void ConfirmarEntrada()
     {
         if (itemSelecionado == null || qtdEntrada <= 0 || precoCustoEntrada <= 0)
@@ -639,20 +682,11 @@
     {
         itemSelecionado = item;
         qtdVenda = 1;
-        cpfVenda = "";
-        responsavelVenda = null;
+        nomeAluno = "";
+        alunoVenda = null;
         msgModalErro = "";
         showModalVenda = true;
-    }
-
-    void OnCpfVendaInput(ChangeEventArgs e)
-    {
-        var digits = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
-        if (digits.Length > 11) digits = digits[..11];
-        cpfVenda = Mask.FormatCpf(digits);
-        responsavelVenda = digits.Length == 11
-            ? ResponsavelController.Get("CPF", digits)
-            : null;
+        sugestoesAlunos = new();
     }
 
     void ConfirmarVenda()
@@ -664,10 +698,12 @@
         }
         try
         {
-            Aluno? aluno = responsavelVenda?.GetParentescos()?.FirstOrDefault()?.Aluno;
-            EstoqueController.VendaEstoque(itemSelecionado, qtdVenda, aluno, responsavelVenda);
-            itens = EstoqueController.GetAll() ?? new();
-            showModalVenda = false;
+            if(alunoVenda != null)
+            {
+                EstoqueController.VendaEstoque(itemSelecionado, qtdVenda, alunoVenda);
+                itens = EstoqueController.GetAll() ?? new();
+                showModalVenda = false;
+            }
         }
         catch (Exception ex)
         {

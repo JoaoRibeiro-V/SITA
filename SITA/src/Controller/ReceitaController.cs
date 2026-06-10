@@ -13,12 +13,12 @@ namespace SITA.src.Controller
         public static void Delete(Receita obj) => BaseController<Receita>.Delete(obj, f => f.Id.ToString());
         public static Receita? Get(string field, string? value) => BaseController<Receita>.Get(field, value);
         public static List<Receita> GetAll() => BaseController<Receita>.GetAll();
-        public static void GerarTaxaMatricula(Aluno aluno, Responsavel responsavel, decimal valorTaxa)
+        public static void GerarParcelaInicial(Aluno aluno, Responsavel responsavel, decimal valorTaxa)
         {
             if (aluno == null)
                 throw new ArgumentNullException(nameof(aluno));
             if (valorTaxa <= 0)
-                throw new ArgumentOutOfRangeException(nameof(valorTaxa), "O valor da taxa deve ser maior que zero.");
+                throw new ArgumentOutOfRangeException(nameof(valorTaxa), "O valor da parcela deve ser maior que zero.");
             Receita Receita = new Receita
             {
                 Id = Guid.NewGuid(),
@@ -27,7 +27,7 @@ namespace SITA.src.Controller
                 Valor = (float)valorTaxa,
                 DataVencimento = DateTime.Now.AddDays(30),
                 DataReferente = DateTime.Now.AddHours(-1),
-                Descricao = $"Taxa referente à matrícula do aluno(a) {aluno.Nome}"
+                Descricao = $"Parcela inicial referente à matrícula do aluno(a) {aluno.Nome}"
             };
             Receita.Type = Receita.ReceitaTipo.Taxas;
             Register(Receita);
