@@ -59,7 +59,7 @@ namespace SITA.src.Util
         {
             new RouteItem { Name = "Aluno", Path = Aluno },
             new RouteItem { Name = "Turma", Path = Turmas, MinAccessLevel = 2 },
-            new RouteItem { Name = "Funcionários", Path = ListaFuncionarios, MinAccessLevel = 3 },
+            new RouteItem { Name = "Colaboradores", Path = ListaFuncionarios, MinAccessLevel = 3 },
             new RouteItem { Name = "Estoque", Path = Estoque, MinAccessLevel = 2 },
             new RouteItem { Name = "Financeiro", Path = Financeiro, MinAccessLevel = 3 },
         };

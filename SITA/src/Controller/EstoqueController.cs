@@ -21,7 +21,7 @@ namespace SITA.src.Controller
                 ItemId = obj.Id,
                 NomeItem = obj.Nome,
                 Quantidade = 0,
-                ValorUnitario = obj.PrecoCusto,
+                ValorUnitario = (float)Math.Round((double)obj.PrecoCusto, 2),
                 ValorTotal = 0,
                 Fornecedor = obj.Fornecedor,
                 OperadorNome = operador?.Nome,
@@ -47,7 +47,7 @@ namespace SITA.src.Controller
             if (precoCusto <= 0) throw new ArgumentException("Preço de custo deve ser maior que zero.");
 
             item.Quantidade += quantidade;
-            item.PrecoCusto = precoCusto;
+            item.PrecoCusto = (float)Math.Round((double)precoCusto, 2);
             if (fornecedor != null) item.Fornecedor = fornecedor;
 
             var despesa = new Despesa
