@@ -12,21 +12,14 @@
     <h1 style="color:#3650a1; font-weight:bold;">Alunos Matriculados</h1>
     <div style="display:flex; gap:10px;">
         <button class="btn-cadastrar" @onclick='() => Navigation.NavigateTo("/cadastro-aluno")'
-<<<<<<< HEAD
-                style="background-color:#3650a1; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold;">
-=======
                 style="background: linear-gradient(135deg, #3650a1 0%, #20335e 100%); border: none; padding: 11px 24px; border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: 0.2s; color:white;">
->>>>>>> origin/front-carioca
             + Nova Matrícula
         </button>
         <input @bind="search" @bind:event="oninput" placeholder="Pesquisar aluno..."
                style="padding:8px; border-radius:5px; border:1px solid #ccc;" />
     </div>
 </div>
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/front-carioca
 
 <!--  TABELA  -->
 <section style="padding:20px; width:100%">
@@ -682,18 +675,18 @@
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div>
-                    <small class="text-muted">E-mail</small>
-                    <p style="font-weight:bold;margin:0;">@(responsavelModal.Email ?? "—")</p>
-                </div>
+                        <small class="text-muted">E-mail</small>
+                        <p style="font-weight:bold;margin:0;">@(responsavelModal.Email ?? "—")</p>
+                    </div>
                     <div>
                         <small class="text-muted">Data de Nascimento</small>
                         <p style="font-weight:bold;margin:0;">@(responsavelModal.DataNascimento?.ToString("dd/MM/yyyy") ?? "—")</p>
                     </div>
                 </div>
 
-                
-               
-                
+
+
+
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div>
                         <small class="text-muted">Nível de Acesso</small>
