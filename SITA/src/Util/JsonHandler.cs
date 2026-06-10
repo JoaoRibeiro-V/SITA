@@ -11,8 +11,42 @@ public static class JsonHandler
         public TurmaDTO? turma { get; set; }
         public List<ResponsavelDTO>? responsaveis { get; set; }
         public List<DespesaDTO>? despesas { get; set; }
+        public List<FuncionarioDTO>? funcionarios { get; set; }
+        public List<ItemEstoqueDTO>? estoque { get; set; }
         public decimal mensalidade { get; set; }
         public DateTime fimMatricula { get; set; }
+    }
+    private class ItemEstoqueDTO
+    {
+        public string nome { get; set; } = string.Empty;
+        public string? descricao { get; set; }
+        public string? categoria { get; set; }  // "Uniforme", "Material", "Outros"
+        public int quantidade { get; set; }
+        public float precoCusto { get; set; }   // preço de compra (gera despesa)
+        public float precoVenda { get; set; }   // preço de venda (gera receita)
+        public string? fornecedor { get; set; }
+        public DateTime dataCadastro { get; set; }
+    }
+    private class FuncionarioDTO
+    {
+        public string? nome { get; set; }
+        public string? cpf { get; set; }
+
+        public string? email { get; set; }
+        public string? senha { get; set; }
+
+        public string? cargo { get; set; }
+        public string? departamento { get; set; }
+
+        public DateTime dataAdmissao { get; set; }
+        public decimal salarioBase { get; set; }
+
+        public string? telefone { get; set; }
+        public string? chavePix { get; set; }
+
+        public bool ativo { get; set; }
+
+        public int accessLevel { get; set; }
     }
     private class DespesaDTO
     {
@@ -204,6 +238,46 @@ public static class JsonHandler
                 taxa.Status = randomPago ? Receita.FinanceStatus.Pago : Receita.FinanceStatus.Pendente;
                 taxa.DataPagamento = randomPago? DateTime.Now.AddDays(new Random().Next(2,10)) : null;
             }
+        }
+        foreach(ItemEstoqueDTO itemEstoqueDTO in root.estoque ?? new()) {
+            ItemEstoque item = new ItemEstoque
+            {
+                Nome = itemEstoqueDTO.nome,
+                Descricao = itemEstoqueDTO.descricao,
+                Categoria = itemEstoqueDTO.categoria,
+                Quantidade = itemEstoqueDTO.quantidade,
+                PrecoCusto = itemEstoqueDTO.precoCusto,
+                PrecoVenda = itemEstoqueDTO.precoVenda,
+                Fornecedor = itemEstoqueDTO.fornecedor
+            };
+            EstoqueController.Register(item);
+        }
+        foreach(FuncionarioDTO funcionarioDTO in root.funcionarios ?? new())
+        {
+            Funcionario newFuncionario = new Funcionario
+            {
+                Nome = funcionarioDTO.nome,
+                CPF = funcionarioDTO.cpf,
+                Email = funcionarioDTO.email,
+                Senha = funcionarioDTO.senha,
+
+                Cargo = funcionarioDTO.cargo,
+                Departamento = funcionarioDTO.departamento,
+
+                DataAdmissao = funcionarioDTO.dataAdmissao,
+                SalarioBase = funcionarioDTO.salarioBase,
+
+                Telefone = funcionarioDTO.telefone,
+                ChavePix = funcionarioDTO.chavePix,
+
+                Ativo = funcionarioDTO.ativo,
+                AccessType = new AccessType
+                {
+                    Level = funcionarioDTO.accessLevel
+                }
+            };
+            FuncionarioController.Register(newFuncionario);
+            SalarioController.GerarSalarioFuncionario(newFuncionario, newFuncionario.SalarioBase);
         }
     }
 }

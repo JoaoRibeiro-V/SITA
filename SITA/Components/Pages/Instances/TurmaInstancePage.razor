@@ -201,7 +201,7 @@
             if (todos != null)
             {
                 listaProfessoresDisponiveis = todos
-                    .Where(f => f.Ativo && cpfsProfessores.Contains(f.CPF))
+                    .Where(f => f.Ativo && f.AccessType.Level == 2)
                     .OrderBy(f => f.Nome)
                     .ToList();
             }
